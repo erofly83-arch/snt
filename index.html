@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ФинАнализ · Расчётный счёт</title>
+<style>
+:root{
+  --bg:#0f1117;--s1:#1a1d2e;--s2:#222539;--s3:#2a2f4a;
+  --brd:#2e3354;--acc:#6c63ff;--acc2:#00d4aa;
+  --inc:#00c896;--exp:#ff5e6c;
+  --tx:#e8eaf6;--tx2:#9ba3c7;--tx3:#6b72a0;
+  --r:14px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;}
+header{background:var(--s1);border-bottom:1px solid var(--brd);padding:14px 24px;display:flex;align-items:center;gap:12px;}
+.logo{width:38px;height:38px;background:linear-gradient(135deg,var(--acc),var(--acc2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+header h1{font-size:1.15rem;font-weight:700;}
+header h1 span{font-size:.78rem;color:var(--tx3);font-weight:400;}
+.hdr-r{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.btn{padding:7px 16px;border:none;border-radius:50px;font-size:.81rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-a{background:var(--acc);color:#fff;}.btn-a:hover{background:#8b6bff;}
+.btn-g{background:linear-gradient(135deg,var(--acc2),#00b899);color:#0f1117;}.btn-g:hover{box-shadow:0 4px 14px rgba(0,212,170,.3);}
+.btn-gh{background:var(--s3);border:1px solid var(--brd);color:var(--tx2);}.btn-gh:hover{border-color:var(--acc);color:var(--tx);}
+.btn-sm{padding:5px 11px;font-size:.75rem;}
+.btn-d{background:rgba(255,94,108,.15);color:var(--exp);border:1px solid rgba(255,94,108,.3);}.btn-d:hover{background:rgba(255,94,108,.28);}
+main{padding:20px 24px;max-width:1660px;margin:0 auto;}
+.upzone{border:2px dashed var(--brd);border-radius:var(--r);padding:50px 36px;text-align:center;background:var(--s1);cursor:pointer;transition:all .3s;margin-bottom:20px;}
+.upzone:hover,.upzone.dv{border-color:var(--acc);background:#1e2038;}
+.upzone h2{font-size:1.15rem;margin-bottom:7px;}
+.upzone p{color:var(--tx2);font-size:.84rem;}
+#fileInput{display:none;}
+.loading{display:none;text-align:center;padding:36px;}
+.spin{width:44px;height:44px;border:4px solid var(--brd);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#dash{display:none;}
+.cbar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;background:var(--s1);padding:11px 16px;border-radius:var(--r);border:1px solid var(--brd);margin-bottom:16px;}
+.cbar label{font-size:.8rem;color:var(--tx2);}
+.cbar input[type=date]{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);color:var(--tx);padding:5px 10px;font-size:.81rem;}
+.cbar input[type=date]:focus{outline:none;border-color:var(--acc);}
+#pInfo{font-size:.76rem;color:var(--tx3);}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px;margin-bottom:16px;}
+.kc{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.ki::before{background:linear-gradient(90deg,#00c896,#00e5b0);}
+.ke::before{background:linear-gradient(90deg,#ff5e6c,#ff8a5e);}
+.kb::before{background:linear-gradient(90deg,var(--acc),var(--acc2));}
+.kn::before{background:linear-gradient(90deg,#ffd700,#ffaa00);}
+.kl{font-size:.7rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.kv{font-size:1.55rem;font-weight:700;letter-spacing:-.5px;}
+.ki .kv{color:var(--inc);}.ke .kv{color:var(--exp);}.kn .kv{color:#ffd700;}
+.ks{font-size:.72rem;color:var(--tx3);margin-top:3px;}
+.tabs{display:flex;gap:3px;background:var(--s1);padding:5px;border-radius:var(--r);border:1px solid var(--brd);width:fit-content;margin-bottom:16px;flex-wrap:wrap;}
+.tab{padding:7px 16px;border-radius:9px;cursor:pointer;font-size:.84rem;font-weight:500;color:var(--tx2);border:none;background:none;transition:all .2s;}
+.tab.active{background:var(--s3);color:var(--tx);}
+.tab:hover:not(.active){color:var(--tx);}
+.tc{display:none;}.tc.active{display:block;}
+.sg{display:grid;grid-template-columns:260px 1fr;gap:14px;}
+.cp{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;}
+.cph{padding:11px 14px;border-bottom:1px solid var(--brd);font-size:.76rem;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;}
+.cl{overflow-y:auto;max-height:480px;}
+.ci{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #1e2238;cursor:pointer;transition:background .12s;}
+.ci:hover,.ci.act{background:var(--s3);}
+.cd{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.cn{font-size:.81rem;flex:1;}
+.cb{font-size:.72rem;color:var(--tx3);background:var(--s3);padding:2px 6px;border-radius:20px;font-weight:600;}
+.ca{font-size:.77rem;font-weight:700;text-align:right;min-width:65px;}
+.tw{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;}
+.tb{display:flex;align-items:center;gap:9px;padding:11px 14px;border-bottom:1px solid var(--brd);}
+.sb{flex:1;background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);color:var(--tx);padding:6px 11px;font-size:.82rem;}
+.sb:focus{outline:none;border-color:var(--acc);}
+.rc{font-size:.74rem;color:var(--tx3);white-space:nowrap;}
+.ts{overflow-x:auto;max-height:480px;overflow-y:auto;}
+table{width:100%;border-collapse:collapse;font-size:.79rem;}
+thead th{background:var(--s2);color:var(--tx2);font-weight:600;padding:9px 11px;text-align:left;position:sticky;top:0;z-index:2;border-bottom:1px solid var(--brd);cursor:pointer;user-select:none;white-space:nowrap;}
+thead th:hover{color:var(--tx);}
+thead th.sorted{color:var(--acc);}
+.sa{margin-left:2px;opacity:.4;font-size:.7rem;}
+thead th.sorted .sa{opacity:1;}
+tbody tr{border-bottom:1px solid #1a1d2e;transition:background .1s;}
+tbody tr:hover{background:var(--s2);}
+tbody td{padding:8px 11px;vertical-align:middle;}
+.dd{color:var(--tx2);white-space:nowrap;font-size:.77rem;}
+.da{font-weight:700;white-space:nowrap;}
+.da.inc{color:var(--inc);}.da.exp{color:var(--exp);}
+.dp{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ddsc{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx2);}
+.spb{font-size:.64rem;background:rgba(108,99,255,.2);color:var(--acc);padding:1px 4px;border-radius:4px;margin-left:3px;}
+.csel{background:var(--s2);border:1px solid var(--brd);border-radius:5px;color:var(--tx);padding:3px 5px;font-size:.72rem;cursor:pointer;max-width:130px;}
+.csel:focus{outline:none;border-color:var(--acc);}
+.spbtn{background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.35);color:var(--acc);border-radius:5px;padding:2px 7px;font-size:.7rem;cursor:pointer;white-space:nowrap;}
+.spbtn:hover{background:rgba(108,99,255,.28);}
+.pgn{display:flex;align-items:center;gap:4px;padding:9px 14px;border-top:1px solid var(--brd);justify-content:center;flex-wrap:wrap;}
+.pb{padding:4px 9px;background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);color:var(--tx2);font-size:.77rem;cursor:pointer;transition:all .14s;}
+.pb:hover:not(:disabled),.pb.act{background:var(--acc);border-color:var(--acc);color:#fff;}
+.pb:disabled{opacity:.3;cursor:default;}
+.pi{font-size:.77rem;color:var(--tx3);padding:0 4px;}
+.og{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.oc{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:18px;}
+.oc h3{font-size:.88rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.sr{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.sbw{flex:1;height:4px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.sbb{height:100%;border-radius:3px;transition:width .5s;}
+.sn{font-size:.79rem;min-width:140px;}
+.sa2{font-size:.76rem;font-weight:700;min-width:78px;text-align:right;}
+.sp{font-size:.7rem;color:var(--tx3);min-width:34px;text-align:right;}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.cc{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:16px;}
+.cc h3{font-size:.74rem;color:var(--tx2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:11px;}
+canvas{max-height:230px;}
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.rules-col h4{font-size:.82rem;font-weight:700;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--brd);}
+.ri{background:var(--s2);border-radius:var(--rs);padding:9px 13px;margin-bottom:7px;}
+.ri strong{font-size:.83rem;}
+.ri p{font-size:.77rem;color:var(--tx2);margin-top:3px;line-height:1.45;}
+.arp{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:20px;margin-bottom:16px;}
+.arp h3{font-size:.9rem;font-weight:700;margin-bottom:14px;}
+.ar-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:14px;}
+.ar-form label{font-size:.76rem;color:var(--tx3);display:block;margin-bottom:4px;}
+.ar-form input,.ar-form select{width:100%;background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);color:var(--tx);padding:7px 11px;font-size:.82rem;}
+.ar-form input:focus,.ar-form select:focus{outline:none;border-color:var(--acc);}
+.ar-table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:8px;}
+.ar-table th{background:var(--s2);color:var(--tx2);font-weight:600;padding:8px 11px;text-align:left;border-bottom:1px solid var(--brd);}
+.ar-table td{padding:8px 11px;border-bottom:1px solid #1e2238;vertical-align:middle;}
+.ar-table tr:hover td{background:var(--s2);}
+.conflict-badge{font-size:.7rem;background:rgba(255,94,108,.2);color:var(--exp);padding:2px 7px;border-radius:4px;margin-left:6px;}
+.mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.76);z-index:1000;align-items:center;justify-content:center;}
+.mov.open{display:flex;}
+.modal{background:var(--s1);border:1px solid var(--brd);border-radius:var(--r);padding:22px;max-width:580px;width:92%;max-height:85vh;overflow-y:auto;}
+.modal h2{font-size:.98rem;margin-bottom:12px;}
+.mc{float:right;background:none;border:none;color:var(--tx2);font-size:1.2rem;cursor:pointer;}
+.split-row{display:flex;gap:8px;align-items:center;background:var(--s2);padding:9px 11px;border-radius:var(--rs);margin-bottom:7px;}
+.split-row input[type=number]{background:var(--s3);border:1px solid var(--brd);border-radius:5px;color:var(--tx);padding:5px 8px;font-size:.82rem;width:115px;}
+.split-row input[type=number]:focus{outline:none;border-color:var(--acc);}
+.split-row select{background:var(--s3);border:1px solid var(--brd);border-radius:5px;color:var(--tx);padding:5px 8px;font-size:.82rem;flex:1;}
+.sti{font-size:.79rem;color:var(--tx2);margin-bottom:11px;padding:7px 11px;background:var(--s2);border-radius:var(--rs);}
+.sti.err .rest{color:var(--exp);}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--s3);border:1px solid var(--brd);border-radius:var(--rs);padding:10px 16px;font-size:.82rem;color:var(--tx);z-index:2000;display:none;box-shadow:0 4px 22px rgba(0,0,0,.4);}
+.toast.show{display:block;animation:fi .3s;}
+@keyframes fi{from{opacity:0;transform:translateY(5px);}to{opacity:1;}}
+.nodata{text-align:center;padding:44px;color:var(--tx3);font-size:.86rem;}
+@media(max-width:860px){main{padding:10px;}.sg{grid-template-columns:1fr;}.cg{grid-template-columns:1fr;}.og{grid-template-columns:1fr;}.ar-form{grid-template-columns:1fr;}.rules-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">📊</div>
+  <div><h1>ФинАнализ <span>· Расчётный счёт</span></h1></div>
+  <div class="hdr-r">
+    <button class="btn btn-gh btn-sm" onclick="sw('rules')">📋 Категории</button>
+    <button class="btn btn-g btn-sm" id="expAll" style="display:none;" onclick="exportFull()">⬇ Полный XLSX</button>
+  </div>
+</header>
+<main>
+<div class="upzone" id="upz"
+  ondragover="event.preventDefault();this.classList.add('dv')"
+  ondragleave="this.classList.remove('dv')"
+  ondrop="dropF(event)"
+  onclick="document.getElementById('fileInput').click()">
+  <div style="font-size:46px;margin-bottom:12px;">📂</div>
+  <h2>Загрузите выписку расчётного счёта</h2>
+  <p>Формат Сбербанк .xlsx · Перетащите или нажмите</p>
+  <div class="btn btn-a" style="display:inline-block;margin-top:16px;">Выбрать файл</div>
+  <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="loadF(this.files[0])"/>
+</div>
+<div class="loading" id="ld"><div class="spin"></div><p style="color:var(--tx2)">Обрабатываем…</p></div>
+
+<div id="dash">
+  <div class="cbar">
+    <label>Период:</label>
+    <input type="date" id="dFrom"/><span style="color:var(--tx3)">—</span><input type="date" id="dTo"/>
+    <button class="btn btn-a btn-sm" onclick="applyF()">Применить</button>
+    <button class="btn btn-gh btn-sm" onclick="resetF()">Сбросить</button>
+    <div style="flex:1"></div>
+    <span id="pInfo"></span>
+  </div>
+  <div class="kpi">
+    <div class="kc ki"><div class="kl">Приходы</div><div class="kv" id="kI">—</div><div class="ks" id="kIn"></div></div>
+    <div class="kc ke"><div class="kl">Расходы</div><div class="kv" id="kE">—</div><div class="ks" id="kEn"></div></div>
+    <div class="kc kb" style="border-top:none;"><div style="position:absolute;top:0;left:0;right:0;height:3px;" id="bBar"></div><div class="kl">Баланс</div><div class="kv" id="kB">—</div><div class="ks" id="kBs"></div></div>
+    <div class="kc kn"><div class="kl">Всего операций</div><div class="kv" id="kC">—</div><div class="ks" id="kSp"></div></div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="overview" onclick="sw('overview')">🏠 Обзор</button>
+    <button class="tab" data-tab="income" onclick="sw('income')">📈 Приходы</button>
+    <button class="tab" data-tab="expense" onclick="sw('expense')">📉 Расходы</button>
+    <button class="tab" data-tab="all" onclick="sw('all')">📋 Все операции</button>
+    <button class="tab" data-tab="charts" onclick="sw('charts')">📊 Графики</button>
+    <button class="tab" data-tab="accrules" onclick="sw('accrules')">⚙️ Правила счётов/ИНН</button>
+    <button class="tab" data-tab="rules" onclick="sw('rules')">📋 Категории</button>
+  </div>
+
+  <div class="tc active" id="tc-overview">
+    <div class="og">
+      <div class="oc"><h3><span style="width:8px;height:8px;border-radius:50%;background:var(--inc);display:inline-block;"></span>Структура приходов</h3><div id="ovI"></div></div>
+      <div class="oc"><h3><span style="width:8px;height:8px;border-radius:50%;background:var(--exp);display:inline-block;"></span>Структура расходов</h3><div id="ovE"></div></div>
+    </div>
+  </div>
+
+  <div class="tc" id="tc-income">
+    <div class="sg">
+      <div class="cp"><div class="cph">Категории доходов</div><div class="cl" id="iCL"></div></div>
+      <div class="tw">
+        <div class="tb"><input class="sb" placeholder="🔍 Поиск…" id="srI" oninput="srch('income')"/><span class="rc" id="rcI"></span><button class="btn btn-g btn-sm" onclick="expX('income')">⬇ XLSX</button></div>
+        <div class="ts"><table><thead><tr>
+          <th onclick="srt('income',0)">Дата<span class="sa">↕</span></th>
+          <th onclick="srt('income',1)">Сумма<span class="sa">↕</span></th>
+          <th onclick="srt('income',2)">Категория<span class="sa">↕</span></th>
+          <th onclick="srt('income',3)">Контрагент<span class="sa">↕</span></th>
+          <th>Назначение</th><th>✂️</th>
+        </tr></thead><tbody id="iBody"></tbody></table></div>
+        <div class="pgn" id="iPgn"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" id="tc-expense">
+    <div class="sg">
+      <div class="cp"><div class="cph">Категории расходов</div><div class="cl" id="eCL"></div></div>
+      <div class="tw">
+        <div class="tb"><input class="sb" placeholder="🔍 Поиск…" id="srE" oninput="srch('expense')"/><span class="rc" id="rcE"></span><button class="btn btn-g btn-sm" onclick="expX('expense')">⬇ XLSX</button></div>
+        <div class="ts"><table><thead><tr>
+          <th onclick="srt('expense',0)">Дата<span class="sa">↕</span></th>
+          <th onclick="srt('expense',1)">Сумма<span class="sa">↕</span></th>
+          <th onclick="srt('expense',2)">Категория<span class="sa">↕</span></th>
+          <th onclick="srt('expense',3)">Контрагент<span class="sa">↕</span></th>
+          <th>Назначение</th><th></th>
+        </tr></thead><tbody id="eBody"></tbody></table></div>
+        <div class="pgn" id="ePgn"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" id="tc-all">
+    <div class="tw">
+      <div class="tb"><input class="sb" placeholder="🔍 Поиск…" id="srA" oninput="srch('all')"/><span class="rc" id="rcA"></span><button class="btn btn-g btn-sm" onclick="expX('all')">⬇ XLSX</button></div>
+      <div class="ts"><table><thead><tr>
+        <th onclick="srt('all',0)">Дата<span class="sa">↕</span></th>
+        <th onclick="srt('all',1)">Тип<span class="sa">↕</span></th>
+        <th onclick="srt('all',2)">Сумма<span class="sa">↕</span></th>
+        <th onclick="srt('all',3)">Категория<span class="sa">↕</span></th>
+        <th onclick="srt('all',4)">Контрагент<span class="sa">↕</span></th>
+        <th>Назначение</th><th>✂️</th>
+      </tr></thead><tbody id="aBody"></tbody></table></div>
+      <div class="pgn" id="aPgn"></div>
+    </div>
+  </div>
+
+  <div class="tc" id="tc-charts">
+    <div class="cg">
+      <div class="cc"><h3>📅 Динамика по месяцам</h3><canvas id="chM"></canvas></div>
+      <div class="cc"><h3>🍕 Структура расходов</h3><canvas id="chEP"></canvas></div>
+      <div class="cc"><h3>🍕 Структура приходов</h3><canvas id="chIP"></canvas></div>
+      <div class="cc"><h3>📊 Топ категорий расходов</h3><canvas id="chTE"></canvas></div>
+    </div>
+  </div>
+
+  <div class="tc" id="tc-accrules">
+    <div class="arp">
+      <h3>📈 Правила счётов и ИНН — <span style="color:var(--inc)">Приходы</span></h3>
+      <div class="ar-form">
+        <div><label>Номер счёта или ИНН</label><input type="text" id="arValI" placeholder="40911… или ИНН 10/12 цифр"/></div>
+        <div><label>Тип</label><select id="arTypeI"><option value="account">Счёт (содержит)</option><option value="inn">ИНН</option></select></div>
+        <div><label>Категория</label><select id="arCatI"></select></div>
+        <button class="btn btn-a btn-sm" style="height:34px;align-self:end;" onclick="addAccRule('income')">+ Добавить</button>
+      </div>
+      <div id="arConflictI" style="display:none;margin-bottom:10px;"></div>
+      <table class="ar-table"><thead><tr><th>Значение</th><th>Тип</th><th>Категория</th><th>Конфликт</th><th></th></tr></thead><tbody id="arBodyI"></tbody></table>
+      <div style="margin-top:10px;"><button class="btn btn-a btn-sm" onclick="applyAccRules()">✓ Применить все и пересчитать</button></div>
+    </div>
+    <div class="arp">
+      <h3>📉 Правила счётов и ИНН — <span style="color:var(--exp)">Расходы</span></h3>
+      <div class="ar-form">
+        <div><label>Номер счёта или ИНН</label><input type="text" id="arValE" placeholder="40703… или ИНН 10/12 цифр"/></div>
+        <div><label>Тип</label><select id="arTypeE"><option value="account">Счёт (содержит)</option><option value="inn">ИНН</option></select></div>
+        <div><label>Категория</label><select id="arCatE"></select></div>
+        <button class="btn btn-a btn-sm" style="height:34px;align-self:end;" onclick="addAccRule('expense')">+ Добавить</button>
+      </div>
+      <div id="arConflictE" style="display:none;margin-bottom:10px;"></div>
+      <table class="ar-table"><thead><tr><th>Значение</th><th>Тип</th><th>Категория</th><th>Конфликт</th><th></th></tr></thead><tbody id="arBodyE"></tbody></table>
+      <div style="margin-top:10px;"><button class="btn btn-a btn-sm" onclick="applyAccRules()">✓ Применить все и пересчитать</button></div>
+    </div>
+  </div>
+
+  <div class="tc" id="tc-rules">
+    <div class="rules-grid">
+      <div class="rules-col"><h4 style="color:var(--inc)">📈 Приходы</h4><div id="rulesI"></div></div>
+      <div class="rules-col"><h4 style="color:var(--exp)">📉 Расходы</h4><div id="rulesE"></div></div>
+    </div>
+  </div>
+</div>
+</main>
+
+<!-- SPLIT MODAL -->
+<div class="mov" id="splitM" onclick="if(event.target===this)closeSplit()">
+  <div class="modal" style="max-width:600px;">
+    <button class="mc" onclick="closeSplit()">✕</button>
+    <h2>✂️ Разделить платёж</h2>
+    <p style="font-size:.8rem;color:var(--tx2);margin-bottom:12px;" id="spDesc"></p>
+    <div class="sti" id="spInfo">
+      Сумма: <strong id="spTot"></strong> &nbsp;·&nbsp; Распределено: <strong id="spAss"></strong> &nbsp;·&nbsp; Остаток: <strong class="rest" id="spRest"></strong>
+    </div>
+    <div id="spRows"></div>
+    <div style="display:flex;gap:7px;margin-top:11px;">
+      <button class="btn btn-gh btn-sm" onclick="addSpRow()">+ Строка</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-d btn-sm" onclick="closeSplit()">Отмена</button>
+      <button class="btn btn-a btn-sm" onclick="confirmSplit()">✓ Применить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+'use strict';
+
+/* ══════════════════ КАТЕГОРИИ ══════════════════ */
+const INCAT=[
+  {id:'electricity',name:'Электроэнергия',color:'#FFD700',
+   kw:['электроэнерг','электроснабжен','эл.энерг','э/энерг','эл/эн','эл.э','э/э','за электр','за свет','за э/','квт','кв.ч','киловатт','электроснаб','элект.','свет пред','свет тек','э.э','эл/','за осв'],
+   desc:'Оплата электроэнергии: эл.энергия, кВт, за свет, э/энергия и т.д.'},
+  {id:'membership',name:'Членские взносы',color:'#00C896',
+   kw:['членск','член взн','чл.взн','чл взн','чл/взн','взносы за 20','взнос 20','взнос за','членс','членский','взносы','взнос'],
+   exc:['целев','вступ','паевой','электроэнерг','эл.энерг','э/энерг','квт'],
+   desc:'Членские взносы от садоводов. Агрегатор (40907/40911) без признаков эл-энергии → членские.'},
+  {id:'target',name:'Целевые взносы',color:'#00D4AA',
+   kw:['целев','вступ','паевой'],
+   desc:'Целевые и вступительные взносы.'},
+  {id:'water',name:'Водоснабжение',color:'#4FC3F7',
+   kw:['вод','водоснаб','за воду','водопотребл','м.куб','м³'],
+   exc:['электр','взнос','налог'],
+   desc:'Платежи за воду.'},
+  {id:'other_income',name:'Прочие поступления',color:'#78909C',isDefault:true,
+   desc:'Все прочие поступления.'}
+];
+
+const EXCAT=[
+  /* ── Зарплата: включает задолженность и отпускные ── */
+  {id:'salary',name:'Зарплата / Подряд',color:'#FF7043',
+   kw:[
+     'зарплат','заработная плата','заработ','з/плата',
+     'договор подряда','оплата по договору подряда','выплата зараб','вознаграж',
+     'задолженность по заработной','задолж. по зарп','задолж по зарп','задолженность по зарп',
+     'задолженность по з/п','погашение задолженности по з','выплата з/п','з/п за',
+     'отпускн','выплата за отпуск','оплата отпуска','задолженность по отпускн',
+     'компенсация за неиспользованный отпуск','отпуск за','за отпуск'
+   ],
+   exc:['взыскан','исполнит'],
+   desc:'Зарплата, подряд, задолженность по з/п, отпускные, компенсация за неиспользованный отпуск.'},
+
+  /* ── Взыскания / исполнительное производство ── */
+  {id:'levy',name:'Взыскания / Исполн. производство',color:'#FF1744',
+   kw:[
+     'взыскан','взыск ','взыска ','по взысканию',
+     'исполнительн','исполнит. производ','по исполнительному листу','по исполн',
+     'судебн приказ','по решению суда','по судебному решению',
+     'алимент','приставы','фссп','арест счет','арест на счет',
+     'инкассовое поручение','принудительное взыскание'
+   ],
+   exc:[],
+   desc:'Взыскания, исполнительные листы, ФССП, судебные приказы, аресты счёта, инкассовые поручения.'},
+
+  /* ── Налоги (исключаем взыскания и страховые) ── */
+  {id:'taxes',name:'Налоги / ФНС',color:'#EF5350',
+   kw:['налог','ндфл','единый налог','фнс','ифнс','мифнс','казначейство','ст.46 нк','уфк','усн','упрощён','енс'],
+   exc:['страхов','взыскан','исполнит'],
+   desc:'Налоги, ФНС, Казначейство, УСН, НДФЛ, ЕНС.'},
+
+  {id:'insurance',name:'Страховые взносы',color:'#EC407A',
+   kw:['страховые взносы','страховой взнос','несчастных случа','проф. заболев','осфр','фсс','омс','обязательное страхован'],
+   desc:'ОСФР, ФСС, страхование от НС.'},
+
+  {id:'bank',name:'Банковские комиссии',color:'#26C6DA',
+   kw:['комиссия','ведение счета','рко','комис','за перечисл','дбо','обслуживание счет'],
+   desc:'Комиссии за РКО, переводы, ведение счёта.'},
+
+  {id:'garbage',name:'Вывоз ТКО / Мусор',color:'#8D6E63',
+   kw:['тко','вывоз отходов','мусор','экосоюз','тбо','обращение с тко','бункер','мусоросборник','вэр','утилизац'],
+   desc:'ТКО, вывоз отходов, ЭкоСоюз.'},
+
+  {id:'electricity_buy',name:'Закупка электроэнергии',color:'#FFA726',
+   kw:['сбыт','энергосбыт','мрск','россети','тэн','передача электр'],
+   exc:['комисс','взнос','налог','зарплат'],
+   desc:'Оплата поставщику электроэнергии.'},
+
+  {id:'accountable',name:'Подотчётные средства',color:'#66BB6A',
+   kw:['п/отчет','подотчет','хоз. нужды','хозяйственн','в подотчет','аванс','реестр','выплата под отчет'],
+   desc:'П/отчёт, хоз. нужды, авансы.'},
+
+  {id:'services',name:'Услуги / Сервисы',color:'#7E57C2',
+   kw:['услуг','сервис','по дог.','дог.орг','по счету','собр','по пор.кл','инкассо'],
+   exc:['рко','ведение счет','комисс','взыскан'],
+   desc:'Услуги по договорам, инкассо, IT.'},
+
+  {id:'other_expense',name:'Прочие расходы',color:'#78909C',isDefault:true,
+   desc:'Прочие расходы.'}
+];
+
+const AGGR_ACCOUNTS=['40907810100002200010','40911810100020016050','40907810600000000001','40911810400180000540'];
+let ACC_RULES=[];
+
+/* ══════════════════ УТИЛИТЫ ══════════════════ */
+function fmt(n){if(n==null||isNaN(n))return'—';return new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+' ₽';}
+function fmtS(n){if(!n&&n!==0)return'—';const a=Math.abs(n);if(a>=1e6)return(n/1e6).toFixed(2)+'М ₽';if(a>=1e3)return(n/1e3).toFixed(1)+'К ₽';return fmt(n);}
+function fmtD(d){if(!d)return'';return(d instanceof Date?d:new Date(d)).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});}
+function iso(d){if(!d)return'';return(d instanceof Date?d:new Date(d)).toISOString().split('T')[0];}
+function toNum(v){
+  if(v===null||v===undefined||v==='')return 0;
+  if(typeof v==='number')return isNaN(v)?0:v;
+  const s=String(v).trim().replace(/\s/g,'');
+  if(!s)return 0;
+  if(/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(s))return parseFloat(s.replace(/,/g,''))||0;
+  return parseFloat(s.replace(',','.'))||0;
+}
+function toast(m,dur=3000){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);}
+function getCat(id,isI){return(isI?INCAT:EXCAT).find(c=>c.id===id)||(isI?INCAT:EXCAT).at(-1);}
+function catOpts(isI,selId){return(isI?INCAT:EXCAT).map(c=>`<option value="${c.id}"${c.id===selId?' selected':''}>${c.name}</option>`).join('');}
+function extractInn(s){const m=(s||'').match(/\b(\d{10}|\d{12})\b/);return m?m[1]:null;}
+
+/* ══════════════════ КАТЕГОРИЗАЦИЯ ══════════════════ */
+function categorize(desc,cats){
+  const d=(desc||'').toLowerCase();
+  for(const c of cats){
+    if(c.isDefault)continue;
+    if(!c.kw||!c.kw.some(k=>d.includes(k)))continue;
+    if(c.exc&&c.exc.some(e=>d.includes(e)))continue;
+    return c.id;
+  }
+  return cats.find(c=>c.isDefault).id;
+}
+
+function applyAccRulesToRecord(rec){
+  const rules=ACC_RULES.filter(r=>r.type===rec.type);
+  if(!rules.length)return;
+  for(const rule of rules){
+    const v=(rule.val||'').trim();if(!v)continue;
+    let match=false;
+    if(rule.matchType==='account')match=(rec._rawAcct||'').includes(v);
+    else if(rule.matchType==='inn')match=(rec._rawInn||'')===v;
+    if(match){rec.catId=rule.catId;rec.manualCat=true;return;}
+  }
+}
+
+/* ══════════════════ АВТОСПЛИТ ══════════════════ */
+function tryAutoSplit(desc,total){
+  const d=(desc||'').toLowerCase();
+  const hasElec=['электроэнерг','эл.энерг','э/энерг','эл/эн','эл.э','э/э','за электр','за свет','квт','киловатт','электроснаб'].some(k=>d.includes(k));
+  const hasMem=['членск','взносы','взнос','чл.взн','членский','членс'].some(k=>d.includes(k));
+  const hasTgt=['целев','вступ'].some(k=>d.includes(k));
+  if(!(hasElec&&(hasMem||hasTgt)))return null;
+  const eA=extractAmt(d,['электроэнерг','эл.энерг','э/энерг','эл/эн','электроснабж','за электр','эл.э','э/э']);
+  const mA=extractAmt(d,['членск','членский взнос','чл.взн','взносы','взнос']);
+  const tA=extractAmt(d,['целев']);
+  const parts=[];let assigned=0;
+  if(eA!==null&&eA>0&&eA<total){parts.push({catId:'electricity',amount:eA,note:'извлечено'});assigned+=eA;}
+  if(tA!==null&&tA>0&&tA<total){parts.push({catId:'target',amount:tA,note:'извлечено'});assigned+=tA;}
+  if(mA!==null&&mA>0&&mA<total){parts.push({catId:'membership',amount:mA,note:'извлечено'});assigned+=mA;}
+  if(parts.length>=2){
+    const diff=Math.round((total-assigned)*100)/100;
+    if(Math.abs(diff)>0.01){
+      if(hasElec&&eA===null)parts.push({catId:'electricity',amount:diff,note:'остаток'});
+      else if(hasMem&&mA===null)parts.push({catId:'membership',amount:diff,note:'остаток'});
+      else parts[parts.length-1].amount=Math.round((parts[parts.length-1].amount+diff)*100)/100;
+    }
+    const tot2=parts.reduce((s,p)=>s+p.amount,0);
+    if(Math.abs(tot2-total)<1.0)return parts;
+  }
+  return null;
+}
+function extractAmt(d,kws){
+  for(const kw of kws){
+    const idx=d.indexOf(kw);if(idx<0)continue;
+    const after=d.slice(idx+kw.length,idx+kw.length+60);
+    let m=after.match(/[\s:=,]*(\d[\d\s]*[.,]\d+|\d+)/);
+    if(m){const n=parseFloat(m[1].replace(/\s/g,'').replace(',','.'));if(!isNaN(n)&&n>0)return n;}
+    const before=d.slice(Math.max(0,idx-30),idx);
+    m=before.match(/(\d[\d\s]*[.,]\d+|\d+)\s*$/);
+    if(m){const n=parseFloat(m[1].replace(/\s/g,'').replace(',','.'));if(!isNaN(n)&&n>0)return n;}
+  }
+  return null;
+}
+
+/* ══════════════════ ДАННЫЕ ══════════════════ */
+let RAW=[];
+let FI=[],FE=[],FA=[];
+const PS=50;
+const PAGE={income:1,expense:1,all:1};
+const TD={income:[],expense:[],all:[]};
+const SS={income:{c:-1,a:true},expense:{c:-1,a:true},all:{c:-1,a:true}};
+const AC={income:null,expense:null};
+let charts={};
+let splitTarget=null;
+
+/* ══════════════════ ЗАГРУЗКА ══════════════════ */
+function dropF(e){e.preventDefault();document.getElementById('upz').classList.remove('dv');const f=e.dataTransfer.files[0];if(f)loadF(f);}
+function loadF(file){
+  if(!file)return;
+  document.getElementById('upz').style.display='none';
+  document.getElementById('ld').style.display='block';
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+      parseRows(rows);
+      document.getElementById('ld').style.display='none';
+      document.getElementById('dash').style.display='block';
+      document.getElementById('expAll').style.display='inline-block';
+      initCatSelects();
+      renderRules();
+      renderAccTbl('income');
+      renderAccTbl('expense');
+      const sp=RAW.filter(r=>r.isSplit).length;
+      toast(`✅ Загружено ${RAW.length} записей${sp?' · '+sp+' авто-разделено':''}`);
+    }catch(err){
+      document.getElementById('ld').style.display='none';
+      document.getElementById('upz').style.display='block';
+      alert('Ошибка: '+err.message);console.error(err);
+    }
+  };
+  r.readAsArrayBuffer(file);
+}
+
+/* ══════════════════ ПАРСИНГ ══════════════════ */
+function parseRows(rows){
+  RAW=[];let uid=0;
+  for(let i=2;i<rows.length;i++){
+    const row=rows[i];
+    if(!row||!row.some(v=>v!==null&&v!==undefined&&v!==''))continue;
+    let date=null;
+    const dr=row[1];
+    if(dr instanceof Date&&!isNaN(dr.getTime())){date=dr;}
+    else if(typeof dr==='string'&&dr.trim()){
+      const d2=new Date(dr.replace(/(\d{2})\.(\d{2})\.(\d{4})/,'$3-$2-$1').replace(' ','T'));
+      if(!isNaN(d2.getTime()))date=d2;
+    }else if(typeof dr==='number'&&dr>40000){date=new Date(Math.round((dr-25569)*86400*1000));}
+    if(!date||isNaN(date.getTime()))continue;
+
+    const dAmt=toNum(row[9]);
+    const cAmt=toNum(row[13]);
+    const dAcct=String(row[4]||'');
+    const cAcct=String(row[8]||'');
+    const desc=String(row[20]||row[19]||'').trim();
+    const bankInfo=String(row[17]||'');
+
+    function parseParty(s){
+      const lines=s.split(/[\n\r]/).map(x=>x.trim()).filter(Boolean);
+      return lines.length>=3?lines[2]:lines.length>=2?lines[1]:lines[0]||'';
+    }
+
+    if(cAmt>0&&dAmt===0){
+      uid++;
+      const rawAcct=dAcct;
+      const inn=extractInn(rawAcct);
+      const party=parseParty(rawAcct);
+      const isAggr=AGGR_ACCOUNTS.some(a=>rawAcct.includes(a))||rawAcct.includes('40911')||rawAcct.includes('40907');
+      const descL=desc.toLowerCase();
+      const hasElec=['электроэнерг','эл.энерг','э/энерг','эл/эн','квт','кв.ч','киловатт','за электр','за свет','э/э'].some(k=>descL.includes(k));
+      const autoSp=tryAutoSplit(desc,cAmt);
+      if(autoSp&&autoSp.length>=2){
+        autoSp.forEach((s,si)=>{
+          const rec={uid:uid*1000+si,origUid:uid,date,dateStr:iso(date),type:'income',
+            amount:s.amount,catId:s.catId,desc,party,bank:bankInfo,
+            isSplit:true,splitNote:s.note,splitIdx:si,splitTotal:autoSp.length,manualCat:false,
+            _rawAcct:rawAcct,_rawInn:inn||''};
+          applyAccRulesToRecord(rec);RAW.push(rec);
+        });
+      }else{
+        let catId=isAggr&&!hasElec?'membership':categorize(desc,INCAT);
+        const rec={uid,origUid:uid,date,dateStr:iso(date),type:'income',
+          amount:cAmt,catId,desc,party,bank:bankInfo,
+          isSplit:false,manualCat:false,_rawAcct:rawAcct,_rawInn:inn||''};
+        applyAccRulesToRecord(rec);RAW.push(rec);
+      }
+    }else if(dAmt>0&&cAmt===0){
+      uid++;
+      const rawAcct=cAcct;
+      const inn=extractInn(rawAcct);
+      const party=parseParty(rawAcct);
+      const catId=categorize(desc,EXCAT);
+      const rec={uid,origUid:uid,date,dateStr:iso(date),type:'expense',
+        amount:dAmt,catId,desc,party,bank:bankInfo,
+        isSplit:false,manualCat:false,_rawAcct:rawAcct,_rawInn:inn||''};
+      applyAccRulesToRecord(rec);RAW.push(rec);
+    }
+  }
+  RAW.sort((a,b)=>b.date-a.date);
+  initDates();applyF();
+}
+
+function initDates(){
+  if(!RAW.length)return;
+  const ds=RAW.map(r=>r.date.getTime());
+  document.getElementById('dFrom').value=iso(new Date(Math.min(...ds)));
+  document.getElementById('dTo').value=iso(new Date(Math.max(...ds)));
+}
+
+/* ══════════════════ ФИЛЬТР ══════════════════ */
+function applyF(){
+  const from=document.getElementById('dFrom').value;
+  const to=document.getElementById('dTo').value;
+  FA=RAW.filter(r=>{
+    if(from&&r.dateStr<from)return false;
+    if(to&&r.dateStr>to)return false;
+    return true;
+  });
+  FI=FA.filter(r=>r.type==='income');
+  FE=FA.filter(r=>r.type==='expense');
+  AC.income=null;AC.expense=null;
+  ['srI','srE','srA'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  recalc();
+  if(FA.length){
+    const ds=FA.map(r=>r.date.getTime());
+    const mn=new Date(Math.min(...ds)),mx=new Date(Math.max(...ds));
+    const el=document.getElementById('pInfo');
+    if(el)el.textContent=`${fmtD(mn)} — ${fmtD(mx)} · ${FA.length} оп.`;
+  }
+}
+function resetF(){initDates();applyF();}
+
+function recalc(){
+  updateKPI();updateCatPanels();
+  renderTbl('income',FI);renderTbl('expense',FE);renderTbl('all',FA);
+  updateOv();
+  if(document.querySelector('#tc-charts.active'))renderCharts();
+}
+
+/* ══════════════════ KPI ══════════════════ */
+function updateKPI(){
+  const tI=FI.reduce((s,r)=>s+r.amount,0);
+  const tE=FE.reduce((s,r)=>s+r.amount,0);
+  const bal=tI-tE;
+  const sp=RAW.filter(r=>r.isSplit).length;
+  document.getElementById('kI').textContent=fmtS(tI);
+  document.getElementById('kIn').textContent=FI.length+' записей';
+  document.getElementById('kE').textContent=fmtS(tE);
+  document.getElementById('kEn').textContent=FE.length+' записей';
+  const bv=document.getElementById('kB');
+  bv.textContent=fmtS(Math.abs(bal));
+  bv.style.color=bal>=0?'var(--inc)':'var(--exp)';
+  document.getElementById('kBs').textContent=bal>=0?'▲ Профицит':'▼ Дефицит';
+  document.getElementById('bBar').style.background=bal>=0?'linear-gradient(90deg,var(--inc),#00e5b0)':'linear-gradient(90deg,var(--exp),#ff8a5e)';
+  document.getElementById('kC').textContent=FA.length;
+  document.getElementById('kSp').textContent=sp?sp+' платежей разделено':'';
+}
+
+/* ══════════════════ CAT PANELS ══════════════════ */
+function updateCatPanels(){renderCP('income',FI,INCAT,'iCL');renderCP('expense',FE,EXCAT,'eCL');}
+function renderCP(type,data,cats,elId){
+  const tot={},cnt={};
+  data.forEach(r=>{tot[r.catId]=(tot[r.catId]||0)+r.amount;cnt[r.catId]=(cnt[r.catId]||0)+1;});
+  const cl=type==='income'?'var(--inc)':'var(--exp)';
+  let h=`<div class="ci${AC[type]===null?' act':''}" onclick="catF('${type}',null)">
+    <span class="cd" style="background:#6c63ff"></span><span class="cn">Все</span><span class="cb">${data.length}</span></div>`;
+  cats.filter(c=>tot[c.id]).sort((a,b)=>(tot[b.id]||0)-(tot[a.id]||0)).forEach(c=>{
+    h+=`<div class="ci${AC[type]===c.id?' act':''}" onclick="catF('${type}','${c.id}')">
+      <span class="cd" style="background:${c.color}"></span>
+      <span class="cn">${c.name}</span>
+      <span class="cb">${cnt[c.id]||0}</span>
+      <span class="ca" style="color:${cl}">${fmtS(tot[c.id]||0)}</span></div>`;
+  });
+  const el=document.getElementById(elId);if(el)el.innerHTML=h;
+}
+function catF(type,catId){
+  AC[type]=catId;
+  const src=type==='income'?FI:FE;
+  renderTbl(type,catId?src.filter(r=>r.catId===catId):src);
+  renderCP(type,type==='income'?FI:FE,type==='income'?INCAT:EXCAT,type==='income'?'iCL':'eCL');
+}
+
+/* ══════════════════ OVERVIEW ══════════════════ */
+function updateOv(){renderSC('ovI',FI,INCAT,'var(--inc)');renderSC('ovE',FE,EXCAT,'var(--exp)');}
+function renderSC(id,data,cats,color){
+  const tot={};data.forEach(r=>{tot[r.catId]=(tot[r.catId]||0)+r.amount;});
+  const total=data.reduce((s,r)=>s+r.amount,0);
+  const el=document.getElementById(id);if(!el)return;
+  if(!total){el.innerHTML='<p class="nodata">Нет данных</p>';return;}
+  el.innerHTML=cats.filter(c=>tot[c.id]).sort((a,b)=>(tot[b.id]||0)-(tot[a.id]||0)).map(c=>{
+    const amt=tot[c.id]||0,pct=(amt/total*100).toFixed(1);
+    return`<div class="sr">
+      <span class="sn">${c.name}</span>
+      <div class="sbw"><div class="sbb" style="width:${pct}%;background:${c.color}"></div></div>
+      <span class="sp">${pct}%</span>
+      <span class="sa2" style="color:${color}">${fmtS(amt)}</span></div>`;
+  }).join('');
+}
+
+/* ══════════════════ ТАБЛИЦЫ ══════════════════ */
+function renderTbl(type,data){TD[type]=data;PAGE[type]=1;renderPg(type);}
+function renderPg(type){
+  const data=TD[type],pg=PAGE[type],start=(pg-1)*PS;
+  const slice=data.slice(start,start+PS);
+  const isAll=type==='all';
+  const bodyId=isAll?'aBody':type==='income'?'iBody':'eBody';
+  const rcId=isAll?'rcA':type==='income'?'rcI':'rcE';
+  const pgnId=isAll?'aPgn':type==='income'?'iPgn':'ePgn';
+  const el=document.getElementById(bodyId);if(!el)return;
+  el.innerHTML=slice.map(r=>rowH(r,isAll)).join('');
+  const rc=document.getElementById(rcId);
+  if(rc)rc.textContent=`${Math.min(start+1,data.length)}–${Math.min(start+PS,data.length)} из ${data.length}`;
+  renderPgn(pgnId,data.length,type);
+}
+function rowH(r,isAll){
+  const cat=getCat(r.catId,r.type==='income');
+  const cls=r.type==='income'?'inc':'exp';
+  const pfx=r.type==='income'?'+':'−';
+  const sp=r.isSplit?`<span class="spb" title="Разделён: ${r.splitNote||''}">÷</span>`:'';
+  const party=(r.party||'').replace(/\n/g,' ').slice(0,42);
+  const dsc=(r.desc||'').slice(0,95);
+  const isI=r.type==='income';
+  const uid=r.uid;
+  const csel=`<select class="csel" onchange="chgCat(${uid},'${r.type}',this.value)">${catOpts(isI,r.catId)}</select>`;
+  const spbtn=isI?`<button class="spbtn" onclick="openSplit(${uid})" title="Разбить">✂️</button>`:'';
+  if(isAll){
+    return`<tr>
+      <td class="dd">${fmtD(r.date)}</td>
+      <td><span style="background:${isI?'rgba(0,200,150,.14)':'rgba(255,94,108,.14)'};color:${isI?'var(--inc)':'var(--exp)'};padding:2px 6px;border-radius:20px;font-size:.71rem;">${isI?'Приход':'Расход'}</span></td>
+      <td class="da ${cls}">${pfx}${fmt(r.amount)}${sp}</td>
+      <td>${csel}</td>
+      <td class="dp" title="${r.party}">${party}</td>
+      <td class="ddsc" title="${r.desc}">${dsc}</td>
+      <td>${spbtn}</td></tr>`;
+  }
+  return`<tr>
+    <td class="dd">${fmtD(r.date)}</td>
+    <td class="da ${cls}">${pfx}${fmt(r.amount)}${sp}</td>
+    <td>${csel}</td>
+    <td class="dp" title="${r.party}">${party}</td>
+    <td class="ddsc" title="${r.desc}">${dsc}</td>
+    <td>${spbtn}</td></tr>`;
+}
+
+/* ══════════════════ СМЕНА КАТЕГОРИИ ══════════════════ */
+function chgCat(uid,type,newCatId){
+  const rec=RAW.find(r=>r.uid===uid);if(!rec)return;
+  rec.catId=newCatId;rec.manualCat=true;
+  const from=document.getElementById('dFrom').value;
+  const to=document.getElementById('dTo').value;
+  FA=RAW.filter(r=>{if(from&&r.dateStr<from)return false;if(to&&r.dateStr>to)return false;return true;});
+  FI=FA.filter(r=>r.type==='income');FE=FA.filter(r=>r.type==='expense');
+  updateKPI();updateCatPanels();updateOv();
+  if(document.querySelector('#tc-charts.active'))renderCharts();
+  ['income','expense','all'].forEach(t=>{
+    const src=t==='income'?FI:t==='expense'?FE:FA;
+    TD[t]=AC[t]?src.filter(r=>r.catId===AC[t]):src;
+    renderPg(t);
+  });
+}
+
+/* ══════════════════ РАЗБИЕНИЕ ══════════════════ */
+function openSplit(uid){
+  const rec=RAW.find(r=>r.uid===uid);if(!rec)return;
+  splitTarget=rec;
+  const sdEl=document.getElementById('spDesc');
+  const stEl=document.getElementById('spTot');
+  const srEl=document.getElementById('spRows');
+  if(!sdEl||!stEl||!srEl)return;
+  sdEl.textContent=`${fmtD(rec.date)} · ${fmt(rec.amount)} · ${(rec.desc||'').slice(0,110)}`;
+  stEl.textContent=fmt(rec.amount);
+  srEl.innerHTML='';
+  addSpRow();addSpRow();
+  updSpInfo();
+  document.getElementById('splitM').classList.add('open');
+}
+function closeSplit(){document.getElementById('splitM').classList.remove('open');splitTarget=null;}
+function addSpRow(){
+  const wrap=document.getElementById('spRows');if(!wrap)return;
+  const d=document.createElement('div');d.className='split-row';
+  d.innerHTML=`<input type="number" min="0" step="0.01" placeholder="Сумма" oninput="updSpInfo()">
+    <select>${catOpts(true,'other_income')}</select>
+    <button class="btn btn-d btn-sm" onclick="this.closest('.split-row').remove();updSpInfo()">✕</button>`;
+  wrap.appendChild(d);
+}
+function updSpInfo(){
+  if(!splitTarget)return;
+  let asgn=0;
+  document.querySelectorAll('#spRows .split-row').forEach(r=>{asgn+=parseFloat(r.querySelector('input').value)||0;});
+  asgn=Math.round(asgn*100)/100;
+  const rest=Math.round((splitTarget.amount-asgn)*100)/100;
+  const ass=document.getElementById('spAss');const rst=document.getElementById('spRest');const inf=document.getElementById('spInfo');
+  if(ass)ass.textContent=fmt(asgn);if(rst)rst.textContent=fmt(rest);
+  if(inf)inf.classList.toggle('err',Math.abs(rest)>0.5);
+}
+function confirmSplit(){
+  if(!splitTarget)return;
+  const rows=document.querySelectorAll('#spRows .split-row');
+  const parts=[];let total=0;
+  rows.forEach(r=>{
+    const amt=parseFloat(r.querySelector('input').value)||0;
+    const catId=r.querySelector('select').value;
+    if(amt>0)parts.push({catId,amount:amt});total+=amt;
+  });
+  if(parts.length<2){toast('❌ Нужно минимум 2 части');return;}
+  if(Math.abs(total-splitTarget.amount)>1.0){toast(`❌ Разница: ${fmt(Math.abs(total-splitTarget.amount))}`);return;}
+  const idx=RAW.findIndex(r=>r.uid===splitTarget.uid);
+  const base={...splitTarget};RAW.splice(idx,1);
+  parts.forEach((p,si)=>{
+    RAW.splice(idx+si,0,{...base,uid:base.uid*1000+si+9000,
+      amount:p.amount,catId:p.catId,isSplit:true,splitNote:'вручную',
+      splitIdx:si,splitTotal:parts.length,manualCat:true});
+  });
+  closeSplit();applyF();toast(`✅ Разделено на ${parts.length} части`);
+}
+
+/* ══════════════════ ПРАВИЛА СЧЁТОВ/ИНН ══════════════════ */
+function initCatSelects(){
+  const si=document.getElementById('arCatI');const se=document.getElementById('arCatE');
+  if(si)si.innerHTML=catOpts(true,'membership');
+  if(se)se.innerHTML=catOpts(false,'other_expense');
+}
+function addAccRule(type){
+  const valEl=document.getElementById(type==='income'?'arValI':'arValE');
+  const typeEl=document.getElementById(type==='income'?'arTypeI':'arTypeE');
+  const catEl=document.getElementById(type==='income'?'arCatI':'arCatE');
+  const conflEl=document.getElementById(type==='income'?'arConflictI':'arConflictE');
+  if(!valEl||!typeEl||!catEl)return;
+  const val=valEl.value.trim();
+  if(!val){toast('❌ Введите номер счёта или ИНН');return;}
+  const matchType=typeEl.value;const catId=catEl.value;
+  if(ACC_RULES.some(r=>r.val===val&&r.type===type&&r.matchType===matchType)){toast('⚠️ Такое правило уже есть');return;}
+  const cats=type==='income'?INCAT:EXCAT;
+  const defId=cats.find(c=>c.isDefault).id;
+  const conflicts=ACC_RULES.filter(r=>r.val===val&&r.type===type&&r.catId!==catId&&r.catId!==defId);
+  ACC_RULES.push({val,matchType,catId,type});
+  valEl.value='';
+  renderAccTbl(type);
+  if(conflicts.length){
+    const msg=`⚠️ Конфликт: «${val}» уже привязан к «${getCat(conflicts[0].catId,type==='income').name}»`;
+    if(conflEl){conflEl.innerHTML=`<div style="background:rgba(255,94,108,.12);border:1px solid rgba(255,94,108,.3);border-radius:7px;padding:8px 12px;font-size:.8rem;color:var(--exp);">${msg}</div>`;conflEl.style.display='block';}
+    toast('⚠️ Конфликт правил',4000);
+  }else{if(conflEl)conflEl.style.display='none';toast('✅ Правило добавлено');}
+}
+function renderAccTbl(type){
+  const bodyId=type==='income'?'arBodyI':'arBodyE';
+  const el=document.getElementById(bodyId);if(!el)return;
+  const rules=ACC_RULES.filter(r=>r.type===type);
+  if(!rules.length){el.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:14px;color:var(--tx3);font-size:.79rem;">Нет правил</td></tr>`;return;}
+  const isI=type==='income';
+  const countMap={};rules.forEach(r=>countMap[r.val]=(countMap[r.val]||0)+1);
+  const defId=(isI?INCAT:EXCAT).find(c=>c.isDefault).id;
+  el.innerHTML=rules.map((r,idx)=>{
+    const cat=getCat(r.catId,isI);
+    const hasConflict=countMap[r.val]>1&&r.catId!==defId;
+    const tl=r.matchType==='inn'?'ИНН':'Счёт (содержит)';
+    return`<tr>
+      <td style="font-family:monospace;font-size:.78rem;">${r.val}</td>
+      <td style="font-size:.77rem;color:var(--tx2);">${tl}</td>
+      <td style="color:${cat.color};font-size:.78rem;">${cat.name}</td>
+      <td>${hasConflict?'<span class="conflict-badge">⚠️ Конфликт</span>':''}</td>
+      <td><button class="btn btn-d btn-sm" onclick="delAccRule('${type}',${idx})">✕</button></td></tr>`;
+  }).join('');
+}
+function delAccRule(type,idx){
+  const rules=ACC_RULES.filter(r=>r.type===type);
+  const rule=rules[idx];const gi=ACC_RULES.indexOf(rule);
+  if(gi>=0)ACC_RULES.splice(gi,1);
+  renderAccTbl(type);toast('🗑 Удалено');
+}
+function applyAccRules(){
+  RAW.forEach(rec=>{
+    if(rec.manualCat)return;
+    if(rec.type==='income'){
+      const isAggr=AGGR_ACCOUNTS.some(a=>(rec._rawAcct||'').includes(a))||(rec._rawAcct||'').includes('40911')||(rec._rawAcct||'').includes('40907');
+      const hasElec=['электроэнерг','эл.энерг','э/энерг','квт','кв.ч','за электр','за свет','э/э'].some(k=>(rec.desc||'').toLowerCase().includes(k));
+      rec.catId=isAggr&&!hasElec?'membership':categorize(rec.desc,INCAT);
+    }else{rec.catId=categorize(rec.desc,EXCAT);}
+    applyAccRulesToRecord(rec);
+  });
+  applyF();toast('✅ Правила применены, пересчёт выполнен');
+}
+
+/* ══════════════════ ПОИСК / СОРТИРОВКА ══════════════════ */
+function srch(type){
+  const id=type==='income'?'srI':type==='expense'?'srE':'srA';
+  const q=(document.getElementById(id).value||'').toLowerCase();
+  const src=type==='income'?FI:type==='expense'?FE:FA;
+  TD[type]=q?src.filter(r=>(r.desc||'').toLowerCase().includes(q)||(r.party||'').toLowerCase().includes(q)||getCat(r.catId,r.type==='income').name.toLowerCase().includes(q)):src;
+  PAGE[type]=1;renderPg(type);
+}
+function srt(type,col){
+  const st=SS[type];st.a=st.c===col?!st.a:true;st.c=col;
+  const g=[r=>r.date,r=>r.amount,r=>r.catId,r=>r.party,r=>r.desc,r=>r.type];
+  TD[type].sort((a,b)=>{const va=g[col](a),vb=g[col](b);const c=va<vb?-1:va>vb?1:0;return st.a?c:-c;});
+  PAGE[type]=1;renderPg(type);
+  const tId=type==='income'?'tc-income':type==='expense'?'tc-expense':'tc-all';
+  document.querySelectorAll(`#${tId} thead th`).forEach((th,i)=>{
+    th.classList.toggle('sorted',i===col);
+    const sa=th.querySelector('.sa');if(sa)sa.textContent=i===col?(st.a?'↑':'↓'):'↕';
+  });
+}
+
+/* ══════════════════ ПАГИНАЦИЯ ══════════════════ */
+function renderPgn(elId,total,type){
+  const el=document.getElementById(elId);if(!el)return;
+  const pages=Math.ceil(total/PS),cur=PAGE[type];
+  if(pages<=1){el.innerHTML='';return;}
+  const show=[...new Set([1,pages,cur,cur-1,cur+1].filter(p=>p>=1&&p<=pages))].sort((a,b)=>a-b);
+  let h=`<button class="pb" onclick="gp('${type}',${cur-1})" ${cur<=1?'disabled':''}>‹</button>`;
+  let pv=0;
+  show.forEach(p=>{
+    if(p-pv>1)h+=`<span class="pi">…</span>`;
+    h+=`<button class="pb${p===cur?' act':''}" onclick="gp('${type}',${p})">${p}</button>`;
+    pv=p;
+  });
+  h+=`<button class="pb" onclick="gp('${type}',${cur+1})" ${cur>=pages?'disabled':''}>›</button>`;
+  el.innerHTML=h;
+}
+function gp(type,p){const mx=Math.ceil(TD[type].length/PS);if(p<1||p>mx)return;PAGE[type]=p;renderPg(type);}
+
+/* ══════════════════ ВКЛАДКИ ══════════════════ */
+function sw(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+  document.querySelectorAll('.tc').forEach(c=>c.classList.remove('active'));
+  const tc=document.getElementById('tc-'+name);if(tc)tc.classList.add('active');
+  if(name==='charts')renderCharts();
+}
+
+/* ══════════════════ ГРАФИКИ ══════════════════ */
+function dch(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function renderCharts(){
+  dch('chM');
+  const months={};
+  FA.forEach(r=>{
+    const k=r.date.getFullYear()+'-'+(r.date.getMonth()+1).toString().padStart(2,'0');
+    if(!months[k])months[k]={i:0,e:0};
+    if(r.type==='income')months[k].i+=r.amount;else months[k].e+=r.amount;
+  });
+  const keys=Object.keys(months).sort();
+  const MN=['','Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+  const lbl=keys.map(k=>{const[y,m]=k.split('-');return MN[+m]+' '+y.slice(2);});
+  const mEl=document.getElementById('chM');
+  if(mEl)charts.chM=new Chart(mEl.getContext('2d'),{type:'bar',data:{labels:lbl,datasets:[
+    {label:'Приходы',data:keys.map(k=>months[k].i),backgroundColor:'rgba(0,200,150,.7)',borderRadius:3},
+    {label:'Расходы',data:keys.map(k=>months[k].e),backgroundColor:'rgba(255,94,108,.7)',borderRadius:3}
+  ]},options:{responsive:true,plugins:{legend:{labels:{color:'#9ba3c7',font:{size:11}}}},scales:{
+    x:{ticks:{color:'#6b72a0',maxRotation:45,font:{size:10}},grid:{color:'#1e2238'}},
+    y:{ticks:{color:'#6b72a0',font:{size:10},callback:v=>fmtS(v)},grid:{color:'#1e2238'}}}}});
+  renderPie('chEP',FE,EXCAT);renderPie('chIP',FI,INCAT);
+  dch('chTE');
+  const tot={};FE.forEach(r=>{const n=getCat(r.catId,false).name;tot[n]=(tot[n]||0)+r.amount;});
+  const sorted=Object.entries(tot).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const teEl=document.getElementById('chTE');
+  if(teEl)charts.chTE=new Chart(teEl.getContext('2d'),{type:'bar',data:{labels:sorted.map(e=>e[0]),datasets:[{label:'Расходы',data:sorted.map(e=>e[1]),backgroundColor:'rgba(255,94,108,.74)',borderRadius:3}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#6b72a0',font:{size:10},callback:v=>fmtS(v)},grid:{color:'#1e2238'}},y:{ticks:{color:'#9ba3c7',font:{size:10}},grid:{color:'#1e2238'}}}}});
+}
+function renderPie(id,data,cats){
+  dch(id);
+  const tot={};data.forEach(r=>{tot[r.catId]=(tot[r.catId]||0)+r.amount;});
+  const sorted=cats.filter(c=>tot[c.id]).sort((a,b)=>(tot[b.id]||0)-(tot[a.id]||0));
+  if(!sorted.length)return;
+  const el=document.getElementById(id);if(!el)return;
+  charts[id]=new Chart(el.getContext('2d'),{type:'doughnut',data:{labels:sorted.map(c=>c.name),datasets:[{data:sorted.map(c=>tot[c.id]||0),backgroundColor:sorted.map(c=>c.color),borderWidth:2,borderColor:'#1a1d2e'}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#9ba3c7',font:{size:10},boxWidth:11}},tooltip:{callbacks:{label:ctx=>` ${fmtS(ctx.raw)}`}}}}});
+}
+
+/* ══════════════════ ПРАВИЛА (вкладка) ══════════════════ */
+function renderRules(){
+  const ri=document.getElementById('rulesI');const re=document.getElementById('rulesE');if(!ri||!re)return;
+  ri.innerHTML=INCAT.map(c=>`<div class="ri"><strong style="color:${c.color}">${c.name}</strong><p>${c.desc}</p></div>`).join('')+
+    `<div class="ri"><strong style="color:var(--acc)">✂️ Смешанные платежи</strong><p>Эл-энергия + взносы в одном платеже — автоматически делится по суммам из текста. Если суммы не найдены или не сходятся — попадает в «Прочие», кнопка ✂️ для ручного разбиения.</p></div>
+     <div class="ri"><strong style="color:var(--tx2)">🏦 Агрегатор 40907/40911</strong><p>Без признаков эл-энергии → Членские взносы. Можно переопределить через ⚙️ Правила счётов/ИНН.</p></div>`;
+  re.innerHTML=EXCAT.map(c=>`<div class="ri"><strong style="color:${c.color}">${c.name}</strong><p>${c.desc}</p></div>`).join('');
+}
+
+/* ══════════════════ ЭКСПОРТ ══════════════════ */
+function buildRows(data,withType){
+  const h=withType?['Дата','Тип','Сумма','Категория','Разделён','Контрагент','Назначение']:['Дата','Сумма','Категория','Разделён','Контрагент','Назначение'];
+  const rows=[h];
+  data.forEach(r=>{
+    const cat=getCat(r.catId,r.type==='income').name;
+    const row=[fmtD(r.date)];
+    if(withType)row.push(r.type==='income'?'Приход':'Расход');
+    row.push(+r.amount.toFixed(2),cat,r.isSplit?'Да':'-',(r.party||'').replace(/\n/g,' '),r.desc);
+    rows.push(row);
+  });
+  return rows;
+}
+function expX(type){
+  const data=type==='income'?FI:type==='expense'?FE:FA;
+  if(!data.length){toast('Нет данных');return;}
+  const wb2=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(buildRows(data,type==='all'));
+  ws['!cols']=[{wch:12},{wch:10},{wch:14},{wch:26},{wch:8},{wch:30},{wch:80}];
+  const nm=type==='income'?'Приходы':type==='expense'?'Расходы':'Все';
+  XLSX.utils.book_append_sheet(wb2,ws,nm);
+  XLSX.writeFile(wb2,`Выписка_${nm}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast(`✅ "${nm}" скачан`);
+}
+function exportFull(){
+  if(!RAW.length)return;
+  const wb2=XLSX.utils.book_new();
+  [['income','Приходы'],['expense','Расходы'],['all','Все']].forEach(([k,n])=>{
+    const data=k==='income'?FI:k==='expense'?FE:FA;
+    const ws=XLSX.utils.aoa_to_sheet(buildRows(data,k==='all'));
+    ws['!cols']=[{wch:12},{wch:10},{wch:14},{wch:26},{wch:8},{wch:30},{wch:80}];
+    XLSX.utils.book_append_sheet(wb2,ws,n);
+  });
+  const tI=FI.reduce((s,r)=>s+r.amount,0),tE=FE.reduce((s,r)=>s+r.amount,0);
+  const ic={},ec={};
+  FI.forEach(r=>{const n=getCat(r.catId,true).name;ic[n]=(ic[n]||0)+r.amount;});
+  FE.forEach(r=>{const n=getCat(r.catId,false).name;ec[n]=(ec[n]||0)+r.amount;});
+  const summ=[
+    ['Показатель','Значение'],
+    ['Период',document.getElementById('pInfo').textContent],
+    ['Приходы',+tI.toFixed(2)],['Расходы',+tE.toFixed(2)],['Баланс',+(tI-tE).toFixed(2)],
+    ['Разделённых платежей',RAW.filter(r=>r.isSplit).length],['',''],
+    ['ПРИХОДЫ ПО КАТЕГОРИЯМ',''],...Object.entries(ic).sort((a,b)=>b[1]-a[1]).map(([n,v])=>[n,+v.toFixed(2)]),
+    ['',''],['РАСХОДЫ ПО КАТЕГОРИЯМ',''],...Object.entries(ec).sort((a,b)=>b[1]-a[1]).map(([n,v])=>[n,+v.toFixed(2)])
+  ];
+  const ws4=XLSX.utils.aoa_to_sheet(summ);ws4['!cols']=[{wch:36},{wch:18}];
+  XLSX.utils.book_append_sheet(wb2,ws4,'Сводка');
+  XLSX.writeFile(wb2,`Полный_отчёт_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast('✅ Полный отчёт скачан (4 листа)');
+}
+</script>
+</body>
+</html>
