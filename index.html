@@ -141,6 +141,23 @@ canvas{max-height:230px;}
 @keyframes fi{from{opacity:0;transform:translateY(5px);}to{opacity:1;}}
 .nodata{text-align:center;padding:44px;color:var(--tx3);font-size:.86rem;}
 @media(max-width:860px){main{padding:10px;}.sg{grid-template-columns:1fr;}.cg{grid-template-columns:1fr;}.og{grid-template-columns:1fr;}.ar-form{grid-template-columns:1fr;}.rules-grid{grid-template-columns:1fr;}}
+
+/* ── Period quick-pick ── */
+.pquick{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.pqb{padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid var(--brd);background:var(--s2);color:var(--tx2);transition:all .18s;line-height:1.5;}
+.pqb:hover{border-color:var(--acc);color:var(--tx);}
+.pqb.act{background:var(--acc);border-color:var(--acc);color:#fff;}
+.pdate-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.pdate-wrap input[type=date]{background:var(--s2);border:1px solid var(--brd);border-radius:var(--rs);color:var(--tx);padding:5px 10px;font-size:.81rem;cursor:pointer;}
+.pdate-wrap input[type=date]:focus{outline:none;border-color:var(--acc);}
+/* ── Chart header ── */
+.chart-wrap{position:relative;}
+.chart-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;gap:6px;}
+.chart-hdr-left{display:flex;flex-direction:column;}
+.chart-hdr h3{font-size:.74rem;color:var(--tx2);text-transform:uppercase;letter-spacing:.6px;margin:0;}
+.chart-period{font-size:.67rem;color:var(--tx3);margin-top:2px;}
+.btn-save-chart{background:none;border:1px solid var(--brd);border-radius:6px;color:var(--tx3);font-size:.71rem;padding:3px 9px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.btn-save-chart:hover{border-color:var(--acc);color:var(--tx);}
 </style>
 </head>
 <body>
@@ -167,13 +184,27 @@ canvas{max-height:230px;}
 <div class="loading" id="ld"><div class="spin"></div><p style="color:var(--tx2)">Обрабатываем…</p></div>
 
 <div id="dash">
-  <div class="cbar">
-    <label>Период:</label>
-    <input type="date" id="dFrom"/><span style="color:var(--tx3)">—</span><input type="date" id="dTo"/>
-    <button class="btn btn-a btn-sm" onclick="applyF()">Применить</button>
-    <button class="btn btn-gh btn-sm" onclick="resetF()">Сбросить</button>
-    <div style="flex:1"></div>
-    <span id="pInfo"></span>
+  <div class="cbar" style="flex-direction:column;align-items:flex-start;gap:8px;">
+    <div class="pquick" id="pquick">
+      <span style="font-size:.8rem;color:var(--tx2);margin-right:2px;">Период:</span>
+      <button class="pqb" onclick="setPeriod('cm',this)">Этот месяц</button>
+      <button class="pqb" onclick="setPeriod('pm',this)">Прошлый месяц</button>
+      <button class="pqb" onclick="setPeriod('3m',this)">3 месяца</button>
+      <button class="pqb" onclick="setPeriod('6m',this)">6 месяцев</button>
+      <button class="pqb" onclick="setPeriod('cq',this)">Квартал</button>
+      <button class="pqb" onclick="setPeriod('cy',this)">Этот год</button>
+      <button class="pqb" onclick="setPeriod('py',this)">Прошлый год</button>
+      <button class="pqb" id="pqbAll" onclick="setPeriod('all',this)">Всё время</button>
+    </div>
+    <div class="pdate-wrap">
+      <span style="font-size:.8rem;color:var(--tx2);">с</span>
+      <input type="date" id="dFrom" onchange="clearPqActive();applyF()"/>
+      <span style="font-size:.8rem;color:var(--tx2);">по</span>
+      <input type="date" id="dTo" onchange="clearPqActive();applyF()"/>
+      <button class="btn btn-a btn-sm" onclick="applyF()">Применить</button>
+      <button class="btn btn-gh btn-sm" onclick="resetF()">Сбросить</button>
+      <span id="pInfo" style="font-size:.76rem;color:var(--tx3);margin-left:2px;"></span>
+    </div>
   </div>
   <div class="kpi">
     <div class="kc ki"><div class="kl">Приходы</div><div class="kv" id="kI">—</div><div class="ks" id="kIn"></div></div>
@@ -249,10 +280,34 @@ canvas{max-height:230px;}
 
   <div class="tc" id="tc-charts">
     <div class="cg">
-      <div class="cc"><h3>📅 Динамика по месяцам</h3><canvas id="chM"></canvas></div>
-      <div class="cc"><h3>🍕 Структура расходов</h3><canvas id="chEP"></canvas></div>
-      <div class="cc"><h3>🍕 Структура приходов</h3><canvas id="chIP"></canvas></div>
-      <div class="cc"><h3>📊 Топ категорий расходов</h3><canvas id="chTE"></canvas></div>
+      <div class="cc chart-wrap">
+        <div class="chart-hdr">
+          <div class="chart-hdr-left"><h3>📅 Динамика по месяцам</h3><div class="chart-period" id="cpM"></div></div>
+          <button class="btn-save-chart" onclick="saveChart('chM','dynamics')">💾 Сохранить</button>
+        </div>
+        <canvas id="chM"></canvas>
+      </div>
+      <div class="cc chart-wrap">
+        <div class="chart-hdr">
+          <div class="chart-hdr-left"><h3>🍕 Структура расходов</h3><div class="chart-period" id="cpEP"></div></div>
+          <button class="btn-save-chart" onclick="saveChart('chEP','expenses_pie')">💾 Сохранить</button>
+        </div>
+        <canvas id="chEP"></canvas>
+      </div>
+      <div class="cc chart-wrap">
+        <div class="chart-hdr">
+          <div class="chart-hdr-left"><h3>🍕 Структура приходов</h3><div class="chart-period" id="cpIP"></div></div>
+          <button class="btn-save-chart" onclick="saveChart('chIP','income_pie')">💾 Сохранить</button>
+        </div>
+        <canvas id="chIP"></canvas>
+      </div>
+      <div class="cc chart-wrap">
+        <div class="chart-hdr">
+          <div class="chart-hdr-left"><h3>📊 Топ категорий расходов</h3><div class="chart-period" id="cpTE"></div></div>
+          <button class="btn-save-chart" onclick="saveChart('chTE','top_expenses')">💾 Сохранить</button>
+        </div>
+        <canvas id="chTE"></canvas>
+      </div>
     </div>
   </div>
 
@@ -326,7 +381,7 @@ const INCAT=[
   {id:'membership',name:'Членские взносы',color:'#00C896',
    kw:['членск','член взн','чл.взн','чл взн','чл/взн','взносы за 20','взнос 20','взнос за','членс','членский','взносы','взнос'],
    exc:['целев','вступ','паевой','электроэнерг','эл.энерг','э/энерг','квт'],
-   desc:'Членские взносы от садоводов. Агрегатор (40907/40911) без признаков эл-энергии → членские.'},
+   desc:'Членские взносы от садоводов.'},
   {id:'target',name:'Целевые взносы',color:'#00D4AA',
    kw:['целев','вступ','паевой'],
    desc:'Целевые и вступительные взносы.'},
@@ -339,7 +394,7 @@ const INCAT=[
 ];
 
 const EXCAT=[
-  /* ── Зарплата: включает задолженность и отпускные ── */
+  /* ── Зарплата: включает аванс ── */
   {id:'salary',name:'Зарплата / Подряд',color:'#FF7043',
    kw:[
      'зарплат','заработная плата','заработ','з/плата',
@@ -347,12 +402,13 @@ const EXCAT=[
      'задолженность по заработной','задолж. по зарп','задолж по зарп','задолженность по зарп',
      'задолженность по з/п','погашение задолженности по з','выплата з/п','з/п за',
      'отпускн','выплата за отпуск','оплата отпуска','задолженность по отпускн',
-     'компенсация за неиспользованный отпуск','отпуск за','за отпуск'
+     'компенсация за неиспользованный отпуск','отпуск за','за отпуск',
+     'аванс','выплата аванса','аванс по договору','аванс за','аванс работник'
    ],
    exc:['взыскан','исполнит'],
-   desc:'Зарплата, подряд, задолженность по з/п, отпускные, компенсация за неиспользованный отпуск.'},
+   desc:'Зарплата, подряд, задолженность по з/п, отпускные, компенсация за неиспользованный отпуск, аванс.'},
 
-  /* ── Взыскания / исполнительное производство ── */
+  /* ── Взыскания ── */
   {id:'levy',name:'Взыскания / Исполн. производство',color:'#FF1744',
    kw:[
      'взыскан','взыск ','взыска ','по взысканию',
@@ -364,7 +420,7 @@ const EXCAT=[
    exc:[],
    desc:'Взыскания, исполнительные листы, ФССП, судебные приказы, аресты счёта, инкассовые поручения.'},
 
-  /* ── Налоги (исключаем взыскания и страховые) ── */
+  /* ── Налоги ── */
   {id:'taxes',name:'Налоги / ФНС',color:'#EF5350',
    kw:['налог','ндфл','единый налог','фнс','ифнс','мифнс','казначейство','ст.46 нк','уфк','усн','упрощён','енс'],
    exc:['страхов','взыскан','исполнит'],
@@ -385,11 +441,17 @@ const EXCAT=[
   {id:'electricity_buy',name:'Закупка электроэнергии',color:'#FFA726',
    kw:['сбыт','энергосбыт','мрск','россети','тэн','передача электр'],
    exc:['комисс','взнос','налог','зарплат'],
-   desc:'Оплата поставщику электроэнергии.'},
+   desc:'Оплата поставщику электроэнергии (оптовая закупка).'},
+
+  {id:'electricity_pay',name:'Оплата электроэнергии',color:'#FFB300',
+   kw:['оплата электроэн','оплата э/э','оплата эл.энерг','оплата за электр','оплата за свет',
+       'электроэнерг','эл.энерг','э/энерг','эл/эн','за электр','за свет','квт','кв.ч','киловатт'],
+   exc:['сбыт','энергосбыт','мрск','россети','тэн','передача электр','членск','взнос','членский','зарплат','комисс','налог'],
+   desc:'Оплата электроэнергии (расход).'},
 
   {id:'accountable',name:'Подотчётные средства',color:'#66BB6A',
-   kw:['п/отчет','подотчет','хоз. нужды','хозяйственн','в подотчет','аванс','реестр','выплата под отчет'],
-   desc:'П/отчёт, хоз. нужды, авансы.'},
+   kw:['п/отчет','подотчет','хоз. нужды','хозяйственн','в подотчет','реестр','выплата под отчет'],
+   desc:'П/отчёт, хоз. нужды.'},
 
   {id:'services',name:'Услуги / Сервисы',color:'#7E57C2',
    kw:['услуг','сервис','по дог.','дог.орг','по счету','собр','по пор.кл','инкассо'],
@@ -400,7 +462,7 @@ const EXCAT=[
    desc:'Прочие расходы.'}
 ];
 
-const AGGR_ACCOUNTS=['40907810100002200010','40911810100020016050','40907810600000000001','40911810400180000540'];
+const AGGR_ACCOUNTS=['4.09078101000022e+19','4.091181010002002e+19','4.0907810600000004e+19','4.091181040018e+19'];
 let ACC_RULES=[];
 
 /* ══════════════════ УТИЛИТЫ ══════════════════ */
@@ -549,8 +611,8 @@ function parseRows(rows){
     const bankInfo=String(row[17]||'');
 
     function parseParty(s){
-      const lines=s.split(/[\n\r]/).map(x=>x.trim()).filter(Boolean);
-      return lines.length>=3?lines[2]:lines.length>=2?lines[1]:lines[0]||'';
+      const line=s.split(/[\n\r]/).map(x=>x.trim()).filter(Boolean);
+      return line.length>=3?line[2]:line.length>=2?line[1]:line[0]||'';
     }
 
     if(cAmt>0&&dAmt===0){
@@ -593,11 +655,36 @@ function parseRows(rows){
   initDates();applyF();
 }
 
+/* ══════════════════ ИНИЦИАЛИЗАЦИЯ ДАТ ══════════════════ */
 function initDates(){
   if(!RAW.length)return;
   const ds=RAW.map(r=>r.date.getTime());
-  document.getElementById('dFrom').value=iso(new Date(Math.min(...ds)));
-  document.getElementById('dTo').value=iso(new Date(Math.max(...ds)));
+  const minD=iso(new Date(Math.min(...ds)));
+  const maxD=iso(new Date(Math.max(...ds)));
+  const fromEl=document.getElementById('dFrom');
+  const toEl=document.getElementById('dTo');
+  fromEl.min=minD; fromEl.max=maxD;
+  toEl.min=minD;   toEl.max=maxD;
+  fromEl.value=minD;
+  toEl.value=maxD;
+  buildYearButtons(minD,maxD);
+}
+
+function buildYearButtons(minD,maxD){
+  const minY=parseInt(minD.slice(0,4));
+  const maxY=parseInt(maxD.slice(0,4));
+  const wrap=document.getElementById('pquick');
+  if(!wrap)return;
+  wrap.querySelectorAll('.pqb-year').forEach(b=>b.remove());
+  for(let y=maxY;y>=minY;y--){
+    const btn=document.createElement('button');
+    btn.className='pqb pqb-year';
+    btn.textContent=y+'г.';
+    const yr=y;
+    btn.onclick=function(){setPeriod('year:'+yr,this);};
+    const allBtn=document.getElementById('pqbAll');
+    if(allBtn)allBtn.after(btn);else wrap.appendChild(btn);
+  }
 }
 
 /* ══════════════════ ФИЛЬТР ══════════════════ */
@@ -621,13 +708,61 @@ function applyF(){
     if(el)el.textContent=`${fmtD(mn)} — ${fmtD(mx)} · ${FA.length} оп.`;
   }
 }
-function resetF(){initDates();applyF();}
+function resetF(){initDates();clearPqActive();applyF();}
 
 function recalc(){
   updateKPI();updateCatPanels();
   renderTbl('income',FI);renderTbl('expense',FE);renderTbl('all',FA);
   updateOv();
   if(document.querySelector('#tc-charts.active'))renderCharts();
+}
+
+/* ══════════════════ ПЕРИОД ══════════════════ */
+function clearPqActive(){document.querySelectorAll('.pqb').forEach(b=>b.classList.remove('act'));}
+function setPeriod(p,btn){
+  clearPqActive();
+  if(btn)btn.classList.add('act');
+  if(!RAW.length)return;
+  const ds=RAW.map(r=>r.date.getTime());
+  const dataMin=iso(new Date(Math.min(...ds)));
+  const dataMax=iso(new Date(Math.max(...ds)));
+  const now=new Date();
+  let f='',t='';
+  if(p==='all'){f=dataMin;t=dataMax;}
+  else if(p==='cm'){
+    f=iso(new Date(now.getFullYear(),now.getMonth(),1));
+    t=iso(new Date(now.getFullYear(),now.getMonth()+1,0));
+  }else if(p==='pm'){
+    f=iso(new Date(now.getFullYear(),now.getMonth()-1,1));
+    t=iso(new Date(now.getFullYear(),now.getMonth(),0));
+  }else if(p==='3m'){
+    f=iso(new Date(now.getFullYear(),now.getMonth()-2,1));
+    t=iso(new Date(now.getFullYear(),now.getMonth()+1,0));
+  }else if(p==='6m'){
+    f=iso(new Date(now.getFullYear(),now.getMonth()-5,1));
+    t=iso(new Date(now.getFullYear(),now.getMonth()+1,0));
+  }else if(p==='cq'){
+    const q=Math.floor(now.getMonth()/3);
+    f=iso(new Date(now.getFullYear(),q*3,1));
+    t=iso(new Date(now.getFullYear(),q*3+3,0));
+  }else if(p==='cy'){
+    f=iso(new Date(now.getFullYear(),0,1));
+    t=iso(new Date(now.getFullYear(),11,31));
+  }else if(p==='py'){
+    f=iso(new Date(now.getFullYear()-1,0,1));
+    t=iso(new Date(now.getFullYear()-1,11,31));
+  }else if(p.startsWith('year:')){
+    const yr=parseInt(p.split(':')[1]);
+    f=iso(new Date(yr,0,1));
+    t=iso(new Date(yr,11,31));
+  }
+  // Clamp to data range
+  if(f<dataMin)f=dataMin;
+  if(t>dataMax)t=dataMax;
+  const fromEl=document.getElementById('dFrom');
+  const toEl=document.getElementById('dTo');
+  fromEl.value=f;toEl.value=t;
+  applyF();
 }
 
 /* ══════════════════ KPI ══════════════════ */
@@ -922,7 +1057,14 @@ function sw(name){
 
 /* ══════════════════ ГРАФИКИ ══════════════════ */
 function dch(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
-function renderCharts(){
+function setChartPeriods(){
+  if(!FA.length)return;
+  const ds=FA.map(r=>r.date.getTime());
+  const s=fmtD(new Date(Math.min(...ds))),e=fmtD(new Date(Math.max(...ds)));
+  const txt=`${s} — ${e}`;
+  ['cpM','cpEP','cpIP','cpTE'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=txt;});
+}
+function renderCharts(){setChartPeriods();
   dch('chM');
   const months={};
   FA.forEach(r=>{
@@ -953,67 +1095,49 @@ function renderPie(id,data,cats){
   const sorted=cats.filter(c=>tot[c.id]).sort((a,b)=>(tot[b.id]||0)-(tot[a.id]||0));
   if(!sorted.length)return;
   const el=document.getElementById(id);if(!el)return;
-  charts[id]=new Chart(el.getContext('2d'),{type:'doughnut',data:{labels:sorted.map(c=>c.name),datasets:[{data:sorted.map(c=>tot[c.id]||0),backgroundColor:sorted.map(c=>c.color),borderWidth:2,borderColor:'#1a1d2e'}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#9ba3c7',font:{size:10},boxWidth:11}},tooltip:{callbacks:{label:ctx=>` ${fmtS(ctx.raw)}`}}}}});
+  charts[id]=new Chart(el.getContext('2d'),{type:'doughnut',data:{
+    labels:sorted.map(c=>c.name),
+    datasets:[{data:sorted.map(c=>tot[c.id]),backgroundColor:sorted.map(c=>c.color),borderWidth:1,borderColor:'#1a1d2e'}]
+  },options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#9ba3c7',font:{size:10},boxWidth:10,padding:8}}}}});
+}
+function saveChart(id,name){
+  const el=document.getElementById(id);if(!el)return;
+  const a=document.createElement('a');a.href=el.toDataURL('image/png');
+  a.download=`chart_${name}_${new Date().toISOString().slice(0,10)}.png`;a.click();
 }
 
-/* ══════════════════ ПРАВИЛА (вкладка) ══════════════════ */
+/* ══════════════════ ПРАВИЛА (отображение) ══════════════════ */
 function renderRules(){
-  const ri=document.getElementById('rulesI');const re=document.getElementById('rulesE');if(!ri||!re)return;
-  ri.innerHTML=INCAT.map(c=>`<div class="ri"><strong style="color:${c.color}">${c.name}</strong><p>${c.desc}</p></div>`).join('')+
-    `<div class="ri"><strong style="color:var(--acc)">✂️ Смешанные платежи</strong><p>Эл-энергия + взносы в одном платеже — автоматически делится по суммам из текста. Если суммы не найдены или не сходятся — попадает в «Прочие», кнопка ✂️ для ручного разбиения.</p></div>
-     <div class="ri"><strong style="color:var(--tx2)">🏦 Агрегатор 40907/40911</strong><p>Без признаков эл-энергии → Членские взносы. Можно переопределить через ⚙️ Правила счётов/ИНН.</p></div>`;
-  re.innerHTML=EXCAT.map(c=>`<div class="ri"><strong style="color:${c.color}">${c.name}</strong><p>${c.desc}</p></div>`).join('');
+  const ri=document.getElementById('rulesI');
+  const re=document.getElementById('rulesE');
+  if(ri)ri.innerHTML=INCAT.map(c=>`<div class="ri"><strong style="color:${c.color}">${c.name}</strong><p>${c.desc||''}</p></div>`).join('');
+  if(re)re.innerHTML=EXCAT.map(c=>`<div class="ri"><strong style="color:${c.color}">${c.name}</strong><p>${c.desc||''}</p></div>`).join('');
 }
 
 /* ══════════════════ ЭКСПОРТ ══════════════════ */
-function buildRows(data,withType){
-  const h=withType?['Дата','Тип','Сумма','Категория','Разделён','Контрагент','Назначение']:['Дата','Сумма','Категория','Разделён','Контрагент','Назначение'];
-  const rows=[h];
-  data.forEach(r=>{
-    const cat=getCat(r.catId,r.type==='income').name;
-    const row=[fmtD(r.date)];
-    if(withType)row.push(r.type==='income'?'Приход':'Расход');
-    row.push(+r.amount.toFixed(2),cat,r.isSplit?'Да':'-',(r.party||'').replace(/\n/g,' '),r.desc);
-    rows.push(row);
-  });
-  return rows;
-}
 function expX(type){
   const data=type==='income'?FI:type==='expense'?FE:FA;
   if(!data.length){toast('Нет данных');return;}
-  const wb2=XLSX.utils.book_new();
-  const ws=XLSX.utils.aoa_to_sheet(buildRows(data,type==='all'));
-  ws['!cols']=[{wch:12},{wch:10},{wch:14},{wch:26},{wch:8},{wch:30},{wch:80}];
-  const nm=type==='income'?'Приходы':type==='expense'?'Расходы':'Все';
-  XLSX.utils.book_append_sheet(wb2,ws,nm);
-  XLSX.writeFile(wb2,`Выписка_${nm}_${new Date().toISOString().slice(0,10)}.xlsx`);
-  toast(`✅ "${nm}" скачан`);
+  const rows=data.map(r=>({
+    'Дата':fmtD(r.date),'Тип':r.type==='income'?'Приход':'Расход',
+    'Сумма':r.amount,'Категория':getCat(r.catId,r.type==='income').name,
+    'Контрагент':r.party,'Назначение':r.desc
+  }));
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Данные');
+  XLSX.writeFile(wb,`export_${type}_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 function exportFull(){
-  if(!RAW.length)return;
-  const wb2=XLSX.utils.book_new();
-  [['income','Приходы'],['expense','Расходы'],['all','Все']].forEach(([k,n])=>{
-    const data=k==='income'?FI:k==='expense'?FE:FA;
-    const ws=XLSX.utils.aoa_to_sheet(buildRows(data,k==='all'));
-    ws['!cols']=[{wch:12},{wch:10},{wch:14},{wch:26},{wch:8},{wch:30},{wch:80}];
-    XLSX.utils.book_append_sheet(wb2,ws,n);
-  });
-  const tI=FI.reduce((s,r)=>s+r.amount,0),tE=FE.reduce((s,r)=>s+r.amount,0);
-  const ic={},ec={};
-  FI.forEach(r=>{const n=getCat(r.catId,true).name;ic[n]=(ic[n]||0)+r.amount;});
-  FE.forEach(r=>{const n=getCat(r.catId,false).name;ec[n]=(ec[n]||0)+r.amount;});
-  const summ=[
-    ['Показатель','Значение'],
-    ['Период',document.getElementById('pInfo').textContent],
-    ['Приходы',+tI.toFixed(2)],['Расходы',+tE.toFixed(2)],['Баланс',+(tI-tE).toFixed(2)],
-    ['Разделённых платежей',RAW.filter(r=>r.isSplit).length],['',''],
-    ['ПРИХОДЫ ПО КАТЕГОРИЯМ',''],...Object.entries(ic).sort((a,b)=>b[1]-a[1]).map(([n,v])=>[n,+v.toFixed(2)]),
-    ['',''],['РАСХОДЫ ПО КАТЕГОРИЯМ',''],...Object.entries(ec).sort((a,b)=>b[1]-a[1]).map(([n,v])=>[n,+v.toFixed(2)])
-  ];
-  const ws4=XLSX.utils.aoa_to_sheet(summ);ws4['!cols']=[{wch:36},{wch:18}];
-  XLSX.utils.book_append_sheet(wb2,ws4,'Сводка');
-  XLSX.writeFile(wb2,`Полный_отчёт_${new Date().toISOString().slice(0,10)}.xlsx`);
-  toast('✅ Полный отчёт скачан (4 листа)');
+  if(!RAW.length){toast('Нет данных');return;}
+  const rows=RAW.map(r=>({
+    'Дата':fmtD(r.date),'Тип':r.type==='income'?'Приход':'Расход',
+    'Сумма':r.amount,'Категория':getCat(r.catId,r.type==='income').name,
+    'Контрагент':r.party,'Назначение':r.desc,
+    'Разделён':r.isSplit?'Да':'Нет'
+  }));
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Все операции');
+  XLSX.writeFile(wb,`full_export_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 </script>
 </body>
