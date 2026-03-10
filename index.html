@@ -1,1238 +1,1632 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎵 АудиоФорж</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AudioForge — Улучшение Голосового Аудио</title>
+  <!-- No Tailwind CDN — pure CSS used throughout -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inconsolata:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- lamejs: pure-JS MP3 encoder, no SharedArrayBuffer needed -->
   <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<style>
-:root {
-  --bg:    #FFF8EE; --bg2: #FFF0D8; --white: #FFFFFF;
-  --red:   #FF6B6B; --teal:#45C4B0; --teal2:#2AA99A;
-  --yel:   #F5C800; --purp:#C77DFF; --purp2:#A855E8;
-  --grn:   #6BCB77; --grn2:#4EB55A; --ora:  #FF9F43;
-  --txt:   #3D2B1F; --txt2:#7A5C4E; --txt3: #B8967E;
-  --brd:   #F0D8C0; --brd2:#E8C8A8;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:var(--bg);background-image:radial-gradient(circle at 8% 15%,#FF6B6B14 0%,transparent 40%),radial-gradient(circle at 92% 85%,#45C4B014 0%,transparent 40%);color:var(--txt);font-family:'Nunito',sans-serif;min-height:100vh;font-size:13px}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--red);border-radius:3px}
-.wrap{max-width:960px;margin:0 auto;padding:12px 16px 40px}
-.row{display:grid;gap:12px}
-.row2{grid-template-columns:1fr 1fr}
-.row3{grid-template-columns:1fr 1fr 1fr}
-@media(max-width:640px){.row2,.row3{grid-template-columns:1fr}}
-.card{background:var(--white);border-radius:20px;border:2.5px solid var(--brd);box-shadow:0 4px 18px rgba(61,43,31,.10);padding:16px}
-.card-r{border-color:#FFB3B3;box-shadow:0 4px 20px rgba(255,107,107,.14)}
-.card-t{border-color:#A8EAE2;box-shadow:0 4px 20px rgba(69,196,176,.14)}
-.card-y{border-color:#FFE080;box-shadow:0 4px 20px rgba(245,200,0,.12)}
-.card-p{border-color:#E4BFFF;box-shadow:0 4px 20px rgba(199,125,255,.14)}
-.card-g{border-color:#B5EEBB;box-shadow:0 4px 20px rgba(107,203,119,.14)}
-.stitle{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-.stitle h3{font-size:14px;font-weight:900;color:var(--txt)}
-.sicon{font-size:17px;line-height:1}
-.drop{border:2.5px dashed var(--brd2);border-radius:14px;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;background:var(--bg);transition:all .25s}
-.drop:hover,.drop.over{border-color:var(--red);background:#FFF0F0;transform:scale(1.01)}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:var(--bg2);outline:none;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--red);border:2.5px solid white;box-shadow:0 1px 6px rgba(255,107,107,.5);cursor:pointer;transition:transform .15s}
-input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
-input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--red);border:2.5px solid white;cursor:pointer;border:none}
-.s-t::-webkit-slider-thumb{background:var(--teal);box-shadow:0 1px 6px rgba(69,196,176,.5)}.s-t::-moz-range-thumb{background:var(--teal)}
-.s-y::-webkit-slider-thumb{background:var(--yel);box-shadow:0 1px 6px rgba(245,200,0,.5)}.s-y::-moz-range-thumb{background:var(--yel)}
-.s-p::-webkit-slider-thumb{background:var(--purp);box-shadow:0 1px 6px rgba(199,125,255,.5)}.s-p::-moz-range-thumb{background:var(--purp)}
-.tog-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
-.tog{position:relative;width:46px;height:24px;flex-shrink:0}
-.tog input{display:none}
-.tog-bg{position:absolute;inset:0;border-radius:12px;background:var(--brd2);border:2px solid var(--brd2);transition:all .25s}
-.tog input:checked+.tog-bg{background:var(--teal);border-color:var(--teal2)}
-.tog-k{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:white;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .25s}
-.tog input:checked~.tog-k{transform:translateX(22px)}
-.play-btn{width:44px;height:44px;border-radius:50%;background:var(--red);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(255,107,107,.5);transition:all .18s;flex-shrink:0}
-.play-btn:hover{transform:scale(1.08);box-shadow:0 5px 18px rgba(255,107,107,.6)}
-.play-btn:active{transform:scale(.93)}
-.play-btn svg{fill:white;width:17px;height:17px;display:block}
-.ctrl-btn{width:34px;height:34px;border-radius:50%;background:var(--bg);border:2px solid var(--brd);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .18s;flex-shrink:0}
-.ctrl-btn:hover{border-color:var(--red);background:#FFF0F0;transform:scale(1.1)}
-.prog-wrap{position:relative;height:10px;border-radius:5px;background:var(--bg2);cursor:pointer;user-select:none;touch-action:none}
-.prog-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--red),var(--ora));pointer-events:none;position:relative;transition:none}
-.prog-fill::after{content:'';position:absolute;right:-7px;top:-3px;width:16px;height:16px;border-radius:50%;background:var(--red);border:2.5px solid white;box-shadow:0 1px 6px rgba(255,107,107,.5)}
-#viz{width:100%;height:70px;display:block;border-radius:10px;background:var(--bg2)}
-select,input[type=text],input[type=number]{background:var(--bg);border:2px solid var(--brd);border-radius:10px;color:var(--txt);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;padding:7px 12px;outline:none;width:100%;transition:border-color .2s}
-select:focus,input[type=text]:focus,input[type=number]:focus{border-color:var(--purp)}
-.badge{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;white-space:nowrap}
-.btn{border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;padding:9px 18px;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:7px}
-.btn:hover:not(:disabled){transform:translateY(-1px)}.btn:active:not(:disabled){transform:translateY(0)}.btn:disabled{opacity:.4;cursor:not-allowed}
-.btn-r{background:var(--red);color:white;box-shadow:0 3px 12px rgba(255,107,107,.35)}.btn-r:hover:not(:disabled){box-shadow:0 5px 18px rgba(255,107,107,.5)}
-.btn-t{background:var(--teal);color:white;box-shadow:0 3px 12px rgba(69,196,176,.35)}
-.btn-p{background:var(--purp);color:white;box-shadow:0 3px 12px rgba(199,125,255,.35)}
-.btn-g{background:var(--grn);color:white;box-shadow:0 3px 12px rgba(107,203,119,.35)}
-.btn-out{background:white;border:2px solid var(--brd);color:var(--txt2)}.btn-out:hover:not(:disabled){border-color:var(--red);color:var(--red)}
-.btn-full{width:100%;justify-content:center}
-.pbtn{border:2px solid var(--brd);border-radius:14px;padding:10px 12px;background:var(--bg);color:var(--txt2);font-family:'Nunito',sans-serif;cursor:pointer;transition:all .2s;text-align:left;width:100%}
-.pbtn:hover{background:white;transform:translateY(-1px);box-shadow:0 4px 14px rgba(61,43,31,.12)}
-.pbtn.act-r{border-color:var(--red);background:#FFF5F5}.pbtn.act-y{border-color:var(--yel);background:#FFFADC}.pbtn.act-t{border-color:var(--teal);background:#F0FAFA}
-.sl-item{display:flex;align-items:center;gap:8px;background:var(--bg);border:2px solid var(--brd);border-radius:12px;padding:8px 12px;transition:border-color .2s}
-.sl-item:hover{border-color:var(--purp)}
-.sl-num{width:26px;height:26px;border-radius:50%;background:var(--purp);color:white;font-weight:900;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sl-del{width:24px;height:24px;border-radius:50%;border:2px solid #FFB3B3;background:#FFF0F0;color:var(--red);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;transition:all .18s;margin-left:auto;flex-shrink:0}
-.sl-del:hover{background:var(--red);color:white;border-color:var(--red)}
-.tabs{display:flex;gap:4px;background:var(--bg2);border-radius:12px;padding:3px;margin-bottom:12px}
-.tab{flex:1;padding:7px;border-radius:9px;border:none;background:transparent;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:var(--txt2);cursor:pointer;transition:all .2s}
-.tab.on{background:white;color:var(--txt);box-shadow:0 2px 8px rgba(61,43,31,.10)}
-.xbar{height:8px;border-radius:4px;background:var(--bg2);overflow:hidden}
-.xbar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--teal),var(--grn));transition:width .3s}
-.finfo{display:flex;align-items:center;gap:10px;background:var(--bg);border:2px solid var(--brd);border-radius:12px;padding:10px 12px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
-.hidden{display:none!important}
-.flex{display:flex}.items-c{align-items:center}.j-between{justify-content:space-between}.j-center{justify-content:center}
-.flex-1{flex:1 1 0%}.ml-a{margin-left:auto}.gap2{gap:8px}.gap3{gap:12px}
-.mt1{margin-top:4px}.mt2{margin-top:8px}.mt3{margin-top:12px}.mb2{margin-bottom:8px}.mb3{margin-bottom:12px}
-.lbl{font-size:11px;font-weight:800;color:var(--txt2);display:block;margin-bottom:5px}
-.hint{font-size:10px;color:var(--txt3);margin-top:3px}
-.ovx{overflow-x:auto}
-.cbox{font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;white-space:nowrap}
-.carr{color:var(--txt3);font-size:12px;padding:0 1px}
-@keyframes fUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.a1{animation:fUp .4s .05s ease both}.a2{animation:fUp .4s .12s ease both}.a3{animation:fUp .4s .19s ease both}
-.a4{animation:fUp .4s .26s ease both}.a5{animation:fUp .4s .33s ease both}
 
-/* ── WAVEFORM + TRIM ───────────────────────── */
-.wf-wrap{position:relative;height:130px;border-radius:14px;overflow:hidden;background:#FFF0D8;cursor:crosshair;user-select:none;touch-action:none}
-.wf-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.wf-loader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;background:rgba(255,248,238,.95);transition:opacity .3s}
-/* Dual range track */
-.drange{position:relative;height:32px;margin:2px 0 6px}
-.drange-bg{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:6px;border-radius:3px;background:var(--brd2);pointer-events:none}
-.drange-sel{position:absolute;top:0;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal),var(--purp));pointer-events:none}
-.drange input[type=range]{position:absolute;width:100%;height:6px;pointer-events:none;-webkit-appearance:none;appearance:none;background:transparent;outline:none;top:50%;transform:translateY(-50%);margin:0;padding:0}
-.drange input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;pointer-events:all;cursor:grab;border:3px solid white;transition:transform .15s}
-.drange input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18)}
-.drange input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.25)}
-.drange input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;pointer-events:all;border:none;cursor:grab}
-#trimStartSl{z-index:3}
-#trimEndSl{z-index:4}
-#trimStartSl::-webkit-slider-thumb{background:var(--teal);box-shadow:0 2px 10px rgba(69,196,176,.7)}
-#trimEndSl::-webkit-slider-thumb{background:var(--purp);box-shadow:0 2px 10px rgba(199,125,255,.7)}
-#trimStartSl::-moz-range-thumb{background:var(--teal)}
-#trimEndSl::-moz-range-thumb{background:var(--purp)}
-.trim-times{display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;margin-bottom:8px}
-.trim-t-start{text-align:left}.trim-t-end{text-align:right}
-</style>
+  <style>
+    /* ═══════════════════════════════════════════
+       DESIGN TOKENS — Studio/Cyberpunk Aesthetic
+    ═══════════════════════════════════════════ */
+    :root {
+      --bg:       #04060d;
+      --surface:  #080c18;
+      --card:     #0b1020;
+      --border:   #162035;
+      --border2:  #1e2e4a;
+      --cyan:     #00e5ff;
+      --cyan2:    #00a8d4;
+      --amber:    #ffaa00;
+      --coral:    #ff3f55;
+      --green:    #00ff8c;
+      --text:     #dce8ff;
+      --muted:    #4a6585;
+      --muted2:   #2a3f60;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      /* Dot-grid + radial mood lighting */
+      background-image:
+        radial-gradient(ellipse 80% 50% at 15% 10%, #00e5ff09 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 85% 90%, #ffaa0006 0%, transparent 60%),
+        radial-gradient(circle, #162035 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 26px 26px;
+      color: var(--text);
+      font-family: 'Inconsolata', monospace;
+      min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 3px; height: 3px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 2px; }
+
+    /* ── TYPOGRAPHY ─────────────────────────────── */
+    .font-display { font-family: 'Orbitron', monospace; }
+    .text-cyan  { color: var(--cyan); }
+    .text-amber { color: var(--amber); }
+    .text-coral { color: var(--coral); }
+    .text-muted { color: var(--muted); }
+
+    .glow-text-cyan  { text-shadow: 0 0 24px #00e5ff90, 0 0 48px #00e5ff40; }
+    .glow-box-cyan   { box-shadow: 0 0 16px #00e5ff30, 0 0 32px #00e5ff14; }
+    .glow-box-amber  { box-shadow: 0 0 16px #ffaa0030, 0 0 32px #ffaa0014; }
+
+    /* ── CARD ───────────────────────────────────── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(145deg, #00e5ff07 0%, transparent 45%);
+      pointer-events: none;
+    }
+    /* Top accent line on cards */
+    .card-accent::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--cyan), transparent);
+      border-radius: 14px 14px 0 0;
+    }
+
+    /* ── SECTION TITLE ──────────────────────────── */
+    .sec-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .sec-title-bar {
+      width: 3px;
+      height: 16px;
+      background: var(--cyan);
+      border-radius: 2px;
+      box-shadow: 0 0 8px var(--cyan);
+      flex-shrink: 0;
+    }
+    .sec-title h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      color: var(--text);
+    }
+
+    /* ── UPLOAD ZONE ────────────────────────────── */
+    .upload-zone {
+      border: 2px dashed var(--border2);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--cyan);
+      background: #00e5ff07;
+      box-shadow: inset 0 0 30px #00e5ff08, 0 0 20px #00e5ff10;
+    }
+    .upload-icon {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: #00e5ff12;
+      border: 1px solid #00e5ff30;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── SLIDERS ────────────────────────────────── */
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border2);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px #00e5ff90;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+      box-shadow: 0 0 14px #00e5ffb0;
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px #00e5ff90;
+      cursor: pointer;
+      border: none;
+    }
+    .slider-amber::-webkit-slider-thumb { background: var(--amber); box-shadow: 0 0 8px #ffaa0090; }
+    .slider-amber::-moz-range-thumb     { background: var(--amber); box-shadow: 0 0 8px #ffaa0090; }
+    .slider-coral::-webkit-slider-thumb { background: var(--coral); box-shadow: 0 0 8px #ff3f5590; }
+    .slider-coral::-moz-range-thumb     { background: var(--coral); box-shadow: 0 0 8px #ff3f5590; }
+    .slider-green::-webkit-slider-thumb { background: var(--green); box-shadow: 0 0 8px #00ff8c90; }
+    .slider-green::-moz-range-thumb     { background: var(--green); box-shadow: 0 0 8px #00ff8c90; }
+
+    /* ── TOGGLE ─────────────────────────────────── */
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .toggle { position: relative; width: 52px; height: 26px; flex-shrink: 0; }
+    .toggle input { display: none; }
+    .toggle-bg {
+      position: absolute; inset: 0;
+      border-radius: 13px;
+      background: var(--border2);
+      border: 1px solid var(--border);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .toggle input:checked + .toggle-bg {
+      background: #00e5ff25;
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px #00e5ff30;
+    }
+    .toggle-knob {
+      position: absolute; top: 2px; left: 2px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: transform 0.3s, background 0.3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    }
+    .toggle input:checked ~ .toggle-knob {
+      transform: translateX(26px);
+      background: var(--cyan);
+      box-shadow: 0 0 8px #00e5ff80;
+    }
+
+    /* ── PRESET BUTTONS ─────────────────────────── */
+    .preset-btn {
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      color: var(--muted);
+      font-family: 'Inconsolata', monospace;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-align: left;
+      width: 100%;
+    }
+    .preset-btn:hover   { background: #00e5ff08; border-color: #00e5ff50; color: var(--text); }
+    .preset-btn.active  { border-color: var(--cyan); background: #00e5ff0f; box-shadow: 0 0 14px #00e5ff1a; }
+
+    /* ── PLAYER CONTROLS ────────────────────────── */
+    .play-btn {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      background: var(--cyan);
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 0 0 18px #00e5ff50, 0 2px 8px rgba(0,0,0,0.4);
+      flex-shrink: 0;
+    }
+    .play-btn:hover  { transform: scale(1.08); box-shadow: 0 0 28px #00e5ff80; }
+    .play-btn:active { transform: scale(0.94); }
+    .play-btn svg    { fill: #000; width: 18px; height: 18px; }
+
+    .ctrl-btn {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .ctrl-btn:hover { border-color: var(--cyan); background: #00e5ff0a; }
+
+    /* ── PROGRESS BAR ───────────────────────────── */
+    .progress-track {
+      position: relative; height: 5px;
+      border-radius: 3px;
+      background: var(--border2);
+      cursor: pointer;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--cyan2), var(--cyan));
+      transition: width 0.1s linear;
+      position: relative;
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute; right: -5px; top: -3px;
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px #00e5ff90;
+    }
+
+    /* ── CANVAS VISUALIZER ──────────────────────── */
+    #vizCanvas {
+      width: 100%; height: 90px;
+      display: block; border-radius: 8px;
+    }
+
+    /* ── STATUS BADGE ───────────────────────────── */
+    .badge {
+      font-family: 'Inconsolata', monospace;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 1px;
+      padding: 3px 8px; border-radius: 5px;
+      white-space: nowrap;
+    }
+
+    /* ── SELECT ─────────────────────────────────── */
+    select {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Inconsolata', monospace;
+      font-size: 13px;
+      padding: 8px 12px;
+      outline: none;
+      cursor: pointer;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    select:focus { border-color: var(--cyan); }
+    select option { background: #0e1628; }
+
+    /* ── DOWNLOAD BUTTON ────────────────────────── */
+    .dl-btn {
+      background: linear-gradient(135deg, var(--cyan), var(--cyan2));
+      border: none; border-radius: 9px;
+      color: #020c14;
+      font-family: 'Orbitron', monospace;
+      font-weight: 700; font-size: 12px;
+      letter-spacing: 1.5px;
+      padding: 13px 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .dl-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 22px #00e5ff50; }
+    .dl-btn:active:not(:disabled){ transform: translateY(0); }
+    .dl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── SPINNER ────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid #00000050; border-top-color: #000;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+
+    /* ── UTILITY REPLACEMENTS (replaces Tailwind CDN) ── */
+    .hidden   { display: none !important; }
+    .flex     { display: flex; }
+    .grid     { display: grid; }
+    .block    { display: block; }
+    .inline-block { display: inline-block; }
+    .items-center   { align-items: center; }
+    .justify-between{ justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .flex-wrap  { flex-wrap: wrap; }
+    .flex-1     { flex: 1 1 0%; }
+    .flex-shrink-0 { flex-shrink: 0; }
+    .ml-auto  { margin-left: auto; }
+    .mt-1  { margin-top: 4px; }
+    .mt-2  { margin-top: 8px; }
+    .mt-3  { margin-top: 12px; }
+    .mt-4  { margin-top: 16px; }
+    .mt-5  { margin-top: 20px; }
+    .mt-6  { margin-top: 24px; }
+    .mb-1  { margin-bottom: 4px; }
+    .mb-2  { margin-bottom: 8px; }
+    .mb-3  { margin-bottom: 12px; }
+    .mb-4  { margin-bottom: 16px; }
+    .mb-5  { margin-bottom: 20px; }
+    .p-4   { padding: 16px; }
+    .p-5   { padding: 20px; }
+    .pb-8  { padding-bottom: 32px; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-4 { gap: 16px; }
+    .gap-5 { gap: 20px; }
+    .w-full  { width: 100%; }
+    .max-w-5xl  { max-width: 1024px; }
+    .max-w-28   { max-width: 112px; }
+    .mx-auto    { margin-left: auto; margin-right: auto; }
+    .overflow-hidden   { overflow: hidden; }
+    .overflow-x-auto   { overflow-x: auto; }
+    .text-center { text-align: center; }
+    .text-xs  { font-size: 12px; }
+    .text-2xl { font-size: 24px; }
+    .text-3xl { font-size: 30px; }
+    .cursor-pointer { cursor: pointer; }
+    .vertical-middle { vertical-align: middle; }
+    .relative { position: relative; }
+    .absolute { position: absolute; }
+    /* Grid layouts */
+    .grid-cols-1 { grid-template-columns: 1fr; }
+    @media (min-width: 768px) {
+      .md\:grid-cols-2 { grid-template-columns: 1fr 1fr; }
+      .md\:grid-cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+      .gap-x-8 { column-gap: 32px; }
+      .gap-y-6 { row-gap: 24px; }
+      .p-6     { padding: 24px; }
+      .p-8     { padding: 32px; }
+    }
+    .min-w-max { min-width: max-content; }
+    /* ── FADE-IN ANIMATIONS ─────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim { animation: fadeUp 0.55s ease both; }
+    .d1 { animation-delay: 0.05s; }
+    .d2 { animation-delay: 0.15s; }
+    .d3 { animation-delay: 0.25s; }
+    .d4 { animation-delay: 0.35s; }
+    .d5 { animation-delay: 0.45s; }
+
+    /* ── CHAIN NODES ────────────────────────────── */
+    .chain-box {
+      font-size: 9px; letter-spacing: 0.5px;
+      padding: 5px 9px; border-radius: 5px;
+      white-space: nowrap; font-weight: 600;
+    }
+    .chain-arrow { color: var(--muted); font-size: 12px; padding: 0 1px; }
+
+    /* ── FILE INFO ──────────────────────────────── */
+    .file-info-box {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 8px; padding: 10px 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .file-icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: #00e5ff12; border: 1px solid #00e5ff25;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── PROGRESS BAR (Export) ──────────────────── */
+    .exp-bar-track {
+      height: 4px; border-radius: 2px;
+      background: var(--border2); overflow: hidden;
+    }
+    .exp-bar-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      transition: width 0.3s ease;
+    }
+  </style>
 </head>
-<body>
-<div class="wrap">
 
-<!-- HEADER -->
-<header class="flex items-c j-between gap2 a1" style="margin-bottom:12px;flex-wrap:wrap">
-  <div class="flex items-c gap2">
-    <span style="font-size:26px">🎵</span>
-    <div>
-      <div style="font-size:22px;font-weight:900;line-height:1.1">Аудио<span style="color:var(--red)">Форж</span></div>
-      <div style="font-size:11px;color:var(--txt2);font-weight:700">Обработка голоса · В браузере</div>
-    </div>
-  </div>
-  <div id="codecStatus" class="badge" style="background:#FFF8D6;color:#A08000;border:2px solid #FFE080">⏳ Загрузка...</div>
-</header>
-<div style="height:3px;background:linear-gradient(90deg,var(--red),var(--ora),var(--yel),var(--grn),var(--teal),var(--purp));border-radius:2px;margin-bottom:12px"></div>
+<body class="p-4 md:p-6 lg:p-8">
 
-<!-- ROW 1 -->
-<div class="row row2 a2" style="margin-bottom:12px">
-
-  <!-- UPLOAD -->
-  <div class="card card-r">
-    <div class="stitle"><span class="sicon">🎤</span><h3>Загрузка файла</h3></div>
-    <div id="dropZone" class="drop mb2">
-      <span style="font-size:26px">🎧</span>
-      <span style="font-size:13px;color:var(--txt2);font-weight:700">Перетащи или выбери файл</span>
-      <label for="fileInput" class="btn btn-r" style="cursor:pointer;padding:7px 16px">📁 Выбрать</label>
-      <input type="file" id="fileInput" accept="audio/*" class="hidden"/>
-      <span style="font-size:10px;color:var(--txt3);font-weight:700">MP3 · WAV · M4A · OGG · FLAC</span>
-    </div>
-    <div id="fileInfo" class="finfo hidden">
-      <span style="font-size:20px">🎶</span>
-      <div style="overflow:hidden;flex:1">
-        <div id="fileName" style="font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px"></div>
-        <div id="fileSize" style="font-size:11px;color:var(--txt2)"></div>
-      </div>
-      <div id="loadDot" class="spin hidden" style="border-top-color:var(--red);border-color:#FFB3B3;flex-shrink:0"></div>
-    </div>
-    <div class="row row2 mt2" style="gap:8px">
-      <div style="background:var(--bg);border:2px solid var(--brd);border-radius:10px;padding:8px">
-        <div style="font-size:10px;font-weight:800;color:var(--red);margin-bottom:2px">⚙ ОБРАБОТКА</div>
-        <div style="font-size:10px;color:var(--txt2);font-weight:700">Web Audio · Локально</div>
-      </div>
-      <div style="background:var(--bg);border:2px solid var(--brd);border-radius:10px;padding:8px">
-        <div style="font-size:10px;font-weight:800;color:var(--teal);margin-bottom:2px">📤 ЭКСПОРТ</div>
-        <div style="font-size:10px;color:var(--txt2);font-weight:700">MP3 · WAV · OGG · AAC</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PLAYER -->
-  <div class="card card-t">
-    <div class="stitle">
-      <span class="sicon">▶️</span><h3>Плеер</h3>
-      <div class="tog-wrap ml-a">
-        <span style="font-size:11px;color:var(--txt2);font-weight:800">Ори</span>
-        <label class="tog">
-          <input type="checkbox" id="procToggle" checked/>
-          <div class="tog-bg"></div><div class="tog-k"></div>
-        </label>
-        <span style="font-size:11px;color:var(--teal);font-weight:800">Обр</span>
-      </div>
-    </div>
-
-    <canvas id="viz"></canvas>
-
-    <div class="flex j-between mt2" style="margin-bottom:4px">
-      <span id="currTime" style="font-size:12px;color:var(--red);font-weight:800">0:00</span>
-      <span id="totTime"  style="font-size:12px;color:var(--txt2);font-weight:700">0:00</span>
-    </div>
-    <div id="progWrap" class="prog-wrap mb3">
-      <div id="progFill" class="prog-fill" style="width:0%"></div>
-    </div>
-
-    <div class="flex items-c gap2 j-center">
-      <button class="ctrl-btn" id="btnRestart" title="К началу">⏮</button>
-      <button class="play-btn" id="btnPlay">
-        <svg id="playIco" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-      </button>
-      <div class="flex items-c gap2 flex-1" style="max-width:110px">
-        <span style="font-size:13px">🔊</span>
-        <input type="range" id="volSlider" min="0" max="100" value="80"/>
-      </div>
-    </div>
-
-    <div class="flex j-center mt2">
-      <span id="modeBadge" class="badge" style="background:#E0F7F5;color:var(--teal2);border:2px solid #A8EAE2">✨ Обработка активна</span>
-    </div>
-  </div>
-</div>
-
-<!-- ROW 2: Waveform + Trim -->
-<div class="card a3" style="margin-bottom:12px;border-color:#D4CCFF;box-shadow:0 4px 20px rgba(199,125,255,.14)">
-  <div class="stitle">
-    <span class="sicon">🎛</span><h3>Форма волны и обрезка</h3>
-    <span id="wfStatus" class="badge ml-a" style="background:#F5E8FF;color:var(--purp2);border:2px solid #E4BFFF">⏳ Ожидание</span>
-  </div>
-
-  <!-- Waveform canvas -->
-  <div class="wf-wrap mb2" id="wfWrap">
-    <canvas id="wfCanvas" class="wf-canvas"></canvas>
-    <div id="wfLoader" class="wf-loader">
-      <span style="font-size:28px">📊</span>
-      <p style="font-size:12px;color:var(--txt2);font-weight:700;text-align:center">Нажми для анализа и визуализации аудио</p>
-      <button class="btn btn-p" onclick="loadWaveform()" id="wfLoadBtn">🔍 Анализировать файл</button>
-    </div>
-  </div>
-
-  <!-- Dual-range slider -->
-  <div class="drange" id="drangeWrap">
-    <div class="drange-bg"><div id="drangeSel" class="drange-sel"></div></div>
-    <input type="range" id="trimStartSl" min="0" max="1000" value="0"    step="1" oninput="onTrimSlider('start')"/>
-    <input type="range" id="trimEndSl"   min="0" max="1000" value="1000" step="1" oninput="onTrimSlider('end')"/>
-  </div>
-
-  <!-- Time labels -->
-  <div class="trim-times mb2">
-    <span class="trim-t-start"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--teal);margin-right:4px;vertical-align:middle"></span><span id="trimStartLbl" style="font-size:12px;font-weight:900;color:var(--teal)">0:00</span></span>
-    <span style="font-size:11px;font-weight:800;color:var(--txt2)" id="trimDurLbl">Весь файл</span>
-    <span class="trim-t-end"><span id="trimEndLbl" style="font-size:12px;font-weight:900;color:var(--purp)">0:00</span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--purp);margin-left:4px;vertical-align:middle"></span></span>
-  </div>
-
-  <!-- Actions -->
-  <div class="flex gap2" style="flex-wrap:wrap">
-    <button class="btn btn-t"   id="btnPreviewTrim" onclick="previewTrim()"    disabled>▶ С начала обрезки</button>
-    <button class="btn btn-p"   id="btnSaveTrim"    onclick="saveTrimmedWav()" disabled>💾 Сохранить WAV</button>
-    <button class="btn btn-out" id="btnResetTrim"   onclick="resetTrim()"      disabled style="margin-left:auto">🔄 Сбросить</button>
-  </div>
-
-  <!-- Save progress -->
-  <div id="trimProg" class="hidden mt2">
-    <div class="flex j-between mb1">
-      <span id="trimProgLbl" style="font-size:11px;color:var(--txt2);font-weight:700">Кодирование...</span>
-      <span id="trimProgPct" style="font-size:11px;color:var(--purp);font-weight:800">0%</span>
-    </div>
-    <div class="xbar"><div id="trimProgFill" class="xbar-fill" style="width:0%;background:linear-gradient(90deg,var(--purp),var(--teal))"></div></div>
-  </div>
-</div>
-
-<!-- ROW 3: Presets + Controls (was ROW 2) -->
-<div class="card card-y a3" style="margin-bottom:12px">
-  <div class="tabs">
-    <button class="tab on" id="tab-pre" onclick="showTab('pre')">⚡ Пресеты</button>
-    <button class="tab"    id="tab-ctl" onclick="showTab('ctl')">🎚 Параметры</button>
-  </div>
-  <div id="pane-pre">
-    <div class="row row3" style="gap:8px">
-      <button class="pbtn" id="pr-podcast" onclick="applyPreset('podcast')">
-        <div style="font-size:15px;margin-bottom:4px">🎙</div>
-        <div style="font-size:12px;font-weight:900;color:var(--red);margin-bottom:2px">Подкаст</div>
-        <div style="font-size:11px;color:var(--txt2);font-weight:700;line-height:1.4">Сбалансированный EQ, умеренная компрессия</div>
-      </button>
-      <button class="pbtn" id="pr-loud" onclick="applyPreset('loud')">
-        <div style="font-size:15px;margin-bottom:4px">📢</div>
-        <div style="font-size:12px;font-weight:900;color:var(--yel);margin-bottom:2px">Тихая запись</div>
-        <div style="font-size:11px;color:var(--txt2);font-weight:700;line-height:1.4">Высокое усиление, агрессивная компрессия</div>
-      </button>
-      <button class="pbtn" id="pr-noisy" onclick="applyPreset('noisy')">
-        <div style="font-size:15px;margin-bottom:4px">🔇</div>
-        <div style="font-size:12px;font-weight:900;color:var(--teal);margin-bottom:2px">Шумная среда</div>
-        <div style="font-size:11px;color:var(--txt2);font-weight:700;line-height:1.4">Фильтры для изоляции речи от шума</div>
-      </button>
-    </div>
-  </div>
-  <div id="pane-ctl" class="hidden">
-    <div class="row row2" style="gap:16px 24px">
+  <!-- ══════════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════════ -->
+  <header class="max-w-5xl mx-auto mb-6 anim d1">
+    <div class="flex items-center justify-between flex-wrap gap-3">
       <div>
-        <div class="flex j-between mb2"><label class="lbl" style="margin-bottom:0">🔇 Шумоподавление</label><span id="noiseVal" style="font-size:12px;color:var(--red);font-weight:800">50%</span></div>
-        <input type="range" id="noiseSlider" min="0" max="100" value="50" oninput="updateNoise(this.value)"/>
-        <p class="hint">HP/LP фильтры</p>
+        <h1 class="font-display text-2xl md:text-3xl font-black glow-text-cyan" style="color:var(--cyan);">
+          AUDIO<span style="color:#fff;">FORGE</span>
+        </h1>
+        <p class="text-xs mt-1" style="color:var(--muted);letter-spacing:2.5px;font-size:10px;">
+          ПРОФЕССИОНАЛЬНАЯ ОБРАБОТКА ГОЛОСА · В БРАУЗЕРЕ
+        </p>
       </div>
-      <div>
-        <div class="flex j-between mb2"><label class="lbl" style="margin-bottom:0">🎯 Чёткость речи</label><span id="clarityVal" style="font-size:12px;color:var(--teal);font-weight:800">50%</span></div>
-        <input type="range" id="claritySlider" class="s-t" min="0" max="100" value="50" oninput="updateClarity(this.value)"/>
-        <p class="hint">EQ 2–4 кГц</p>
-      </div>
-      <div>
-        <div class="flex j-between mb2"><label class="lbl" style="margin-bottom:0">🔊 Усиление</label><span id="gainVal" style="font-size:12px;color:var(--yel);font-weight:800">1.0×</span></div>
-        <input type="range" id="gainSlider" class="s-y" min="0" max="100" value="20" oninput="updateGain(this.value)"/>
-        <p class="hint">0.5× — 3.0×</p>
-      </div>
-      <div>
-        <div class="flex j-between mb2"><label class="lbl" style="margin-bottom:0">⚙ Компрессия</label><span id="compVal" style="font-size:12px;color:var(--purp);font-weight:800">50%</span></div>
-        <input type="range" id="compSlider" class="s-p" min="0" max="100" value="50" oninput="updateCompression(this.value)"/>
-        <p class="hint">Порог и коэффициент</p>
+      <div id="ffmpegStatus" class="badge" style="background:#ffaa0018;color:var(--amber);border:1px solid #ffaa0040;">
+        ⏳ ИНИЦИАЛИЗАЦИЯ
       </div>
     </div>
-    <div class="mt3 ovx">
-      <div style="display:flex;align-items:center;gap:3px;min-width:max-content">
-        <div class="cbox" style="background:var(--bg2);color:var(--txt2)">ИСТОЧНИК</div><span class="carr">→</span>
-        <div class="cbox" style="background:#E0F7F5;color:var(--teal2)">HP</div><span class="carr">→</span>
-        <div class="cbox" style="background:#E0F7F5;color:var(--teal2)">LP</div><span class="carr">→</span>
-        <div class="cbox" style="background:#FFF8D6;color:#A08000">EQ</div><span class="carr">→</span>
-        <div class="cbox" style="background:#F5E8FF;color:var(--purp2)">КОМПР</div><span class="carr">→</span>
-        <div class="cbox" style="background:#FFF8D6;color:#A08000">GAIN</div><span class="carr">→</span>
-        <div class="cbox" style="background:#E8F9EB;color:var(--grn2)">АНАЛИЗ</div><span class="carr">→</span>
-        <div class="cbox" style="background:var(--bg2);color:var(--txt2)">ВЫХОД</div>
+    <div class="mt-4" style="height:1px;background:linear-gradient(90deg,var(--cyan),var(--cyan2)30%,transparent);"></div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════
+       MAIN GRID
+  ══════════════════════════════════════════════ -->
+  <main class="max-w-5xl mx-auto grid gap-5">
+
+    <!-- ROW 1 — Upload + Player -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+      <!-- ── UPLOAD CARD ──────────────────────── -->
+      <div class="card card-accent p-5 anim d2">
+        <div class="sec-title">
+          <div class="sec-title-bar"></div>
+          <h2>ЗАГРУЗКА ФАЙЛА</h2>
+        </div>
+
+        <div id="dropZone" class="upload-zone mb-4">
+          <div class="upload-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <p style="font-size:12px;color:var(--muted);">Перетащите аудиофайл сюда</p>
+          <label for="fileInput"
+            class="cursor-pointer badge"
+            style="background:#00e5ff12;border:1px solid #00e5ff35;color:var(--cyan);padding:5px 14px;cursor:pointer;">
+            ВЫБРАТЬ ФАЙЛ
+          </label>
+          <input type="file" id="fileInput" accept="audio/*" class="hidden" />
+          <p style="font-size:10px;color:var(--muted2);">M4A · MP3 · WAV · OGG · FLAC · AAC</p>
+        </div>
+
+        <!-- File info (hidden until file loaded) -->
+        <div id="fileInfo" class="file-info-box hidden">
+          <div class="file-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--cyan)">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+          </div>
+          <div style="overflow:hidden;">
+            <p id="fileName" style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;"></p>
+            <p id="fileSize" style="font-size:10px;color:var(--muted);margin-top:2px;"></p>
+          </div>
+          <div id="loadingDot" class="ml-auto" style="width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);display:none;"></div>
+        </div>
+
+        <!-- Quick tips -->
+        <div class="mt-4 grid grid-cols-2 gap-2">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 10px;">
+            <p style="font-size:9px;color:var(--cyan);letter-spacing:1px;margin-bottom:2px;">ОБРАБОТКА</p>
+            <p style="font-size:10px;color:var(--muted);">Web Audio API · Локально</p>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 10px;">
+            <p style="font-size:9px;color:var(--amber);letter-spacing:1px;margin-bottom:2px;">ЭКСПОРТ</p>
+            <p style="font-size:10px;color:var(--muted);">MP3 · WAV · OGG · AAC</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PLAYER CARD ───────────────────────── -->
+      <div class="card card-accent p-5 anim d2">
+        <div class="sec-title">
+          <div class="sec-title-bar"></div>
+          <h2>ПЛЕЕР</h2>
+          <!-- Original / Processed toggle -->
+          <div class="toggle-wrap ml-auto">
+            <span style="font-size:10px;color:var(--muted);letter-spacing:1px;">ОРИ</span>
+            <label class="toggle">
+              <input type="checkbox" id="processToggle" checked />
+              <div class="toggle-bg"></div>
+              <div class="toggle-knob"></div>
+            </label>
+            <span style="font-size:10px;color:var(--cyan);letter-spacing:1px;">ОБР</span>
+          </div>
+        </div>
+
+        <!-- Canvas visualizer -->
+        <canvas id="vizCanvas"></canvas>
+
+        <!-- Time row -->
+        <div class="flex justify-between mt-2 mb-1">
+          <span id="currTime" style="font-size:11px;color:var(--cyan);">0:00</span>
+          <span id="totTime"  style="font-size:11px;color:var(--muted);">0:00</span>
+        </div>
+
+        <!-- Progress bar -->
+        <div id="progressTrack" class="progress-track mb-4">
+          <div id="progressFill" class="progress-fill" style="width:0%;"></div>
+        </div>
+
+        <!-- Controls row -->
+        <div class="flex items-center gap-3 justify-center">
+          <!-- Restart -->
+          <button class="ctrl-btn" onclick="restartAudio()" title="Перемотать">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2">
+              <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/>
+            </svg>
+          </button>
+
+          <!-- Play / Pause -->
+          <button id="playBtn" class="play-btn" onclick="togglePlay()">
+            <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+          </button>
+
+          <!-- Volume -->
+          <div class="flex items-center gap-2 flex-1 max-w-28">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" style="flex-shrink:0;">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            <input type="range" id="volSlider" min="0" max="100" value="80" style="height:4px;" />
+          </div>
+        </div>
+
+        <!-- Mode badge -->
+        <div class="flex justify-center mt-3">
+          <span id="modeBadge" class="badge" style="background:#00e5ff12;color:var(--cyan);border:1px solid #00e5ff28;">
+            ▸ ОБРАБОТКА АКТИВНА
+          </span>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- ROW 3: Slicer -->
-<div class="card card-g a4" style="margin-bottom:12px">
-  <div class="stitle">
-    <span class="sicon">✂️</span><h3>Нарезка для нейросети</h3>
-    <span class="badge ml-a" style="background:#E8F9EB;color:var(--grn2);border:2px solid #B5EEBB">🤖 ASR · Whisper</span>
-  </div>
-
-  <!-- Settings row -->
-  <div class="row row3 mb3" style="gap:8px">
-    <div>
-      <label class="lbl">📝 Базовое имя файла</label>
-      <input type="text" id="autoPrefix" value="запись" placeholder="запись"/>
-      <p class="hint">Итог: запись_1.mp3, запись_2.mp3…</p>
-    </div>
-    <div>
-      <label class="lbl">⏳ Длина куска</label>
-      <select id="autoSize">
-        <option value="600">10 минут</option>
-        <option value="900">15 минут</option>
-        <option value="1800" selected>30 минут ✅</option>
-        <option value="2700">45 минут</option>
-        <option value="3600">1 час</option>
-      </select>
-      <p class="hint">По умолчанию — 30 мин</p>
-    </div>
-    <div style="display:flex;flex-direction:column;justify-content:flex-end">
-      <button class="btn btn-g btn-full" onclick="autoSlice()">⚡ Нарезать</button>
-      <p class="hint mt1" style="text-align:center">Нарежет весь загруженный файл</p>
-    </div>
-  </div>
-
-  <!-- Preview list -->
-  <div>
-    <div class="flex items-c j-between mb2">
-      <span style="font-size:12px;font-weight:800;color:var(--txt2)">📋 Кусков: <span id="sliceCnt" style="color:var(--purp)">0</span></span>
-      <span id="sliceTotalSize" style="font-size:11px;color:var(--txt3);font-weight:700"></span>
-    </div>
-    <div id="sliceList" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto"></div>
-    <p id="sliceEmpty" style="font-size:12px;color:var(--txt3);text-align:center;padding:16px;font-weight:700">Загрузи файл и нажми «Нарезать» ☝️</p>
-  </div>
-
-  <!-- Compression settings -->
-  <div class="mt3" style="background:var(--bg);border:2px solid var(--brd);border-radius:14px;padding:12px">
-    <p style="font-size:12px;font-weight:900;margin-bottom:10px">⚙️ Настройки вывода</p>
-    <div class="row" style="grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
-      <div><label class="lbl">📄 Формат</label>
-        <select id="trFmt" onchange="onFmtChange()">
-          <option value="mp3" selected>MP3</option>
-          <option value="wav">WAV</option>
-          <option value="m4a">M4A / AAC</option>
-        </select>
+    <!-- ROW 2 — Presets -->
+    <div class="card p-5 anim d3">
+      <div class="sec-title">
+        <div class="sec-title-bar"></div>
+        <h2>ПРЕСЕТЫ ОБРАБОТКИ</h2>
+        <span class="ml-auto" style="font-size:10px;color:var(--muted);">Быстрая настройка параметров</span>
       </div>
-      <div><label class="lbl">Частота (Гц)</label>
-        <select id="trSR"><option value="8000">8 000 (мин.)</option><option value="16000" selected>16 000 (рек.)</option><option value="22050">22 050</option><option value="44100">44 100</option></select>
-      </div>
-      <div><label class="lbl">Битрейт</label>
-        <select id="trBR"><option value="32">32 кбит/с</option><option value="48" selected>48 кбит/с</option><option value="64">64 кбит/с</option><option value="128">128 кбит/с</option></select>
-      </div>
-      <div><label class="lbl">Каналы</label>
-        <select id="trCH"><option value="mono" selected>Моно (↓ размер)</option><option value="stereo">Стерео</option></select>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+        <button class="preset-btn" id="pr-podcast" onclick="applyPreset('podcast')">
+          <div class="font-display mb-1" style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--cyan);">🎙 PODCAST VOICE</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5;">Сбалансированный EQ, умеренная компрессия. Идеально для подкастов и интервью.</div>
+        </button>
+
+        <button class="preset-btn" id="pr-loud" onclick="applyPreset('loud')">
+          <div class="font-display mb-1" style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--amber);">⚡ LOUD &amp; CLEAR</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5;">Высокое усиление, агрессивная компрессия для очень тихих записей.</div>
+        </button>
+
+        <button class="preset-btn" id="pr-noisy" onclick="applyPreset('noisy')">
+          <div class="font-display mb-1" style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--coral);">🔇 NOISY ENVIRONMENT</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5;">Агрессивные HP/LP фильтры для изоляции речи от шума окружения.</div>
+        </button>
+
       </div>
     </div>
-    <p id="fmtHint" class="hint mt1">💡 16 кГц · 48 кбит/с · Моно — оптимально для Whisper / ASR</p>
-  </div>
 
-  <!-- Download -->
-  <div id="sliceDlBar" class="hidden mt3">
-    <div id="sliceProg" class="hidden mb2">
-      <div class="flex j-between mb1">
-        <span id="sliceProgLbl" style="font-size:11px;color:var(--txt2);font-weight:700">Обрабатываю...</span>
-        <span id="sliceProgPct" style="font-size:11px;color:var(--purp);font-weight:800">0%</span>
+    <!-- ROW 3 — Controls -->
+    <div class="card p-5 anim d4">
+      <div class="sec-title">
+        <div class="sec-title-bar"></div>
+        <h2>ПАРАМЕТРЫ ОБРАБОТКИ</h2>
       </div>
-      <div class="xbar"><div id="sliceProgFill" class="xbar-fill" style="width:0%;background:linear-gradient(90deg,var(--purp),var(--teal))"></div></div>
-    </div>
-    <div class="flex gap2" style="flex-wrap:wrap">
-      <button id="sliceDlBtn" class="btn btn-p flex-1" onclick="downloadSlices(false)"><span id="sliceDlTxt">📦 Скачать все (ZIP)</span></button>
-      <button class="btn btn-out" onclick="downloadSlices(true)" style="white-space:nowrap">📁 По одному</button>
-    </div>
-  </div>
-</div>
 
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
 
-</div>
+        <!-- Noise Reduction -->
+        <div>
+          <div class="flex justify-between mb-2">
+            <label style="font-size:10px;letter-spacing:1px;color:var(--muted);font-weight:700;">🔇 ШУМОПОДАВЛЕНИЕ</label>
+            <span id="noiseVal" style="font-size:11px;color:var(--cyan);">50%</span>
+          </div>
+          <input type="range" id="noiseSlider" min="0" max="100" value="50" oninput="updateNoise(this.value)" />
+          <p style="font-size:9px;color:var(--muted2);margin-top:4px;">Управляет частотой среза HP/LP фильтров</p>
+        </div>
 
-<script>
-// CODEC CHECK
-(function(){
-  const el=document.getElementById('codecStatus');
-  const ok=typeof lamejs!=='undefined'&&typeof MediaRecorder!=='undefined';
-  el.textContent=ok?'✅ Кодеки готовы':'⚠ Ошибка кодека';
-  el.style.cssText=ok?'background:#E8F9EB;color:#4EB55A;border:2px solid #B5EEBB':'background:#FFF0F0;color:var(--red);border:2px solid #FFB3B3';
-})();
+        <!-- Voice Clarity -->
+        <div>
+          <div class="flex justify-between mb-2">
+            <label style="font-size:10px;letter-spacing:1px;color:var(--muted);font-weight:700;">🎯 ЧЁТКОСТЬ РЕЧИ</label>
+            <span id="clarityVal" style="font-size:11px;color:var(--cyan);">50%</span>
+          </div>
+          <input type="range" id="claritySlider" min="0" max="100" value="50" oninput="updateClarity(this.value)" />
+          <p style="font-size:9px;color:var(--muted2);margin-top:4px;">Усиление присутствия на частотах 2–4 кГц</p>
+        </div>
 
-// TABS
-function showTab(t){['pre','ctl'].forEach(x=>{document.getElementById('pane-'+x).classList.toggle('hidden',x!==t);document.getElementById('tab-'+x).classList.toggle('on',x===t)});}
+        <!-- Gain -->
+        <div>
+          <div class="flex justify-between mb-2">
+            <label style="font-size:10px;letter-spacing:1px;color:var(--muted);font-weight:700;">🔊 УСИЛЕНИЕ СИГНАЛА</label>
+            <span id="gainVal" style="font-size:11px;color:var(--amber);">1.0×</span>
+          </div>
+          <input type="range" id="gainSlider" class="slider-amber" min="0" max="100" value="20" oninput="updateGain(this.value)" />
+          <p style="font-size:9px;color:var(--muted2);margin-top:4px;">Общее усиление выхода (0.5× — 3.0×)</p>
+        </div>
 
-// ═══════════════════════════════════════════════════════════
-//  AUDIO ENGINE  (streaming — no RAM crash on large files)
-//  Playback uses <audio> + createMediaElementSource.
-//  Full decode only happens lazily on export/slice.
-// ═══════════════════════════════════════════════════════════
-let audioCtx  = null;   // AudioContext
-let audioEl   = null;   // HTMLAudioElement (streaming playback)
-let audioFile = null;   // raw File (for lazy decode)
-let audioBuf  = null;   // lazily decoded AudioBuffer (export/slice only)
-let mediaSrc  = null;   // MediaElementAudioSourceNode
-let analyser  = null;
-let audioDur  = 0;      // duration in seconds
-let playing   = false;
-let rafId     = null;
-let procMode  = true;
-let hpF,lpF,eqF,cmp,gn,mGain,bGain,volGain;
-let objURL    = null;   // createObjectURL ref for cleanup
+        <!-- Compression -->
+        <div>
+          <div class="flex justify-between mb-2">
+            <label style="font-size:10px;letter-spacing:1px;color:var(--muted);font-weight:700;">⚙ КОМПРЕССИЯ</label>
+            <span id="compVal" style="font-size:11px;color:var(--coral);">50%</span>
+          </div>
+          <input type="range" id="compSlider" class="slider-coral" min="0" max="100" value="50" oninput="updateCompression(this.value)" />
+          <p style="font-size:9px;color:var(--muted2);margin-top:4px;">Порог и коэффициент динамической компрессии</p>
+        </div>
 
-// ── WAVEFORM STATE ──────────────────────────────────
-let wfPeaks   = null;   // Float32Array of interleaved [min,max] peaks
-let wfReady   = false;
-let trimSec   = [0, 0]; // [startSec, endSec]
-const WF_PEAKS = 2400;
-
-const P={hpFreq:120,lpFreq:9000,eqFreq:2800,eqGain:6,eqQ:1.2,cmpThr:-24,cmpRatio:4,cmpAtk:.003,cmpRel:.15,gainVal:1.0};
-
-// ── FILE LOAD ───────────────────────────────────────
-const dropZone=document.getElementById('dropZone');
-const fileInput=document.getElementById('fileInput');
-dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('over')});
-dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('over'));
-dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('over');if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0])});
-fileInput.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0])});
-
-async function loadFile(file){
-  document.getElementById('fileInfo').classList.remove('hidden');
-  document.getElementById('fileName').textContent=file.name;
-  document.getElementById('fileSize').textContent=fmtBytes(file.size);
-  document.getElementById('loadDot').classList.remove('hidden');
-
-  haltAll();
-  audioBuf=null; // reset lazy buffer
-  resetSliceCache(); // free resampled slice buffer
-  resetWaveform();   // reset waveform + trim state
-  audioFile=file;
-
-  // Release previous object URL
-  if(objURL){URL.revokeObjectURL(objURL);objURL=null;}
-
-  try{
-    if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-
-    // Create streaming <audio> element — no full decode, no RAM spike
-    objURL=URL.createObjectURL(file);
-    audioEl=new Audio();
-    audioEl.preload='metadata';
-    audioEl.src=objURL;
-    audioEl.onended=()=>{if(playing)onNatEnd();};
-
-    await new Promise((res,rej)=>{
-      audioEl.onloadedmetadata=res;
-      audioEl.onerror=()=>rej(new Error('Не удалось прочитать файл. Убедись что формат поддерживается браузером.'));
-      audioEl.load();
-    });
-
-    audioDur=audioEl.duration;
-    buildChain();
-
-    document.getElementById('totTime').textContent=fmtTime(audioDur);
-    document.getElementById('loadDot').classList.add('hidden');
-    drawStatic();
-    updateProgUI(0);
-  }catch(err){
-    document.getElementById('loadDot').classList.add('hidden');
-    alert('Ошибка загрузки: '+err.message);
-  }
-}
-
-async function getAudioBuf(){
-  if(audioBuf) return audioBuf;
-  if(!audioFile) throw new Error('Файл не загружен');
-  const ctx=new(window.AudioContext||window.webkitAudioContext)();
-  const ab=await audioFile.arrayBuffer();
-  audioBuf=await ctx.decodeAudioData(ab);
-  await ctx.close();
-  return audioBuf;
-}
-
-// ── AUDIO CHAIN (MediaElement-based) ──────────────────
-function buildChain(){
-  if(!audioCtx||!audioEl) return;
-  hpF=audioCtx.createBiquadFilter();hpF.type='highpass';hpF.frequency.value=P.hpFreq;hpF.Q.value=.7;
-  lpF=audioCtx.createBiquadFilter();lpF.type='lowpass'; lpF.frequency.value=P.lpFreq;lpF.Q.value=.7;
-  eqF=audioCtx.createBiquadFilter();eqF.type='peaking'; eqF.frequency.value=P.eqFreq;eqF.gain.value=P.eqGain;eqF.Q.value=P.eqQ;
-  cmp=audioCtx.createDynamicsCompressor();cmp.threshold.value=P.cmpThr;cmp.knee.value=10;cmp.ratio.value=P.cmpRatio;cmp.attack.value=P.cmpAtk;cmp.release.value=P.cmpRel;
-  gn=audioCtx.createGain();gn.gain.value=P.gainVal;
-  mGain=audioCtx.createGain();mGain.gain.value=procMode?1:0;
-  bGain=audioCtx.createGain();bGain.gain.value=procMode?0:1;
-  volGain=audioCtx.createGain();volGain.gain.value=document.getElementById('volSlider').value/100;
-  analyser=audioCtx.createAnalyser();analyser.fftSize=2048;analyser.smoothingTimeConstant=.8;
-
-  // DSP chain: processed path
-  hpF.connect(lpF);lpF.connect(eqF);eqF.connect(cmp);cmp.connect(gn);gn.connect(mGain);
-  mGain.connect(volGain);bGain.connect(volGain);
-  volGain.connect(analyser);analyser.connect(audioCtx.destination);
-
-  // MediaElementSource replaces BufferSource — streams from <audio>
-  mediaSrc=audioCtx.createMediaElementSource(audioEl);
-  mediaSrc.connect(hpF);   // processed path
-  mediaSrc.connect(bGain); // bypass path
-}
-
-// ── PLAYBACK ──────────────────────────────────────────
-function startFrom(sec){
-  if(!audioEl||!audioCtx) return;
-  if(audioCtx.state==='suspended') audioCtx.resume();
-  audioEl.currentTime=Math.max(0,Math.min(sec,audioDur-0.1));
-  audioEl.play();
-  playing=true;
-  setPlayIcon(true);
-  if(rafId) cancelAnimationFrame(rafId);
-  rafLoop();
-}
-
-function togglePlay(){
-  if(!audioEl) return;
-  if(playing){
-    audioEl.pause();
-    playing=false;
-    if(rafId){cancelAnimationFrame(rafId);rafId=null;}
-    setPlayIcon(false);
-    updateProgUI(audioEl.currentTime);
-  }else{
-    startFrom(audioEl.currentTime);
-  }
-}
-
-function restartAudio(){
-  const was=playing;
-  if(playing){audioEl.pause();playing=false;if(rafId){cancelAnimationFrame(rafId);rafId=null;}}
-  setPlayIcon(false);
-  updateProgUI(0);
-  drawStatic();
-  if(was) startFrom(0);
-  else if(audioEl) audioEl.currentTime=0;
-}
-
-function haltAll(){
-  if(audioEl){audioEl.pause();}
-  playing=false;
-  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
-  setPlayIcon(false);
-  document.getElementById('progFill').style.width='0%';
-  document.getElementById('currTime').textContent='0:00';
-}
-
-function onNatEnd(){
-  playing=false;
-  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
-  setPlayIcon(false);
-  document.getElementById('progFill').style.width='100%';
-  document.getElementById('currTime').textContent=fmtTime(audioDur);
-  drawStatic();
-}
-
-function setPlayIcon(p){
-  document.getElementById('playIco').innerHTML=p
-    ?'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
-    :'<polygon points="5,3 19,12 5,21"/>';
-}
-
-function updateProgUI(sec){
-  if(!audioDur) return;
-  document.getElementById('progFill').style.width=(Math.min(sec/audioDur,1)*100)+'%';
-  document.getElementById('currTime').textContent=fmtTime(sec);
-  if(wfReady) redrawWfCanvas();
-}
-
-// Wire buttons
-document.getElementById('btnPlay').addEventListener('click',togglePlay);
-document.getElementById('btnRestart').addEventListener('click',restartAudio);
-
-// ── SEEKBAR ────────────────────────────────────────────
-const progWrap=document.getElementById('progWrap');
-let isSeeking=false;
-
-function seekPos(clientX){
-  const r=progWrap.getBoundingClientRect();
-  return Math.max(0,Math.min((clientX-r.left)/r.width,1))*audioDur;
-}
-function applySeek(clientX){
-  const t=seekPos(clientX);
-  if(audioEl) audioEl.currentTime=t;
-  updateProgUI(t);
-}
-progWrap.addEventListener('mousedown',e=>{if(!audioEl)return;isSeeking=true;if(playing){audioEl.pause();if(rafId){cancelAnimationFrame(rafId);rafId=null;}}applySeek(e.clientX);e.preventDefault();});
-window.addEventListener('mousemove',e=>{if(!isSeeking)return;applySeek(e.clientX);});
-window.addEventListener('mouseup',()=>{if(!isSeeking)return;isSeeking=false;if(playing)startFrom(audioEl.currentTime);});
-progWrap.addEventListener('touchstart',e=>{if(!audioEl)return;isSeeking=true;if(playing){audioEl.pause();if(rafId){cancelAnimationFrame(rafId);rafId=null;}}applySeek(e.touches[0].clientX);e.preventDefault();},{passive:false});
-window.addEventListener('touchmove',e=>{if(!isSeeking)return;applySeek(e.touches[0].clientX);},{passive:false});
-window.addEventListener('touchend',()=>{if(!isSeeking)return;isSeeking=false;if(playing)startFrom(audioEl.currentTime);});
-
-// Volume
-document.getElementById('volSlider').addEventListener('input',function(){if(volGain)volGain.gain.value=this.value/100;});
-
-// Process toggle
-document.getElementById('procToggle').addEventListener('change',function(){
-  procMode=this.checked;
-  if(mGain&&audioCtx){const t=audioCtx.currentTime;mGain.gain.setTargetAtTime(procMode?1:0,t,.02);bGain.gain.setTargetAtTime(procMode?0:1,t,.02);}
-  const b=document.getElementById('modeBadge');
-  b.textContent=procMode?'✨ Обработка активна':'🎵 Оригинал';
-  b.style.cssText=procMode?'background:#E0F7F5;color:var(--teal2);border:2px solid #A8EAE2':'background:#FFF8D6;color:#A08000;border:2px solid #FFE080';
-});
-
-// ── CANVAS ─────────────────────────────────────────────
-const canvas=document.getElementById('viz');
-const vx=canvas.getContext('2d');
-
-function szC(){const d=window.devicePixelRatio||1;canvas.width=canvas.offsetWidth*d;canvas.height=canvas.offsetHeight*d;return{W:canvas.width,H:canvas.height};}
-
-function drawStatic(){
-  const{W,H}=szC();
-  vx.fillStyle='#FFF0D8';vx.fillRect(0,0,W,H);
-  // Placeholder wave pattern when no decoded buffer available
-  const amp=H/2;
-  vx.strokeStyle='#F0D8C0';vx.lineWidth=1;vx.beginPath();vx.moveTo(0,amp);vx.lineTo(W,amp);vx.stroke();
-  if(audioDur>0){
-    // Draw simple sine-like decorative waveform
-    const g=vx.createLinearGradient(0,0,W,0);
-    g.addColorStop(0,'#FF6B6B30');g.addColorStop(.5,'#FF6B6B70');g.addColorStop(1,'#FF6B6B30');
-    vx.strokeStyle=g;vx.lineWidth=1.5;vx.beginPath();
-    for(let x=0;x<W;x++){const y=amp+Math.sin(x*.04)*amp*.3*Math.sin(x*.007);x===0?vx.moveTo(x,y):vx.lineTo(x,y);}
-    vx.stroke();
-    // Playhead
-    if(audioDur>0){const px=(audioEl?audioEl.currentTime:0)/audioDur*W;vx.strokeStyle='rgba(255,107,107,.65)';vx.lineWidth=2;vx.beginPath();vx.moveTo(px,0);vx.lineTo(px,H);vx.stroke();}
-  }
-}
-
-const COLS=['#FF6B6B','#FF9F43','#F5C800','#6BCB77','#45C4B0','#C77DFF'];
-function rafLoop(){
-  if(!playing||!analyser){rafId=null;return;}
-  rafId=requestAnimationFrame(rafLoop);
-  const{W,H}=szC();
-  const t=audioEl?audioEl.currentTime:0;
-  updateProgUI(t);
-  if(t>=audioDur){onNatEnd();return;}
-
-  const bins=analyser.frequencyBinCount;
-  const fd=new Uint8Array(bins),td=new Uint8Array(bins);
-  analyser.getByteFrequencyData(fd);analyser.getByteTimeDomainData(td);
-  vx.fillStyle='#FFF0D8';vx.fillRect(0,0,W,H);
-  const N=56,bw=(W/N)*.74,gap=(W/N)*.26;
-  for(let i=0;i<N;i++){
-    const idx=Math.floor(i/N*bins*.7),v=fd[idx]/255,bh=v*H*.85,x=i*(bw+gap),y=H-bh;
-    vx.globalAlpha=.2+v*.8;vx.fillStyle=COLS[Math.floor(i/N*COLS.length)];
-    const r=Math.min(bw/2,3);
-    vx.beginPath();vx.moveTo(x+r,y);vx.lineTo(x+bw-r,y);vx.quadraticCurveTo(x+bw,y,x+bw,y+r);vx.lineTo(x+bw,H);vx.lineTo(x,H);vx.lineTo(x,y+r);vx.quadraticCurveTo(x,y,x+r,y);vx.closePath();vx.fill();
-  }
-  vx.globalAlpha=1;
-  vx.strokeStyle='rgba(61,43,31,.12)';vx.lineWidth=1.5;vx.beginPath();
-  for(let i=0;i<bins;i++){const x=i/bins*W,y=((td[i]/128)-1)*(H*.22)+H/2;i===0?vx.moveTo(x,y):vx.lineTo(x,y);}
-  vx.stroke();
-  const px=t/audioDur*W;
-  vx.strokeStyle='rgba(255,107,107,.55)';vx.lineWidth=2;vx.beginPath();vx.moveTo(px,0);vx.lineTo(px,H);vx.stroke();
-}
-window.addEventListener('resize',()=>{if(!playing)drawStatic();});
-
-// ── PRESETS ────────────────────────────────────────────
-const PRESETS={
-  podcast:{hpFreq:100,lpFreq:10000,eqFreq:3000,eqGain:5,eqQ:1.0,cmpThr:-20,cmpRatio:4,cmpAtk:.003,cmpRel:.15,gainVal:1.2,sl:{noise:40,clarity:55,gain:28,comp:55}},
-  loud:   {hpFreq:80, lpFreq:12000,eqFreq:2500,eqGain:8,eqQ:1.5,cmpThr:-32,cmpRatio:9,cmpAtk:.001,cmpRel:.08,gainVal:2.5,sl:{noise:30,clarity:70,gain:80,comp:82}},
-  noisy:  {hpFreq:260,lpFreq:6200, eqFreq:3200,eqGain:4,eqQ:2.0,cmpThr:-18,cmpRatio:6,cmpAtk:.002,cmpRel:.10,gainVal:1.8,sl:{noise:78,clarity:44,gain:56,comp:65}}
-};
-function applyPreset(n){
-  const p=PRESETS[n];if(!p)return;
-  Object.assign(P,p);
-  if(audioCtx&&hpF){
-    const t=audioCtx.currentTime;
-    hpF.frequency.setTargetAtTime(p.hpFreq,t,.05);lpF.frequency.setTargetAtTime(p.lpFreq,t,.05);
-    eqF.frequency.setTargetAtTime(p.eqFreq,t,.05);eqF.gain.setTargetAtTime(p.eqGain,t,.05);eqF.Q.setTargetAtTime(p.eqQ,t,.05);
-    cmp.threshold.setTargetAtTime(p.cmpThr,t,.05);cmp.ratio.setTargetAtTime(p.cmpRatio,t,.05);cmp.attack.setTargetAtTime(p.cmpAtk,t,.05);cmp.release.setTargetAtTime(p.cmpRel,t,.05);
-    gn.gain.setTargetAtTime(p.gainVal,t,.05);
-  }
-  const s=p.sl;
-  document.getElementById('noiseSlider').value=s.noise;   document.getElementById('noiseVal').textContent=s.noise+'%';
-  document.getElementById('claritySlider').value=s.clarity;document.getElementById('clarityVal').textContent=s.clarity+'%';
-  document.getElementById('gainSlider').value=s.gain;     document.getElementById('gainVal').textContent=g2x(s.gain).toFixed(1)+'×';
-  document.getElementById('compSlider').value=s.comp;     document.getElementById('compVal').textContent=s.comp+'%';
-  document.querySelectorAll('.pbtn').forEach(b=>b.className='pbtn');
-  const cls={podcast:'pbtn act-r',loud:'pbtn act-y',noisy:'pbtn act-t'};
-  document.getElementById('pr-'+n).className=cls[n];
-}
-function updateNoise(v){document.getElementById('noiseVal').textContent=v+'%';const p=v/100;P.hpFreq=60+p*360;P.lpFreq=14000-p*9000;if(audioCtx&&hpF){hpF.frequency.setTargetAtTime(P.hpFreq,audioCtx.currentTime,.02);lpF.frequency.setTargetAtTime(P.lpFreq,audioCtx.currentTime,.02);}clearPHL();}
-function updateClarity(v){document.getElementById('clarityVal').textContent=v+'%';const p=v/100;P.eqGain=p*12;P.eqFreq=2000+p*2000;if(audioCtx&&eqF){eqF.gain.setTargetAtTime(P.eqGain,audioCtx.currentTime,.02);eqF.frequency.setTargetAtTime(P.eqFreq,audioCtx.currentTime,.02);}clearPHL();}
-function g2x(v){return .5+(v/100)*2.5;}
-function updateGain(v){const g=g2x(v);document.getElementById('gainVal').textContent=g.toFixed(1)+'×';P.gainVal=g;if(audioCtx&&gn)gn.gain.setTargetAtTime(g,audioCtx.currentTime,.02);clearPHL();}
-function updateCompression(v){document.getElementById('compVal').textContent=v+'%';const p=v/100;P.cmpThr=-6-p*34;P.cmpRatio=1.5+p*10.5;if(audioCtx&&cmp){cmp.threshold.setTargetAtTime(P.cmpThr,audioCtx.currentTime,.02);cmp.ratio.setTargetAtTime(P.cmpRatio,audioCtx.currentTime,.02);}clearPHL();}
-function clearPHL(){document.querySelectorAll('.pbtn').forEach(b=>b.className='pbtn');}
-document.getElementById('gainVal').textContent=g2x(+document.getElementById('gainSlider').value).toFixed(1)+'×';
-
-// ── SLICING ────────────────────────────────────────────
-let slices=[];
-
-function autoSlice(){
-  if(!audioDur){alert('Сначала загрузи аудиофайл!');return;}
-  const sz=parseInt(document.getElementById('autoSize').value)||1800;
-  const pfx=document.getElementById('autoPrefix').value.trim()||'запись';
-  // Warn for very long files where decode may take significant RAM
-  if(audioDur>7200){
-    if(!confirm(`Файл длиннее 2 часов (${fmtTime(audioDur)}).\nДекодирование займёт много RAM — продолжить?`)) return;
-  }
-  resetSliceCache(); // force re-encode with current SR/channel settings
-  slices=[];
-  let i=1;
-  for(let s=0;s<audioDur;s+=sz){slices.push({start:s,end:Math.min(s+sz,audioDur),name:pfx+'_'+i});i++;}
-  renderSlices();
-}
-
-function getSliceExt(){
-  const fmt=document.getElementById('trFmt').value;
-  if(fmt==='wav') return 'wav';
-  if(fmt==='m4a'){
-    const mA='audio/mp4;codecs=aac';
-    return MediaRecorder.isTypeSupported(mA)?'m4a':'webm';
-  }
-  return 'mp3';
-}
-
-function onFmtChange(){
-  const fmt=document.getElementById('trFmt').value;
-  const hintEl=document.getElementById('fmtHint');
-  const brSel=document.getElementById('trBR');
-  if(fmt==='wav'){
-    hintEl.textContent='💡 WAV без потерь — большой размер, макс. качество';
-    brSel.disabled=true; brSel.style.opacity='.4';
-  } else if(fmt==='m4a'){
-    hintEl.textContent='💡 M4A/AAC — хорошее качество при малом размере';
-    brSel.disabled=false; brSel.style.opacity='1';
-  } else {
-    hintEl.textContent='💡 16 кГц · 48 кбит/с · Моно — оптимально для Whisper / ASR';
-    brSel.disabled=false; brSel.style.opacity='1';
-  }
-  resetSliceCache();
-  renderSlices();
-}
-
-function estSz(d){
-  const fmt=document.getElementById('trFmt').value;
-  const br=parseInt(document.getElementById('trBR').value)||48;
-  const sr=parseInt(document.getElementById('trSR').value)||16000;
-  const mono=document.getElementById('trCH').value==='mono';
-  if(fmt==='wav'){const nCh=mono?1:2;return fmtBytes(sr*nCh*2*d);}
-  return fmtBytes(br*1000/8*d);
-}
-
-function renderSlices(){
-  const list=document.getElementById('sliceList'),empty=document.getElementById('sliceEmpty'),bar=document.getElementById('sliceDlBar');
-  document.getElementById('sliceCnt').textContent=slices.length;
-  if(!slices.length){list.innerHTML='';empty.classList.remove('hidden');bar.classList.add('hidden');document.getElementById('sliceTotalSize').textContent='';return;}
-  empty.classList.add('hidden');bar.classList.remove('hidden');
-  const ext=getSliceExt();
-  document.getElementById('sliceTotalSize').textContent='~'+fmtBytes(slices.reduce((a,s)=>a+parseFloat(estSz(s.end-s.start).replace(/[^\d.]/g,'')),0)*1e6/1e6)+' всего';
-  // recalc total properly
-  const br=parseInt(document.getElementById('trBR').value)||48;
-  const fmt=document.getElementById('trFmt').value;
-  const sr=parseInt(document.getElementById('trSR').value)||16000;
-  const mono=document.getElementById('trCH').value==='mono';
-  const nCh=mono?1:2;
-  const totalBytes=slices.reduce((a,s)=>{
-    const d=s.end-s.start;
-    return a+(fmt==='wav'?sr*nCh*2*d:br*1000/8*d);
-  },0);
-  document.getElementById('sliceTotalSize').textContent='~'+fmtBytes(totalBytes)+' всего';
-  list.innerHTML=slices.map((s,i)=>`
-    <div class="sl-item">
-      <div class="sl-num">${i+1}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}.${ext}</div>
-        <div style="font-size:10px;color:var(--txt2);font-weight:700">${fmtTime(s.start)} → ${fmtTime(s.end)} · ${fmtTime(s.end-s.start)} · ~${estSz(s.end-s.start)}</div>
       </div>
-    </div>`).join('');
-}
 
-// ── SLICING BUFFER CACHE ───────────────────────────────
-// Keeps a pre-resampled buffer so the native PCM can be freed
-let _sliceBuf=null, _sliceBufSR=0, _sliceBufMono=false;
+      <!-- Signal Chain Diagram -->
+      <div class="mt-6">
+        <p style="font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-bottom:8px;">▸ СХЕМА АУДИО-ЦЕПИ</p>
+        <div style="overflow-x:auto;">
+          <div style="display:flex;align-items:center;gap:4px;min-width:max-content;">
+            <div class="chain-box" style="background:#162035;border:1px solid var(--border2);color:var(--muted);">ИСТОЧНИК</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-box" style="background:#00e5ff0d;border:1px solid #00e5ff35;color:var(--cyan);">HP ФИЛЬТР</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-box" style="background:#00e5ff0d;border:1px solid #00e5ff35;color:var(--cyan);">LP ФИЛЬТР</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-box" style="background:#ffaa000d;border:1px solid #ffaa0035;color:var(--amber);">PARAM EQ</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-box" style="background:#ff3f550d;border:1px solid #ff3f5535;color:var(--coral);">КОМПРЕССОР</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-box" style="background:#ffaa000d;border:1px solid #ffaa0035;color:var(--amber);">GAIN NODE</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-box" style="background:#00ff8c0d;border:1px solid #00ff8c35;color:var(--green);">ANALYSER</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-box" style="background:#162035;border:1px solid var(--border2);color:var(--muted);">ВЫХОД</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-// Decode + immediately resample/downmix to target SR.
-// Frees the native PCM buffer as soon as resampling is done,
-// so RAM stays low throughout the encode loop.
-async function getAudioBufForSlicing(targetSR, mono, onStatus){
-  if(_sliceBuf && _sliceBufSR===targetSR && _sliceBufMono===mono) return _sliceBuf;
-  if(!audioFile) throw new Error('Файл не загружен');
+    <!-- ROW 4 — Export -->
+    <div class="card p-5 anim d5">
+      <div class="sec-title">
+        <div class="sec-title-bar" style="background:var(--amber);box-shadow:0 0 8px var(--amber);"></div>
+        <h2>ЭКСПОРТ И СКАЧИВАНИЕ</h2>
+        <span id="expStatus" class="ml-auto" style="font-size:10px;color:var(--muted);">Готов к экспорту</span>
+      </div>
 
-  onStatus('Декодирование файла...');
-  const nCtx=new(window.AudioContext||window.webkitAudioContext)();
-  const ab=await audioFile.arrayBuffer();
-  let nBuf=await nCtx.decodeAudioData(ab);
-  await nCtx.close();
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+        <div>
+          <label style="font-size:9px;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:6px;">ФОРМАТ ВЫВОДА</label>
+          <select id="fmtSelect">
+            <option value="mp3">MP3 — MPEG (lamejs, быстро)</option>
+            <option value="wav">WAV — Без потерь (мгновенно)</option>
+            <option value="ogg">OGG — Vorbis (MediaRecorder)</option>
+            <option value="aac">AAC / M4A (MediaRecorder)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:9px;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:6px;">КАЧЕСТВО / БИТРЕЙТ</label>
+          <select id="brSelect">
+            <option value="64k">64 кбит/с — Высокое сжатие</option>
+            <option value="128k" selected>128 кбит/с — Стандарт</option>
+            <option value="192k">192 кбит/с — Хорошее</option>
+            <option value="256k">256 кбит/с — Высокое качество</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:9px;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:6px;">ЧТО ЭКСПОРТИРОВАТЬ</label>
+          <select id="expModeSelect">
+            <option value="processed">Обработанный аудио</option>
+            <option value="original">Оригинальный аудио</option>
+          </select>
+        </div>
+      </div>
 
-  const srcSR=nBuf.sampleRate, srcCh=nBuf.numberOfChannels;
-  const nCh=mono?1:Math.min(srcCh,2);
-  const needResample=srcSR!==targetSR, needDownmix=mono&&srcCh>1;
+      <!-- Export progress -->
+      <div id="expProgress" class="hidden mb-4">
+        <div class="flex justify-between mb-1">
+          <span id="expLabel" style="font-size:10px;color:var(--muted);">Рендеринг...</span>
+          <span id="expPct"   style="font-size:10px;color:var(--cyan);">0%</span>
+        </div>
+        <div class="exp-bar-track">
+          <div id="expBarFill" class="exp-bar-fill" style="width:0%;"></div>
+        </div>
+      </div>
 
-  if(!needResample&&!needDownmix){
-    _sliceBuf=nBuf; _sliceBufSR=targetSR; _sliceBufMono=mono;
-    return _sliceBuf;
-  }
+      <button id="dlBtn" class="dl-btn" onclick="processAndDownload()" disabled>
+        <span id="dlBtnTxt">⬇ ОБРАБОТАТЬ И СКАЧАТЬ</span>
+      </button>
+      <p style="font-size:9px;color:var(--muted2);margin-top:8px;text-align:center;">
+        WAV/MP3 — мгновенно · OGG/AAC — реальное время через MediaRecorder · Всё локально в браузере
+      </p>
+    </div>
 
-  onStatus('Ресэмплинг и сжатие буфера...');
-  const outLen=Math.ceil(nBuf.length*targetSR/srcSR);
-  const off=new OfflineAudioContext(nCh,outLen,targetSR);
-  const src=off.createBufferSource();
-  src.buffer=nBuf;
+  </main>
 
-  if(needDownmix){
-    const sp=off.createChannelSplitter(Math.min(srcCh,2));
-    const mg=off.createChannelMerger(1);
-    const gn=off.createGain(); gn.gain.value=0.5;
-    src.connect(sp);
-    sp.connect(mg,0,0);
-    if(srcCh>1) sp.connect(mg,1,0);
-    mg.connect(gn); gn.connect(off.destination);
-  } else {
-    src.connect(off.destination);
-  }
+  <footer class="max-w-5xl mx-auto mt-6 pb-8 text-center" style="font-size:9px;color:var(--muted2);letter-spacing:2px;">
+    AUDIOFORGE · WEB AUDIO API · LAMEJS · MEDIARECORDER · 100% IN-BROWSER
+  </footer>
 
-  src.start(0);
-  const outBuf=await off.startRendering();
+  <script>
+  /*
+   * ═══════════════════════════════════════════════════════════════════
+   *  AUDIOFORGE — MAIN SCRIPT
+   *
+   *  AUDIO CHAIN (Web Audio API):
+   *
+   *    AudioBufferSourceNode
+   *      ├──[Processed Path]──────────────────────────────────────────┐
+   *      │   → HighPassFilter  (removes rumble < hpFreq Hz)           │
+   *      │   → LowPassFilter   (removes hiss  > lpFreq Hz)           │
+   *      │   → PresenceEQ      (peaking +dB at 2–4kHz for voice)     │
+   *      │   → DynamicsCompressor (leveling, ratio & threshold)       │
+   *      │   → GainNode        (makeup gain / volume boost)           │
+   *      │   → masterGain      (wet fader — 1 when processed)        │
+   *      └──[Bypass  Path]────────────────────────────────────────────┘
+   *          → bypassGain      (dry fader — 1 when original)
+   *
+   *    Both paths merge into:
+   *      → listenerGain  (volume slider)
+   *      → AnalyserNode  (visualizer FFT)
+   *      → AudioContext.destination
+   *
+   *  EXPORT PROCESS (no FFmpeg / no SharedArrayBuffer needed):
+   *    WAV  → Pure JS PCM encoder (instant, OfflineAudioContext)
+   *    MP3  → lamejs encoder      (fast, OfflineAudioContext render → Int16 → lame)
+   *    OGG  → MediaRecorder API   (browser native codec, real-time record)
+   *    AAC  → MediaRecorder API   (browser native codec, real-time record)
+   * ═══════════════════════════════════════════════════════════════════
+   */
 
-  // Release native PCM from memory — only the small resampled buffer stays
-  nBuf=null;
-
-  _sliceBuf=outBuf; _sliceBufSR=targetSR; _sliceBufMono=mono;
-  return _sliceBuf;
-}
-
-// Invalidate slice cache when a new file is loaded
-function resetSliceCache(){ _sliceBuf=null; _sliceBufSR=0; _sliceBufMono=false; }
-
-// Simple copy-slice — no resampling needed (buf is already at target SR/channels)
-function sliceBufferSimple(buf,start,end){
-  const sr=buf.sampleRate, nCh=buf.numberOfChannels;
-  const s0=Math.floor(start*sr), s1=Math.min(Math.ceil(end*sr),buf.length), len=s1-s0;
-  const tmp=new AudioBuffer({numberOfChannels:nCh,length:len,sampleRate:sr});
-  for(let ch=0;ch<nCh;ch++) tmp.copyToChannel(buf.getChannelData(ch).subarray(s0,s1),ch);
-  return tmp;
-}
-
-// Legacy helper kept for export path
-function sliceBuffer(buf,start,end,targetSR,mono){
-  const srcSR=buf.sampleRate,s0=Math.floor(start*srcSR),s1=Math.min(Math.ceil(end*srcSR),buf.length),len=s1-s0,nCh=mono?1:buf.numberOfChannels;
-  const tmp=new AudioBuffer({numberOfChannels:nCh,length:len,sampleRate:srcSR});
-  for(let ch=0;ch<nCh;ch++)tmp.copyToChannel(buf.getChannelData(Math.min(ch,buf.numberOfChannels-1)).subarray(s0,s1),ch);
-  if(srcSR===targetSR)return Promise.resolve(tmp);
-  const outLen=Math.ceil(len*targetSR/srcSR),off=new OfflineAudioContext(nCh,outLen,targetSR);
-  const n=off.createBufferSource();n.buffer=tmp;n.connect(off.destination);n.start(0);return off.startRendering();
-}
-
-// Encode AudioBuffer as M4A/AAC using MediaRecorder (real-time, browser-native)
-function encodeSliceAsMr(sliceBuf, bitrate){
-  return new Promise((res,rej)=>{
-    const sr=sliceBuf.sampleRate;
-    let rc;
-    try{rc=new AudioContext({sampleRate:sr});}catch(e){rc=new AudioContext();}
-    const dst=rc.createMediaStreamDestination();
-    const src=rc.createBufferSource();src.buffer=sliceBuf;src.connect(dst);
-    const mA='audio/mp4;codecs=aac',mW='audio/webm;codecs=opus';
-    const mime=MediaRecorder.isTypeSupported(mA)?mA:mW;
-    let rec;
-    try{rec=new MediaRecorder(dst.stream,{mimeType:mime,audioBitsPerSecond:bitrate*1000});}
-    catch(e){rc.close();return rej(new Error('M4A/AAC не поддерживается браузером'));}
-    const ch=[];
-    rec.ondataavailable=e=>{if(e.data.size>0)ch.push(e.data);};
-    rec.onstop=()=>{rc.close();res(new Blob(ch,{type:mime}));};
-    rec.onerror=e=>{rc.close();rej(e.error);};
-    src.onended=()=>rec.stop();
-    rec.start(100);src.start(0);
-  });
-}
-
-async function downloadSlices(oneByOne){
-  if(!audioDur){alert('Загрузи файл!');return;}
-  if(!slices.length){alert('Нажми «Нарезать» сначала!');return;}
-  const sr=parseInt(document.getElementById('trSR').value),br=parseInt(document.getElementById('trBR').value),mono=document.getElementById('trCH').value==='mono';
-  const fmt=document.getElementById('trFmt').value;
-  const ext=getSliceExt();
-  const dlBtn=document.getElementById('sliceDlBtn'),dlTxt=document.getElementById('sliceDlTxt');
-  const prog=document.getElementById('sliceProg'),fill=document.getElementById('sliceProgFill'),lbl=document.getElementById('sliceProgLbl'),pct=document.getElementById('sliceProgPct');
-  dlBtn.disabled=true;dlTxt.innerHTML='<span class="spin"></span> Декодирование...';prog.classList.remove('hidden');
-  pct.textContent='0%';fill.style.width='0%';
-
-  try{
-    // For WAV — can use native SR (no lossy compression), otherwise use targetSR
-    const targetSR = fmt==='wav' ? sr : sr;
-    const buf=await getAudioBufForSlicing(targetSR, mono, t=>{lbl.textContent=t;});
-    const zip=oneByOne?null:new JSZip();
-
-    for(let i=0;i<slices.length;i++){
-      const sl=slices[i];
-      const p=10+Math.round(i/slices.length*82);
-      lbl.textContent=`Кусок ${i+1}/${slices.length}: ${sl.name}.${ext}`;pct.textContent=p+'%';fill.style.width=p+'%';
-      await y2ui();
-
-      const sb=sliceBufferSimple(buf,sl.start,sl.end);
-      let blob;
-      if(fmt==='wav'){
-        blob=encodeWav(sb);
-      } else if(fmt==='m4a'){
-        lbl.textContent=`Кусок ${i+1}/${slices.length}: запись (реальное время)...`;
-        blob=await encodeSliceAsMr(sb,br);
-      } else {
-        blob=await encodeMp3Buf(sb,br,mono);
-      }
-
-      const fname=sl.name+'.'+ext;
-      if(oneByOne){
-        triggerDL(blob,fname);
-      } else {
-        zip.file(fname,blob);
-      }
-      await y2ui();
-    }
-
-    pct.textContent='95%';fill.style.width='95%';lbl.textContent='Готово! ✅';
-
-    if(!oneByOne){
-      lbl.textContent='Создаю ZIP...';
-      triggerDL(
-        await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:fmt==='wav'?1:3}}),
-        'аудио_части.zip'
-      );
-    }
-
-    pct.textContent='100%';fill.style.width='100%';
-    lbl.textContent=oneByOne?'Все файлы скачаны! ✅':'ZIP скачан! ✅';
-
-  }catch(err){alert('Ошибка нарезки: '+err.message);console.error(err);}
-  dlBtn.disabled=false;dlTxt.innerHTML='📦 Скачать все (ZIP)';
-  setTimeout(()=>prog.classList.add('hidden'),4000);
-}
-
-// ── CODEC HELPERS ──────────────────────────────────────
-async function encodeMp3Buf(buf,kbps,mono){
-  if(typeof lamejs==='undefined')throw new Error('lamejs не загружен');
-  const nCh=mono?1:Math.min(buf.numberOfChannels,2),sr=buf.sampleRate;
-  const enc=new lamejs.Mp3Encoder(nCh,sr,Math.min(kbps,320));
-  const BLK=1152,L=f2i(buf.getChannelData(0)),R=(!mono&&buf.numberOfChannels>1)?f2i(buf.getChannelData(1)):null;
-  const ch=[],tot=L.length;
-  for(let i=0;i<tot;i+=BLK){const lc=L.subarray(i,i+BLK),rc=R?R.subarray(i,i+BLK):lc;const e=nCh>1?enc.encodeBuffer(lc,rc):enc.encodeBuffer(lc);if(e.length>0)ch.push(new Uint8Array(e));if((i/BLK)%50===0)await y2ui();}
-  const t=enc.flush();if(t.length>0)ch.push(new Uint8Array(t));
-  return new Blob(ch,{type:'audio/mpeg'});
-}
-function recMR(srcBuf,mimeType,onProg){
-  return new Promise((res,rej)=>{
-    const rc=new AudioContext(),dst=rc.createMediaStreamDestination();
-    const s=rc.createBufferSource();s.buffer=srcBuf;
-    const hp=rc.createBiquadFilter();hp.type='highpass';hp.frequency.value=P.hpFreq;
-    const lp=rc.createBiquadFilter();lp.type='lowpass';lp.frequency.value=P.lpFreq;
-    const eq=rc.createBiquadFilter();eq.type='peaking';eq.frequency.value=P.eqFreq;eq.gain.value=P.eqGain;eq.Q.value=P.eqQ;
-    const cm=rc.createDynamicsCompressor();cm.threshold.value=P.cmpThr;cm.ratio.value=P.cmpRatio;cm.attack.value=P.cmpAtk;cm.release.value=P.cmpRel;
-    const g=rc.createGain();g.gain.value=P.gainVal;
-    s.connect(hp);hp.connect(lp);lp.connect(eq);eq.connect(cm);cm.connect(g);g.connect(dst);
-    let rec;try{rec=new MediaRecorder(dst.stream,{mimeType,audioBitsPerSecond:128000});}catch(e){rc.close();return rej(new Error('Формат не поддерживается'));}
-    const ch=[];rec.ondataavailable=e=>{if(e.data.size>0)ch.push(e.data);};
-    rec.onstop=()=>{rc.close();res(new Blob(ch,{type:mimeType}));};rec.onerror=e=>{rc.close();rej(e.error);};
-    const dur=srcBuf.duration,sw=Date.now(),iv=setInterval(()=>onProg(Math.min((Date.now()-sw)/(dur*1000),.98)),300);
-    s.onended=()=>{clearInterval(iv);rec.stop();};rec.start(100);s.start(0);
-  });
-}
-async function renderOffline(buf){
-  const o=new OfflineAudioContext(buf.numberOfChannels,buf.length,buf.sampleRate);
-  const s=o.createBufferSource();s.buffer=buf;
-  const hp=o.createBiquadFilter();hp.type='highpass';hp.frequency.value=P.hpFreq;hp.Q.value=.7;
-  const lp=o.createBiquadFilter();lp.type='lowpass';lp.frequency.value=P.lpFreq;lp.Q.value=.7;
-  const eq=o.createBiquadFilter();eq.type='peaking';eq.frequency.value=P.eqFreq;eq.gain.value=P.eqGain;eq.Q.value=P.eqQ;
-  const cm=o.createDynamicsCompressor();cm.threshold.value=P.cmpThr;cm.knee.value=10;cm.ratio.value=P.cmpRatio;cm.attack.value=P.cmpAtk;cm.release.value=P.cmpRel;
-  const g=o.createGain();g.gain.value=P.gainVal;
-  s.connect(hp);hp.connect(lp);lp.connect(eq);eq.connect(cm);cm.connect(g);g.connect(o.destination);
-  s.start(0);return o.startRendering();
-}
-function encodeWav(buf){
-  const nC=buf.numberOfChannels,sr=buf.sampleRate,n=buf.length,ba=nC*2,ds=n*ba,ab=new ArrayBuffer(44+ds),dv=new DataView(ab);
-  const ws=(o,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(o+i,s.charCodeAt(i));};
-  ws(0,'RIFF');dv.setUint32(4,36+ds,true);ws(8,'WAVE');ws(12,'fmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,nC,true);dv.setUint32(24,sr,true);dv.setUint32(28,sr*ba,true);dv.setUint16(32,ba,true);dv.setUint16(34,16,true);ws(36,'data');dv.setUint32(40,ds,true);
-  let off=44;for(let i=0;i<n;i++)for(let c=0;c<nC;c++){const s=Math.max(-1,Math.min(1,buf.getChannelData(c)[i]));dv.setInt16(off,s<0?s*0x8000:s*0x7FFF,true);off+=2;}
-  return new Blob([ab],{type:'audio/wav'});
-}
-// ── WAVEFORM + TRIM ────────────────────────────────────────
-function resetWaveform(){
-  wfPeaks=null; wfReady=false; trimSec=[0,0];
-  const loader=document.getElementById('wfLoader');
-  if(loader) loader.classList.remove('hidden');
-  const st=document.getElementById('wfStatus');
-  if(st){st.textContent='⏳ Ожидание';st.style.cssText='background:#F5E8FF;color:var(--purp2);border:2px solid #E4BFFF';}
-  ['btnPreviewTrim','btnSaveTrim','btnResetTrim'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true;});
-  const btn=document.getElementById('wfLoadBtn');
-  if(btn){btn.disabled=false;btn.innerHTML='🔍 Анализировать файл';}
-  const cv=document.getElementById('wfCanvas');
-  if(cv){const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);}
-}
-
-async function loadWaveform(){
-  if(!audioDur){alert('Сначала загрузи аудиофайл!');return;}
-  const btn=document.getElementById('wfLoadBtn');
-  btn.disabled=true;btn.innerHTML='<span class="spin" style="border-top-color:white;border-color:rgba(255,255,255,.3)"></span> Декодирование...';
-  const st=document.getElementById('wfStatus');
-  st.textContent='⏳ Декодирование...';
-  try{
-    const buf=await getAudioBuf();
-    const ch0=buf.getChannelData(0);
-    const ch1=buf.numberOfChannels>1?buf.getChannelData(1):null;
-    const total=buf.length, bsz=Math.ceil(total/WF_PEAKS);
-    wfPeaks=new Float32Array(WF_PEAKS*2);
-    // Build peaks in chunks with UI yields every 200 buckets
-    for(let i=0;i<WF_PEAKS;i++){
-      const s0=i*bsz, s1=Math.min(s0+bsz,total);
-      let mn=0,mx=0;
-      for(let j=s0;j<s1;j++){
-        const v=ch1?(ch0[j]+ch1[j])*0.5:ch0[j];
-        if(v<mn)mn=v; if(v>mx)mx=v;
-      }
-      wfPeaks[i*2]=mn; wfPeaks[i*2+1]=mx;
-      if(i%200===0) await y2ui();
-    }
-    // Init trim to full file
-    trimSec=[0,audioDur];
-    document.getElementById('trimStartSl').value=0;
-    document.getElementById('trimEndSl').value=1000;
-    wfReady=true;
-    document.getElementById('wfLoader').classList.add('hidden');
-    ['btnPreviewTrim','btnSaveTrim','btnResetTrim'].forEach(id=>document.getElementById(id).disabled=false);
-    st.textContent='✅ Готово';
-    st.style.cssText='background:#E8F9EB;color:var(--grn2);border:2px solid #B5EEBB';
-    updateTrimUI();
-    redrawWfCanvas();
-  }catch(e){
-    st.textContent='❌ Ошибка';
-    btn.disabled=false;btn.innerHTML='🔍 Анализировать файл';
-    alert('Ошибка анализа: '+e.message);
-  }
-}
-
-function redrawWfCanvas(){
-  const cv=document.getElementById('wfCanvas');
-  if(!cv) return;
-  const dpr=window.devicePixelRatio||1;
-  const W=cv.offsetWidth*dpr, H=cv.offsetHeight*dpr;
-  if(W===0||H===0) return;
-  cv.width=W; cv.height=H;
-  const ctx=cv.getContext('2d');
-
-  // Background
-  ctx.fillStyle='#FFF0D8';
-  ctx.fillRect(0,0,W,H);
-
-  if(!wfReady||!wfPeaks){ return; }
-
-  const cx=H/2;
-  const selS=trimSec[0]/audioDur, selE=trimSec[1]/audioDur;
-  const pxS=selS*W, pxE=selE*W;
-
-  // Dimmed zones outside selection
-  ctx.fillStyle='rgba(255,248,238,.6)';
-  ctx.fillRect(0,0,pxS,H);
-  ctx.fillRect(pxE,0,W-pxE,H);
-
-  // Waveform bars
-  const barW=W/WF_PEAKS;
-  for(let i=0;i<WF_PEAKS;i++){
-    const x=i*barW;
-    const mn=wfPeaks[i*2], mx=wfPeaks[i*2+1];
-    const yTop=cx-mx*cx*0.9, yBot=cx-mn*cx*0.9;
-    const inSel=(x+barW>=pxS && x<=pxE);
-    if(inSel){
-      const g=ctx.createLinearGradient(0,yTop,0,yBot);
-      g.addColorStop(0,'rgba(69,196,176,.95)');
-      g.addColorStop(0.5,'rgba(139,160,228,.85)');
-      g.addColorStop(1,'rgba(199,125,255,.95)');
-      ctx.fillStyle=g;
+  // ─────────────────────────────────────────────────────────
+  //  Encoder readiness check
+  // ─────────────────────────────────────────────────────────
+  (function checkEncoders() {
+    const el   = document.getElementById('ffmpegStatus');
+    const lame = typeof lamejs !== 'undefined';
+    const mr   = typeof MediaRecorder !== 'undefined';
+    if (lame && mr) {
+      el.textContent = '✓ КОДЕКИ ГОТОВЫ';
+      el.style.cssText = 'background:#00e5ff12;color:var(--cyan);border:1px solid #00e5ff35;';
     } else {
-      ctx.fillStyle='rgba(184,150,126,.3)';
+      el.textContent = lame ? '⚠ MediaRecorder недоступен' : '⚠ lamejs не загружен';
+      el.style.cssText = 'background:#ffaa0018;color:var(--amber);border:1px solid #ffaa0040;';
     }
-    ctx.fillRect(x, yTop, Math.max(barW-0.5,0.5), Math.max(yBot-yTop,1));
+  })();
+
+  // ─────────────────────────────────────────────────────────
+  //  Audio State
+  // ─────────────────────────────────────────────────────────
+  let audioCtx     = null;
+  let audioBuffer  = null;   // decoded full audio buffer
+  let sourceNode   = null;   // current AudioBufferSourceNode
+  let analyser     = null;   // AnalyserNode for visualiser
+  let isPlaying    = false;
+  let startTime    = 0;      // audioCtx.currentTime at play start
+  let pauseOffset  = 0;      // seconds into file when paused
+  let rafId        = null;   // requestAnimationFrame ID
+  let useProcessed = true;   // toggle state
+
+  // ─────────────────────────────────────────────────────────
+  //  Processing Nodes (re-created each buildChain call)
+  // ─────────────────────────────────────────────────────────
+  let hpFilter, lpFilter, eqFilter, compressor, gainNode;
+  let masterGain, bypassGain, listenerGain;
+
+  // ─────────────────────────────────────────────────────────
+  //  Parameter State (mirrors slider values)
+  // ─────────────────────────────────────────────────────────
+  const P = {
+    hpFreq:        120,    // Hz
+    lpFreq:        9000,   // Hz
+    eqFreq:        2800,   // Hz
+    eqGain:        6,      // dB
+    eqQ:           1.2,
+    cmpThreshold:  -24,    // dB
+    cmpRatio:      4,
+    cmpAttack:     0.003,  // s
+    cmpRelease:    0.15,   // s
+    gainValue:     1.0,    // multiplier
+  };
+
+  // ─────────────────────────────────────────────────────────
+  //  Drag-and-Drop / File Input
+  // ─────────────────────────────────────────────────────────
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+
+  dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop',      e => { e.preventDefault(); dropZone.classList.remove('drag-over'); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+  fileInput.addEventListener('change',   e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+
+  // ─────────────────────────────────────────────────────────
+  //  Load & Decode
+  // ─────────────────────────────────────────────────────────
+  async function loadFile(file) {
+    // Show file info
+    document.getElementById('fileInfo').classList.remove('hidden');
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = fmtBytes(file.size);
+    document.getElementById('loadingDot').style.display = 'block';
+
+    stopAudio();
+
+    // Create or resume AudioContext
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    try {
+      const ab = await file.arrayBuffer();
+      audioBuffer = await audioCtx.decodeAudioData(ab);
+
+      buildChain();
+
+      document.getElementById('totTime').textContent  = fmtTime(audioBuffer.duration);
+      document.getElementById('dlBtn').disabled = false;
+      document.getElementById('expStatus').textContent = 'Файл загружен ✓';
+      document.getElementById('loadingDot').style.display = 'none';
+      drawStaticWaveform();
+    } catch (err) {
+      document.getElementById('loadingDot').style.display = 'none';
+      alert('Ошибка декодирования: ' + err.message);
+      console.error(err);
+    }
   }
 
-  // Selection highlight border (soft glow)
-  ctx.strokeStyle='rgba(69,196,176,.9)';ctx.lineWidth=2.5;
-  ctx.shadowColor='rgba(69,196,176,.5)';ctx.shadowBlur=6;
-  ctx.beginPath();ctx.moveTo(pxS,0);ctx.lineTo(pxS,H);ctx.stroke();
-  ctx.shadowBlur=0;
+  // ─────────────────────────────────────────────────────────
+  //  Build Web Audio Processing Chain
+  // ─────────────────────────────────────────────────────────
+  function buildChain() {
+    if (!audioCtx) return;
 
-  ctx.strokeStyle='rgba(199,125,255,.9)';ctx.lineWidth=2.5;
-  ctx.shadowColor='rgba(199,125,255,.5)';ctx.shadowBlur=6;
-  ctx.beginPath();ctx.moveTo(pxE,0);ctx.lineTo(pxE,H);ctx.stroke();
-  ctx.shadowBlur=0;
+    // High-Pass: cuts frequencies below hpFreq (removes mic rumble, AC hum)
+    hpFilter = audioCtx.createBiquadFilter();
+    hpFilter.type = 'highpass';
+    hpFilter.frequency.value = P.hpFreq;
+    hpFilter.Q.value = 0.7;
 
-  // Handle triangles at top
-  ctx.fillStyle='rgba(69,196,176,1)';
-  ctx.beginPath();ctx.moveTo(pxS-7,0);ctx.lineTo(pxS+7,0);ctx.lineTo(pxS,10);ctx.closePath();ctx.fill();
-  ctx.fillStyle='rgba(199,125,255,1)';
-  ctx.beginPath();ctx.moveTo(pxE-7,0);ctx.lineTo(pxE+7,0);ctx.lineTo(pxE,10);ctx.closePath();ctx.fill();
+    // Low-Pass: cuts frequencies above lpFreq (removes tape hiss, HF noise)
+    lpFilter = audioCtx.createBiquadFilter();
+    lpFilter.type = 'lowpass';
+    lpFilter.frequency.value = P.lpFreq;
+    lpFilter.Q.value = 0.7;
 
-  // Time ticks along bottom
-  ctx.fillStyle='rgba(122,92,78,.35)';
-  ctx.font=`bold ${Math.round(9*dpr)}px Nunito,sans-serif`;
-  ctx.textAlign='center';
-  const tickStep=pickTickStep(audioDur);
-  for(let t=tickStep;t<audioDur;t+=tickStep){
-    const px=t/audioDur*W;
-    ctx.fillRect(px-0.5,H-8,1,8);
-    if(px>24&&px<W-24) ctx.fillText(fmtTime(t),px,H-10);
+    // Presence EQ: peaking boost at voice frequency range (2–4 kHz)
+    eqFilter = audioCtx.createBiquadFilter();
+    eqFilter.type = 'peaking';
+    eqFilter.frequency.value = P.eqFreq;
+    eqFilter.gain.value = P.eqGain;
+    eqFilter.Q.value = P.eqQ;
+
+    // Dynamics Compressor: levels volume, makes quiet voices audible
+    compressor = audioCtx.createDynamicsCompressor();
+    compressor.threshold.value = P.cmpThreshold; // above this level → compressed
+    compressor.knee.value = 10;                  // soft-knee transition zone
+    compressor.ratio.value = P.cmpRatio;          // N:1 compression ratio
+    compressor.attack.value = P.cmpAttack;        // onset speed (s)
+    compressor.release.value = P.cmpRelease;      // recovery speed (s)
+
+    // Gain: make-up gain after compression
+    gainNode = audioCtx.createGain();
+    gainNode.gain.value = P.gainValue;
+
+    // masterGain controls the processed (wet) signal level
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = useProcessed ? 1 : 0;
+
+    // bypassGain routes the original (dry) signal
+    bypassGain = audioCtx.createGain();
+    bypassGain.gain.value = useProcessed ? 0 : 1;
+
+    // listenerGain = volume slider
+    listenerGain = audioCtx.createGain();
+    listenerGain.gain.value = document.getElementById('volSlider').value / 100;
+
+    // Analyser for visualiser
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.8;
+
+    // ── Connect processed path ─────────────────────────────
+    hpFilter.connect(lpFilter);
+    lpFilter.connect(eqFilter);
+    eqFilter.connect(compressor);
+    compressor.connect(gainNode);
+    gainNode.connect(masterGain);
+
+    // ── Both paths → merge → analyser → speakers ──────────
+    masterGain.connect(listenerGain);
+    bypassGain.connect(listenerGain);
+    listenerGain.connect(analyser);
+    analyser.connect(audioCtx.destination);
   }
 
-  // Playhead
-  if(audioDur>0&&audioEl){
-    const px=audioEl.currentTime/audioDur*W;
-    ctx.strokeStyle='rgba(255,107,107,.85)';ctx.lineWidth=1.5;
-    ctx.setLineDash([5,3]);
-    ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,H);ctx.stroke();
-    ctx.setLineDash([]);
-    // Playhead triangle
-    ctx.fillStyle='rgba(255,107,107,.9)';
-    ctx.beginPath();ctx.moveTo(px-5,0);ctx.lineTo(px+5,0);ctx.lineTo(px,8);ctx.closePath();ctx.fill();
+  // ─────────────────────────────────────────────────────────
+  //  Playback
+  // ─────────────────────────────────────────────────────────
+  function togglePlay() {
+    if (!audioBuffer) return;
+    isPlaying ? pauseAudio() : playAudio(pauseOffset);
   }
-}
 
-function pickTickStep(dur){
-  if(dur<90)   return 10;
-  if(dur<300)  return 30;
-  if(dur<900)  return 60;
-  if(dur<3600) return 300;
-  if(dur<10800)return 600;
-  return 1800;
-}
+  function playAudio(offset = 0) {
+    if (!audioCtx || !audioBuffer) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
 
-function onTrimSlider(which){
-  const sEl=document.getElementById('trimStartSl'), eEl=document.getElementById('trimEndSl');
-  let sv=parseInt(sEl.value), ev=parseInt(eEl.value);
-  if(which==='start'&&sv>=ev-2){sv=ev-2; sEl.value=sv;}
-  if(which==='end'  &&ev<=sv+2){ev=sv+2; eEl.value=ev;}
-  trimSec=[sv/1000*audioDur, ev/1000*audioDur];
-  updateTrimUI(); redrawWfCanvas();
-}
+    // AudioBufferSourceNode is one-shot; create fresh each time
+    sourceNode = audioCtx.createBufferSource();
+    sourceNode.buffer = audioBuffer;
+    sourceNode.onended = () => { if (isPlaying) onEnded(); };
 
-function updateTrimUI(){
-  const[s,e]=trimSec;
-  document.getElementById('trimStartLbl').textContent=fmtTimeFull(s);
-  document.getElementById('trimEndLbl').textContent=fmtTimeFull(e);
-  const dur=e-s, isAll=s<0.5&&Math.abs(e-audioDur)<0.5;
-  document.getElementById('trimDurLbl').textContent=isAll?'Весь файл':'⏱ '+fmtTimeFull(dur)+' выделено';
-  const sv=parseInt(document.getElementById('trimStartSl').value);
-  const ev=parseInt(document.getElementById('trimEndSl').value);
-  const sel=document.getElementById('drangeSel');
-  sel.style.left=(sv/10)+'%'; sel.style.width=((ev-sv)/10)+'%';
-}
+    // Connect to both paths (source → processed chain AND source → bypass)
+    sourceNode.connect(hpFilter);   // processed path entry point
+    sourceNode.connect(bypassGain); // bypass path (direct)
 
-function fmtTimeFull(s){
-  if(!isFinite(s)||s<0)s=0;
-  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=Math.floor(s%60);
-  if(h>0) return h+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
-  return m+':'+String(sec).padStart(2,'0');
-}
+    startTime = audioCtx.currentTime - offset;
+    sourceNode.start(0, offset);
+    isPlaying = true;
 
-function resetTrim(){
-  if(!wfReady) return;
-  trimSec=[0,audioDur];
-  document.getElementById('trimStartSl').value=0;
-  document.getElementById('trimEndSl').value=1000;
-  updateTrimUI(); redrawWfCanvas();
-}
+    // Show pause icon
+    document.getElementById('playIcon').innerHTML =
+      '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
 
-function previewTrim(){
-  if(!audioEl||!wfReady) return;
-  startFrom(trimSec[0]);
-}
+    if (rafId) cancelAnimationFrame(rafId);
+    renderLoop();
+  }
 
-async function saveTrimmedWav(){
-  if(!wfReady){alert('Сначала загрузи форму волны!');return;}
-  const[s,e]=trimSec;
-  const prog=document.getElementById('trimProg'),fill=document.getElementById('trimProgFill'),lbl=document.getElementById('trimProgLbl'),pct=document.getElementById('trimProgPct');
-  prog.classList.remove('hidden');fill.style.width='0%';lbl.textContent='Декодирование...';pct.textContent='0%';
-  document.getElementById('btnSaveTrim').disabled=true;
-  try{
-    const buf=await getAudioBuf();
-    fill.style.width='40%';pct.textContent='40%';lbl.textContent='Нарезка фрагмента...';await y2ui();
-    const sr=buf.sampleRate,nCh=buf.numberOfChannels;
-    const s0=Math.floor(s*sr),s1=Math.min(Math.ceil(e*sr),buf.length),len=s1-s0;
-    const tmp=new AudioBuffer({numberOfChannels:nCh,length:len,sampleRate:sr});
-    for(let ch=0;ch<nCh;ch++) tmp.copyToChannel(buf.getChannelData(ch).subarray(s0,s1),ch);
-    fill.style.width='75%';pct.textContent='75%';lbl.textContent='Кодирование WAV...';await y2ui();
-    const blob=encodeWav(tmp);
-    fill.style.width='100%';pct.textContent='100%';lbl.textContent='Готово! ✅';
-    const ss=fmtTimeFull(s).replace(':','-'), es=fmtTimeFull(e).replace(':','-');
-    triggerDL(blob,'trim_'+ss+'_'+es+'.wav');
-  }catch(err){alert('Ошибка сохранения: '+err.message);}
-  document.getElementById('btnSaveTrim').disabled=false;
-  setTimeout(()=>prog.classList.add('hidden'),3000);
-}
+  function pauseAudio() {
+    if (!sourceNode || !isPlaying) return;
+    pauseOffset = audioCtx.currentTime - startTime;
+    try { sourceNode.stop(); } catch (_) {}
+    sourceNode = null;
+    isPlaying = false;
+    setPlayIcon(false);
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  }
 
-// Canvas click → seek player
-document.getElementById('wfCanvas').addEventListener('click',e=>{
-  if(!audioDur) return;
-  const r=e.currentTarget.getBoundingClientRect();
-  const t=(e.clientX-r.left)/r.width*audioDur;
-  if(audioEl){audioEl.currentTime=Math.max(0,Math.min(t,audioDur-0.05));updateProgUI(audioEl.currentTime);}
-});
+  function stopAudio() {
+    if (sourceNode && isPlaying) {
+      try { sourceNode.stop(); } catch (_) {}
+      sourceNode = null;
+    }
+    isPlaying = false;
+    pauseOffset = 0;
+    setPlayIcon(false);
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('currTime').textContent = '0:00';
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  }
 
-// Redraw on resize
-window.addEventListener('resize',()=>{if(wfReady)redrawWfCanvas();});
-function f2i(f){const r=new Int16Array(f.length);for(let i=0;i<f.length;i++){const s=Math.max(-1,Math.min(1,f[i]));r[i]=s<0?s*0x8000:s*0x7FFF;}return r;}
-function y2ui(){return new Promise(r=>setTimeout(r,0));}
-function triggerDL(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),15000);}
-function fmtTime(s){if(!isFinite(s)||s<0)s=0;return Math.floor(s/60)+':'+Math.floor(s%60).toString().padStart(2,'0');}
-function fmtBytes(b){if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB';}
-</script></html>
+  function restartAudio() {
+    const wasPlaying = isPlaying;
+    stopAudio();
+    if (audioBuffer) { pauseOffset = 0; if (wasPlaying || audioBuffer) playAudio(0); }
+  }
+
+  function onEnded() {
+    isPlaying = false;
+    pauseOffset = 0;
+    setPlayIcon(false);
+    document.getElementById('progressFill').style.width = '100%';
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    drawStaticWaveform();
+  }
+
+  function setPlayIcon(playing) {
+    document.getElementById('playIcon').innerHTML = playing
+      ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+      : '<polygon points="5,3 19,12 5,21"/>';
+  }
+
+  // Seek by clicking progress bar
+  document.getElementById('progressTrack').addEventListener('click', function (e) {
+    if (!audioBuffer) return;
+    const r = (e.clientX - this.getBoundingClientRect().left) / this.offsetWidth;
+    const seekTo = Math.max(0, Math.min(r * audioBuffer.duration, audioBuffer.duration));
+    const wasPlaying = isPlaying;
+    stopAudio();
+    pauseOffset = seekTo;
+    updateProgressUI(seekTo);
+    if (wasPlaying) playAudio(seekTo);
+  });
+
+  // Volume slider
+  document.getElementById('volSlider').addEventListener('input', function () {
+    if (listenerGain) listenerGain.gain.value = this.value / 100;
+  });
+
+  // Original / Processed toggle
+  document.getElementById('processToggle').addEventListener('change', function () {
+    useProcessed = this.checked;
+    if (masterGain && audioCtx) {
+      const t = audioCtx.currentTime;
+      masterGain.gain.setTargetAtTime(useProcessed ? 1 : 0, t, 0.02);
+      bypassGain.gain.setTargetAtTime(useProcessed ? 0 : 1, t, 0.02);
+    }
+    const badge = document.getElementById('modeBadge');
+    if (useProcessed) {
+      badge.textContent = '▸ ОБРАБОТКА АКТИВНА';
+      badge.style.cssText = 'background:#00e5ff12;color:var(--cyan);border:1px solid #00e5ff28;';
+    } else {
+      badge.textContent = '▸ ОРИГИНАЛЬНЫЙ СИГНАЛ';
+      badge.style.cssText = 'background:#ffaa0012;color:var(--amber);border:1px solid #ffaa0028;';
+    }
+  });
+
+  // ─────────────────────────────────────────────────────────
+  //  Canvas Visualiser
+  // ─────────────────────────────────────────────────────────
+  const canvas = document.getElementById('vizCanvas');
+  const vctx   = canvas.getContext('2d');
+
+  function sizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width  = canvas.offsetWidth  * dpr;
+    canvas.height = canvas.offsetHeight * dpr;
+    return { W: canvas.width, H: canvas.height };
+  }
+
+  function drawStaticWaveform() {
+    const { W, H } = sizeCanvas();
+    vctx.clearRect(0, 0, W, H);
+    vctx.fillStyle = '#06090f';
+    vctx.fillRect(0, 0, W, H);
+
+    if (!audioBuffer) return;
+
+    const data = audioBuffer.getChannelData(0);
+    const step = Math.ceil(data.length / W);
+    const amp  = H / 2;
+
+    // Centre line
+    vctx.strokeStyle = '#162035';
+    vctx.lineWidth = 1;
+    vctx.beginPath(); vctx.moveTo(0, amp); vctx.lineTo(W, amp); vctx.stroke();
+
+    // Waveform gradient
+    const g = vctx.createLinearGradient(0, 0, W, 0);
+    g.addColorStop(0,   '#00e5ff35');
+    g.addColorStop(0.5, '#00e5ff70');
+    g.addColorStop(1,   '#00e5ff35');
+    vctx.strokeStyle = g;
+    vctx.lineWidth = 1.2;
+    vctx.beginPath();
+
+    for (let i = 0; i < W; i++) {
+      let mn = 1, mx = -1;
+      for (let j = 0; j < step; j++) {
+        const s = data[i * step + j] || 0;
+        if (s < mn) mn = s; if (s > mx) mx = s;
+      }
+      vctx.moveTo(i, amp + mn * amp * 0.88);
+      vctx.lineTo(i, amp + mx * amp * 0.88);
+    }
+    vctx.stroke();
+  }
+
+  function renderLoop() {
+    if (!isPlaying || !analyser) return;
+    rafId = requestAnimationFrame(renderLoop);
+
+    const { W, H } = sizeCanvas();
+    const elapsed  = audioCtx.currentTime - startTime;
+    updateProgressUI(elapsed);
+
+    const binCount = analyser.frequencyBinCount;
+    const freqData = new Uint8Array(binCount);
+    const timeData = new Uint8Array(binCount);
+    analyser.getByteFrequencyData(freqData);
+    analyser.getByteTimeDomainData(timeData);
+
+    // Background
+    vctx.fillStyle = '#06090f';
+    vctx.fillRect(0, 0, W, H);
+
+    // ── Frequency bars ───────────────────────────────────
+    const BAR_COUNT = 64;
+    const barW = (W / BAR_COUNT) * 0.72;
+    const gap  = (W / BAR_COUNT) * 0.28;
+
+    for (let i = 0; i < BAR_COUNT; i++) {
+      const idx   = Math.floor((i / BAR_COUNT) * binCount * 0.72);
+      const val   = freqData[idx] / 255;
+      const barH  = val * H * 0.82;
+      const x     = i * (barW + gap);
+      const y     = H - barH;
+
+      // Cyan → teal gradient per bar
+      const alpha = 0.3 + val * 0.7;
+      vctx.fillStyle = `hsla(${185 + i * 0.4}, 100%, 60%, ${alpha})`;
+      vctx.beginPath();
+      // Rounded top (manual approach for compatibility)
+      const r = Math.min(2, barW / 2, barH / 2);
+      vctx.moveTo(x + r, y);
+      vctx.lineTo(x + barW - r, y);
+      vctx.quadraticCurveTo(x + barW, y, x + barW, y + r);
+      vctx.lineTo(x + barW, H);
+      vctx.lineTo(x, H);
+      vctx.lineTo(x, y + r);
+      vctx.quadraticCurveTo(x, y, x + r, y);
+      vctx.closePath();
+      vctx.fill();
+    }
+
+    // ── Time-domain waveform overlay ─────────────────────
+    vctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    vctx.lineWidth = 1.5;
+    vctx.beginPath();
+    for (let i = 0; i < binCount; i++) {
+      const x = (i / binCount) * W;
+      const y = ((timeData[i] / 128) - 1) * (H * 0.28) + H / 2;
+      i === 0 ? vctx.moveTo(x, y) : vctx.lineTo(x, y);
+    }
+    vctx.stroke();
+
+    // ── Playhead line ────────────────────────────────────
+    const progress = Math.min(elapsed / audioBuffer.duration, 1);
+    const px = progress * W;
+    vctx.strokeStyle = '#ffffff30';
+    vctx.lineWidth = 1;
+    vctx.beginPath(); vctx.moveTo(px, 0); vctx.lineTo(px, H); vctx.stroke();
+  }
+
+  function updateProgressUI(elapsed) {
+    if (!audioBuffer) return;
+    const pct = Math.min(elapsed / audioBuffer.duration, 1) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('currTime').textContent = fmtTime(elapsed);
+  }
+
+  window.addEventListener('resize', () => { if (!isPlaying) drawStaticWaveform(); });
+
+  // ─────────────────────────────────────────────────────────
+  //  Presets
+  // ─────────────────────────────────────────────────────────
+  const PRESETS = {
+    podcast: {
+      hpFreq: 100,  lpFreq: 10000, eqFreq: 3000, eqGain: 5,  eqQ: 1.0,
+      cmpThreshold: -20, cmpRatio: 4,  cmpAttack: 0.003, cmpRelease: 0.15, gainValue: 1.2,
+      sliders: { noise: 40, clarity: 55, gain: 28, comp: 55 }
+    },
+    loud: {
+      hpFreq: 80,   lpFreq: 12000, eqFreq: 2500, eqGain: 8,  eqQ: 1.5,
+      cmpThreshold: -32, cmpRatio: 9,  cmpAttack: 0.001, cmpRelease: 0.08, gainValue: 2.5,
+      sliders: { noise: 30, clarity: 70, gain: 80, comp: 82 }
+    },
+    noisy: {
+      hpFreq: 260,  lpFreq: 6200,  eqFreq: 3200, eqGain: 4,  eqQ: 2.0,
+      cmpThreshold: -18, cmpRatio: 6,  cmpAttack: 0.002, cmpRelease: 0.10, gainValue: 1.8,
+      sliders: { noise: 78, clarity: 44, gain: 56, comp: 65 }
+    }
+  };
+
+  function applyPreset(name) {
+    const pr = PRESETS[name];
+    if (!pr) return;
+    Object.assign(P, pr);
+
+    // Apply to live nodes (smooth ramp)
+    if (audioCtx && hpFilter) {
+      const t = audioCtx.currentTime;
+      hpFilter.frequency.setTargetAtTime(pr.hpFreq, t, 0.05);
+      lpFilter.frequency.setTargetAtTime(pr.lpFreq, t, 0.05);
+      eqFilter.frequency.setTargetAtTime(pr.eqFreq, t, 0.05);
+      eqFilter.gain.setTargetAtTime(pr.eqGain, t, 0.05);
+      eqFilter.Q.setTargetAtTime(pr.eqQ, t, 0.05);
+      compressor.threshold.setTargetAtTime(pr.cmpThreshold, t, 0.05);
+      compressor.ratio.setTargetAtTime(pr.cmpRatio, t, 0.05);
+      compressor.attack.setTargetAtTime(pr.cmpAttack, t, 0.05);
+      compressor.release.setTargetAtTime(pr.cmpRelease, t, 0.05);
+      gainNode.gain.setTargetAtTime(pr.gainValue, t, 0.05);
+    }
+
+    // Update sliders
+    const s = pr.sliders;
+    document.getElementById('noiseSlider').value   = s.noise;
+    document.getElementById('claritySlider').value = s.clarity;
+    document.getElementById('gainSlider').value    = s.gain;
+    document.getElementById('compSlider').value    = s.comp;
+    document.getElementById('noiseVal').textContent   = s.noise + '%';
+    document.getElementById('clarityVal').textContent = s.clarity + '%';
+    document.getElementById('gainVal').textContent    = gainFromSlider(s.gain).toFixed(1) + '×';
+    document.getElementById('compVal').textContent    = s.comp + '%';
+
+    // Highlight active preset button
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('pr-' + name).classList.add('active');
+  }
+
+  // ─────────────────────────────────────────────────────────
+  //  Slider Handlers
+  // ─────────────────────────────────────────────────────────
+
+  /** Noise reduction slider → HP/LP cutoff frequencies */
+  function updateNoise(v) {
+    document.getElementById('noiseVal').textContent = v + '%';
+    const pct = v / 100;
+    P.hpFreq = 60   + pct * 360;    // 60Hz → 420Hz
+    P.lpFreq = 14000 - pct * 9000;  // 14kHz → 5kHz
+    if (audioCtx && hpFilter) {
+      hpFilter.frequency.setTargetAtTime(P.hpFreq, audioCtx.currentTime, 0.02);
+      lpFilter.frequency.setTargetAtTime(P.lpFreq, audioCtx.currentTime, 0.02);
+    }
+    clearPresetHL();
+  }
+
+  /** Clarity slider → EQ gain + center frequency */
+  function updateClarity(v) {
+    document.getElementById('clarityVal').textContent = v + '%';
+    const pct = v / 100;
+    P.eqGain = pct * 12;             // 0 → 12 dB
+    P.eqFreq = 2000 + pct * 2000;   // 2kHz → 4kHz
+    if (audioCtx && eqFilter) {
+      eqFilter.gain.setTargetAtTime(P.eqGain, audioCtx.currentTime, 0.02);
+      eqFilter.frequency.setTargetAtTime(P.eqFreq, audioCtx.currentTime, 0.02);
+    }
+    clearPresetHL();
+  }
+
+  /** Gain slider → GainNode multiplier */
+  function gainFromSlider(v) { return 0.5 + (v / 100) * 2.5; } // 0.5× → 3.0×
+
+  function updateGain(v) {
+    const g = gainFromSlider(v);
+    document.getElementById('gainVal').textContent = g.toFixed(1) + '×';
+    P.gainValue = g;
+    if (audioCtx && gainNode) gainNode.gain.setTargetAtTime(g, audioCtx.currentTime, 0.02);
+    clearPresetHL();
+  }
+
+  /** Compression slider → threshold + ratio */
+  function updateCompression(v) {
+    document.getElementById('compVal').textContent = v + '%';
+    const pct = v / 100;
+    P.cmpThreshold = -6 - pct * 34;   // -6 dB → -40 dB
+    P.cmpRatio     = 1.5 + pct * 10.5; // 1.5:1 → 12:1
+    if (audioCtx && compressor) {
+      compressor.threshold.setTargetAtTime(P.cmpThreshold, audioCtx.currentTime, 0.02);
+      compressor.ratio.setTargetAtTime(P.cmpRatio, audioCtx.currentTime, 0.02);
+    }
+    clearPresetHL();
+  }
+
+  function clearPresetHL() {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  }
+
+  // ─────────────────────────────────────────────────────────
+  //  Export / Download  (no FFmpeg — pure browser APIs)
+  // ─────────────────────────────────────────────────────────
+  async function processAndDownload() {
+    if (!audioBuffer) { alert('Сначала загрузите аудиофайл.'); return; }
+
+    const format     = document.getElementById('fmtSelect').value;
+    const bitrate    = document.getElementById('brSelect').value;
+    const exportMode = document.getElementById('expModeSelect').value;
+    const btn        = document.getElementById('dlBtn');
+    const btnTxt     = document.getElementById('dlBtnTxt');
+
+    document.getElementById('expProgress').classList.remove('hidden');
+    btn.disabled = true;
+    btnTxt.innerHTML = '<span class="spinner"></span> Обработка...';
+
+    try {
+      // ── Step 1: get the AudioBuffer to encode ─────────────
+      let srcBuf;
+      if (exportMode === 'processed') {
+        setExpProgress(5, 'Offline-рендеринг...');
+        srcBuf = await renderOffline();
+      } else {
+        srcBuf = audioBuffer;
+      }
+
+      setExpProgress(30, 'Кодирование...');
+
+      let blob, ext;
+
+      switch (format) {
+        // ── WAV: pure JS PCM encoder (instant) ──────────────
+        case 'wav':
+          blob = encodeWav(srcBuf);
+          ext  = 'wav';
+          setExpProgress(100, 'Готово!');
+          break;
+
+        // ── MP3: lamejs (pure JS, no SharedArrayBuffer) ──────
+        case 'mp3':
+          blob = await encodeMp3(srcBuf, parseInt(bitrate));
+          ext  = 'mp3';
+          setExpProgress(100, 'Готово!');
+          break;
+
+        // ── OGG / AAC: MediaRecorder real-time capture ───────
+        case 'ogg':
+        case 'aac': {
+          const mimeOgg = 'audio/ogg;codecs=vorbis';
+          const mimeAac = 'audio/mp4;codecs=aac';
+          const mimeWbm = 'audio/webm;codecs=opus';
+          const mime    = format === 'ogg'
+            ? (MediaRecorder.isTypeSupported(mimeOgg) ? mimeOgg : mimeWbm)
+            : (MediaRecorder.isTypeSupported(mimeAac) ? mimeAac : mimeWbm);
+          ext  = format === 'ogg' ? (mime.includes('webm') ? 'webm' : 'ogg')
+                                  : (mime.includes('webm') ? 'webm' : 'm4a');
+          blob = await recordViaMediaRecorder(srcBuf, mime, (p) => {
+            setExpProgress(30 + Math.round(p * 65), `Запись... ${Math.round(p * 100)}%`);
+          });
+          setExpProgress(100, 'Готово!');
+          break;
+        }
+
+        default:
+          throw new Error('Неизвестный формат: ' + format);
+      }
+
+      const fname = `audioforge_output.${ext}`;
+      triggerDownload(blob, fname);
+      document.getElementById('expStatus').textContent = '✓ Скачано: ' + fname;
+
+    } catch (err) {
+      console.error('[Export]', err);
+      document.getElementById('expStatus').textContent = '❌ Ошибка: ' + err.message;
+      alert('Ошибка экспорта:\n' + err.message);
+    }
+
+    finishExport(btn, btnTxt);
+  }
+
+  // ─────────────────────────────────────────────────────────
+  //  MP3 encoding via lamejs
+  //  Process: OfflineAudioContext render → Float32 → Int16 → lame
+  // ─────────────────────────────────────────────────────────
+  async function encodeMp3(buffer, kbps) {
+    if (typeof lamejs === 'undefined') throw new Error('lamejs не загружен');
+
+    const nCh  = buffer.numberOfChannels;
+    const sr   = buffer.sampleRate;
+    const safe = Math.min(kbps, 320); // lame max 320
+
+    // lamejs supports mono (1) or stereo (2)
+    const encoder = new lamejs.Mp3Encoder(nCh > 1 ? 2 : 1, sr, safe);
+
+    const BLOCK = 1152; // lame requires multiples of 576×2 per channel
+    const L = float32ToInt16(buffer.getChannelData(0));
+    const R = nCh > 1 ? float32ToInt16(buffer.getChannelData(1)) : null;
+
+    const chunks = [];
+    const total  = L.length;
+
+    for (let i = 0; i < total; i += BLOCK) {
+      const lChunk = L.subarray(i, i + BLOCK);
+      const rChunk = R ? R.subarray(i, i + BLOCK) : lChunk;
+
+      const encoded = nCh > 1
+        ? encoder.encodeBuffer(lChunk, rChunk)
+        : encoder.encodeBuffer(lChunk);
+
+      if (encoded.length > 0) chunks.push(new Uint8Array(encoded));
+
+      // Yield to UI every 200 blocks (~1.3 s of audio per yield)
+      if ((i / BLOCK) % 200 === 0) await yieldToUI();
+    }
+
+    const tail = encoder.flush();
+    if (tail.length > 0) chunks.push(new Uint8Array(tail));
+
+    return new Blob(chunks, { type: 'audio/mpeg' });
+  }
+
+  /** Float32Array [-1..1] → Int16Array */
+  function float32ToInt16(f32) {
+    const i16 = new Int16Array(f32.length);
+    for (let i = 0; i < f32.length; i++) {
+      const s = Math.max(-1, Math.min(1, f32[i]));
+      i16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    return i16;
+  }
+
+  /** Yield control to the browser event loop (keeps UI responsive) */
+  function yieldToUI() { return new Promise(r => setTimeout(r, 0)); }
+
+  // ─────────────────────────────────────────────────────────
+  //  OGG / AAC via MediaRecorder
+  //  The rendered AudioBuffer is piped into a MediaStreamDestination
+  //  and recorded at real-time speed using the browser's native codecs.
+  // ─────────────────────────────────────────────────────────
+  function recordViaMediaRecorder(srcBuffer, mimeType, onProgress) {
+    return new Promise((resolve, reject) => {
+      // Temporary AudioContext for real-time playback into MediaRecorder
+      const recCtx  = new AudioContext();
+      const dest    = recCtx.createMediaStreamDestination();
+
+      // Re-build the processing chain in this context
+      const src  = recCtx.createBufferSource();
+      src.buffer = srcBuffer;
+
+      const hp   = recCtx.createBiquadFilter();
+      hp.type = 'highpass'; hp.frequency.value = P.hpFreq;
+
+      const lp   = recCtx.createBiquadFilter();
+      lp.type = 'lowpass';  lp.frequency.value = P.lpFreq;
+
+      const eq   = recCtx.createBiquadFilter();
+      eq.type = 'peaking';
+      eq.frequency.value = P.eqFreq;
+      eq.gain.value = P.eqGain;
+      eq.Q.value = P.eqQ;
+
+      const cmp  = recCtx.createDynamicsCompressor();
+      cmp.threshold.value = P.cmpThreshold;
+      cmp.ratio.value = P.cmpRatio;
+      cmp.attack.value = P.cmpAttack;
+      cmp.release.value = P.cmpRelease;
+
+      const gn   = recCtx.createGain();
+      gn.gain.value = P.gainValue;
+
+      src.connect(hp); hp.connect(lp); lp.connect(eq);
+      eq.connect(cmp); cmp.connect(gn); gn.connect(dest);
+
+      // MediaRecorder reads from the MediaStream
+      let rec;
+      try {
+        rec = new MediaRecorder(dest.stream, { mimeType, audioBitsPerSecond: 128000 });
+      } catch (e) {
+        recCtx.close();
+        return reject(new Error('Браузер не поддерживает формат: ' + mimeType));
+      }
+
+      const chunks = [];
+      rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      rec.onstop = () => {
+        recCtx.close();
+        resolve(new Blob(chunks, { type: mimeType }));
+      };
+      rec.onerror = e => { recCtx.close(); reject(e.error); };
+
+      // Track progress by wall-clock time
+      const duration = srcBuffer.duration;
+      const startWall = Date.now();
+      const progIv = setInterval(() => {
+        onProgress(Math.min((Date.now() - startWall) / (duration * 1000), 0.98));
+      }, 300);
+
+      src.onended = () => { clearInterval(progIv); rec.stop(); };
+
+      rec.start(100); // collect in 100 ms chunks
+      src.start(0);
+    });
+  }
+
+  /**
+   * Renders the processed audio chain using OfflineAudioContext.
+   * Mirrors buildChain() but runs faster-than-real-time.
+   * Returns a Promise<AudioBuffer>.
+   */
+  async function renderOffline() {
+    const oCtx = new OfflineAudioContext(
+      audioBuffer.numberOfChannels,
+      audioBuffer.length,
+      audioBuffer.sampleRate
+    );
+
+    const src = oCtx.createBufferSource();
+    src.buffer = audioBuffer;
+
+    const hp = oCtx.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = P.hpFreq; hp.Q.value = 0.7;
+
+    const lp = oCtx.createBiquadFilter();
+    lp.type = 'lowpass';  lp.frequency.value = P.lpFreq; lp.Q.value = 0.7;
+
+    const eq = oCtx.createBiquadFilter();
+    eq.type = 'peaking';
+    eq.frequency.value = P.eqFreq;
+    eq.gain.value = P.eqGain;
+    eq.Q.value = P.eqQ;
+
+    const cmp = oCtx.createDynamicsCompressor();
+    cmp.threshold.value = P.cmpThreshold;
+    cmp.knee.value = 10;
+    cmp.ratio.value = P.cmpRatio;
+    cmp.attack.value = P.cmpAttack;
+    cmp.release.value = P.cmpRelease;
+
+    const gn = oCtx.createGain();
+    gn.gain.value = P.gainValue;
+
+    src.connect(hp); hp.connect(lp); lp.connect(eq);
+    eq.connect(cmp); cmp.connect(gn); gn.connect(oCtx.destination);
+
+    src.start(0);
+    return oCtx.startRendering();
+  }
+
+  /**
+   * Encodes an AudioBuffer as a standard 16-bit PCM WAV Blob.
+   * Format: RIFF header (44 bytes) + interleaved 16-bit samples.
+   */
+  function encodeWav(buffer) {
+    const nCh        = buffer.numberOfChannels;
+    const sr         = buffer.sampleRate;
+    const nSamples   = buffer.length;
+    const bps        = 2;
+    const blockAlign = nCh * bps;
+    const dataSize   = nSamples * blockAlign;
+    const ab         = new ArrayBuffer(44 + dataSize);
+    const dv         = new DataView(ab);
+
+    ws(dv, 0,  'RIFF');
+    dv.setUint32(4,  36 + dataSize, true);
+    ws(dv, 8,  'WAVE');
+    ws(dv, 12, 'fmt ');
+    dv.setUint32(16, 16,              true);
+    dv.setUint16(20, 1,               true);
+    dv.setUint16(22, nCh,             true);
+    dv.setUint32(24, sr,              true);
+    dv.setUint32(28, sr * blockAlign, true);
+    dv.setUint16(32, blockAlign,      true);
+    dv.setUint16(34, 16,              true);
+    ws(dv, 36, 'data');
+    dv.setUint32(40, dataSize, true);
+
+    let off = 44;
+    for (let i = 0; i < nSamples; i++) {
+      for (let ch = 0; ch < nCh; ch++) {
+        const s = Math.max(-1, Math.min(1, buffer.getChannelData(ch)[i]));
+        dv.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        off += 2;
+      }
+    }
+    return new Blob([ab], { type: 'audio/wav' });
+  }
+
+  function ws(dv, off, str) {
+    for (let i = 0; i < str.length; i++) dv.setUint8(off + i, str.charCodeAt(i));
+  }
+
+  function triggerDownload(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 15000);
+  }
+
+  function setExpProgress(pct, label) {
+    document.getElementById('expBarFill').style.width = pct + '%';
+    document.getElementById('expPct').textContent = pct + '%';
+    if (label) document.getElementById('expLabel').textContent = label;
+  }
+
+  function finishExport(btn, btnTxt) {
+    btn.disabled = false;
+    btnTxt.textContent = '⬇ ОБРАБОТАТЬ И СКАЧАТЬ';
+    setTimeout(() => {
+      document.getElementById('expProgress').classList.add('hidden');
+      setExpProgress(0, '');
+    }, 4000);
+  }
+
+  // ─────────────────────────────────────────────────────────
+  //  Utilities
+  // ─────────────────────────────────────────────────────────
+  function fmtTime(s) {
+    if (!isFinite(s) || s < 0) s = 0;
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60).toString().padStart(2, '0');
+    return `${m}:${sec}`;
+  }
+
+  function fmtBytes(b) {
+    if (b < 1024)          return b + ' B';
+    if (b < 1048576)       return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(1) + ' MB';
+  }
+
+  // ─────────────────────────────────────────────────────────
+  //  Initialise label for default gain slider position
+  // ─────────────────────────────────────────────────────────
+  document.getElementById('gainVal').textContent =
+    gainFromSlider(parseInt(document.getElementById('gainSlider').value)).toFixed(1) + '×';
+
+  </script>
+</body>
+</html>
