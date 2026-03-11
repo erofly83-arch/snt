@@ -581,8 +581,8 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 .guarantee-icon svg { color: var(--white); }
 .guarantee-text { color: var(--white); }
 .guarantee-text strong {
-  font-size: 17px; font-weight: 600; display: block;
-  margin-bottom: 2px;
+  font-size: 22px; font-weight: 700; display: block;
+  margin-bottom: 4px;
 }
 .guarantee-text span {
   font-size: 14px; opacity: .85;
@@ -938,7 +938,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   .nav-burger { display: flex; }
   .nav-right .btn { display: none; }
   .nav-right .btn.nav-cta-mobile { display: inline-flex; }
-  .hero { padding: 56px 0 48px; }
+  .hero { padding: 16px 0 48px; }
   .hero-title { font-size: 28px; }
   .hero-lead { font-size: 15px; }
   .hero-cta { flex-direction: column; }
@@ -2624,10 +2624,10 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   padding: 7px 14px; border-radius: 99px;
 }
 .cs-pro {
-  background: var(--green-bg); color: var(--green-dark);
-  border: 1px solid rgba(22,163,74,.18);
+  background: var(--accent-bg); color: #1e3a8a;
+  border: 1px solid rgba(59,111,212,.22);
 }
-.cs-pro svg { color: var(--green); flex-shrink: 0; }
+.cs-pro svg { color: var(--accent); flex-shrink: 0; }
 .cs-con {
   background: var(--amber-bg); color: var(--amber-dark);
   border: 1px solid rgba(217,119,6,.18);
@@ -3088,8 +3088,9 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   .demo-section { padding: 0 0 56px !important; }
 
   /* hero */
-  .hero-inner { grid-template-columns: 1fr !important; gap: 36px !important; }
-  .hero-visual { order: 1; }
+  .hero-inner { grid-template-columns: 1fr !important; gap: 24px !important; }
+  .hero-visual { order: -1 !important; width: 100% !important; max-width: 100% !important; overflow: hidden !important; }
+  .hero-content { order: 1 !important; }
   .hero-title { font-size: clamp(22px, 6vw, 30px) !important; text-align: left !important; }
   .hero-lead  { font-size: 15px !important; text-align: left !important; }
   .hero-content { text-align: left !important; align-items: flex-start !important; }
