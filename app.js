@@ -309,17 +309,7 @@ document.getElementById('fBtn').addEventListener('click', async function() {
     fi17: { left:'72%', top:'18%' }, // B14
     fi18: { left:'88%', top:'38%' }, // C7
     fi19: { left:'8%',  top:'88%' }, // D3
-    fi20: { left:'48%', top:'6%'  }, // 352.8
-    fi21: { left:'86%', top:'18%' }, // 423.9
-    fi22: { left:'6%',  top:'50%' }, // 193.7
-    fi23: { left:'74%', top:'44%' }, // 1740.2
-    fi24: { left:'30%', top:'92%' }, // 282.5
-    fi25: { left:'20%', top:'44%' }, // dot white
-    fi26: { left:'50%', top:'36%' }, // dot blue
-    fi27: { left:'90%', top:'58%' }, // dot green
-    fi28: { left:'36%', top:'60%' }, // dot white
-    fi29: { left:'88%', top:'84%' }, // -12%
-    fi30: { left:'4%',  top:'20%' }, // спарклайн
+
     fi31: { left:'58%', top:'94%' }, // ghost =ВПР
     fi32: { left:'14%', top:'78%' }, // ghost =ЕСЛИ
     fi33: { left:'78%', top:'8%'  }, // ghost СУММ
@@ -361,22 +351,11 @@ document.getElementById('fBtn').addEventListener('click', async function() {
     { id:'fi13', spd:1.30, r:10, type:'orbit',   da:0.20, dr:5  },
     { id:'fi14', spd:1.45, r:11, type:'figure8',  da:0.23, dr:6  },
     { id:'fi15', spd:1.00, r:13, type:'spiral',  da:0.15, dr:7  },
-    // белые мелкие — очень быстрые, малый радиус
+    // белые мелкие — ячейки Excel
     { id:'fi16', spd:1.80, r:6,  type:'orbit',   da:0.30, dr:4  },
     { id:'fi17', spd:2.10, r:5,  type:'figure8',  da:0.35, dr:3  },
     { id:'fi18', spd:1.65, r:7,  type:'orbit',   da:0.28, dr:4  },
     { id:'fi19', spd:2.20, r:5,  type:'spiral',  da:0.36, dr:3  },
-    { id:'fi20', spd:1.70, r:6,  type:'figure8',  da:0.27, dr:4  },
-    { id:'fi21', spd:1.90, r:5,  type:'orbit',   da:0.32, dr:3  },
-    { id:'fi22', spd:2.00, r:6,  type:'figure8',  da:0.33, dr:4  },
-    { id:'fi23', spd:1.60, r:7,  type:'spiral',  da:0.26, dr:5  },
-    { id:'fi24', spd:1.85, r:5,  type:'orbit',   da:0.31, dr:3  },
-    { id:'fi25', spd:2.50, r:4,  type:'orbit',   da:0.40, dr:3  },
-    { id:'fi26', spd:2.80, r:4,  type:'figure8',  da:0.45, dr:2  },
-    { id:'fi27', spd:2.60, r:4,  type:'orbit',   da:0.42, dr:3  },
-    { id:'fi28', spd:2.40, r:5,  type:'figure8',  da:0.38, dr:3  },
-    { id:'fi29', spd:1.55, r:7,  type:'spiral',  da:0.25, dr:5  },
-    { id:'fi30', spd:0.95, r:9,  type:'orbit',   da:0.15, dr:6  },
     { id:'fi31', spd:2.30, r:4,  type:'figure8',  da:0.37, dr:3  },
     { id:'fi32', spd:2.15, r:5,  type:'orbit',   da:0.34, dr:3  },
     { id:'fi33', spd:2.45, r:4,  type:'figure8',  da:0.39, dr:2  },
@@ -405,8 +384,7 @@ document.getElementById('fBtn').addEventListener('click', async function() {
   // ── Стартовая opacity по типу элемента ──
   function targetOpacity(id) {
     const n = parseInt(id.replace('fi',''));
-    if (n >= 16 && n <= 24) return rnd(0.55, 0.80); // числа
-    if (n >= 25 && n <= 28) return rnd(0.60, 0.85); // точки
+    if (n >= 16 && n <= 19) return rnd(0.55, 0.80); // ячейки Excel
     if (n >= 31 && n <= 35) return rnd(0.25, 0.45); // ghost / крестики
     return rnd(0.72, 0.95);
   }
@@ -525,11 +503,11 @@ document.getElementById('fBtn').addEventListener('click', async function() {
   }
   requestAnimationFrame(tick);
 
-  // ── Мерцание — чаще для белых элементов ──
+  // ── Мерцание — чаще для мелких элементов ──
   function flicker() {
     const pool = icons.filter(p => {
       const n = parseInt(p.id.replace('fi',''));
-      return n >= 16; // белые + мелкие мигают чаще
+      return n >= 16; // ячейки и ghost мигают чаще
     });
     const all  = icons;
     // 60% шанс взять из белых, 40% из всех
