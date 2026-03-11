@@ -449,6 +449,18 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   text-overflow: ellipsis;
   letter-spacing: -0.01em;
 }
+@media (max-width: 767px) {
+  .browser-url-text {
+    text-overflow: clip;
+    animation: browser-marquee 9s linear infinite;
+  }
+  @keyframes browser-marquee {
+    0%   { transform: translateX(0); }
+    30%  { transform: translateX(0); }
+    70%  { transform: translateX(calc(-100% + 140px)); }
+    100% { transform: translateX(calc(-100% + 140px)); }
+  }
+}
 .browser-url-accent {
   color: var(--accent);
   font-weight: 700;
@@ -463,9 +475,8 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
      он не нужен и тормозит скролл */
   .fi-layer { display: none !important; }
 
-  /* Убираем backdrop-filter у иконок (не нужно, слой скрыт, но на всякий) */
-  .fi-file, .fi-formula, .fi-badge, .fi-barcode,
-  .fi-cell, .fi-num, .fi-spark, .fi-ghost {
+  /* Убираем backdrop-filter у файловых иконок (слой скрыт, но на всякий) */
+  .fi-file {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
@@ -4574,186 +4585,6 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   border-color: rgba(59,130,246,0.5);
   color: #fff;
   box-shadow: 0 0 12px rgba(27,110,243,0.42), 0 0 24px rgba(27,110,243,0.16);
-}
-
-/* ── Formula chips ── */
-.fi-formula {
-  padding: 4px 9px;
-  border-radius: 6px;
-  font-family: 'Courier New', 'Consolas', monospace;
-  font-size: 10px;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid;
-}
-.fi-formula-green {
-  background: rgba(16,124,65,0.84);
-  border-color: rgba(34,197,94,0.45);
-  color: #9effc2;
-  box-shadow: 0 0 10px rgba(16,124,65,0.42), 0 0 22px rgba(16,124,65,0.15);
-}
-.fi-formula-blue {
-  background: rgba(27,110,243,0.84);
-  border-color: rgba(96,165,250,0.45);
-  color: #c2deff;
-  box-shadow: 0 0 10px rgba(27,110,243,0.42), 0 0 22px rgba(27,110,243,0.15);
-}
-.fi-formula-dark {
-  background: rgba(13,27,46,0.88);
-  border-color: rgba(27,110,243,0.32);
-  color: #7cb9ff;
-  box-shadow: 0 0 8px rgba(27,110,243,0.22), 0 0 18px rgba(27,110,243,0.1);
-}
-
-/* ── Barcode ── */
-.fi-barcode {
-  padding: 5px 8px;
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(27,110,243,0.22);
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 0 10px rgba(27,110,243,0.18), 0 2px 8px rgba(0,0,0,0.1);
-}
-.bc-bars {
-  display: flex;
-  gap: 1px;
-  height: 20px;
-  align-items: flex-end;
-}
-.bc-bar {
-  background: #1a1a1a;
-  border-radius: 0.5px;
-}
-.bc-num {
-  font-size: 6.5px;
-  color: #333;
-  letter-spacing: 0.06em;
-  font-family: 'Courier New', monospace;
-}
-
-/* ── Badges ── */
-.fi-badge {
-  padding: 5px 10px;
-  border-radius: 7px;
-  font-size: 10px;
-  font-weight: 700;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid;
-}
-.fi-badge-good {
-  background: rgba(16,124,65,0.88);
-  border-color: rgba(34,197,94,0.4);
-  color: #fff;
-  box-shadow: 0 0 12px rgba(16,124,65,0.42), 0 0 26px rgba(16,124,65,0.16);
-}
-.fi-badge-bad {
-  background: rgba(220,38,38,0.84);
-  border-color: rgba(248,113,113,0.4);
-  color: #fff;
-  box-shadow: 0 0 12px rgba(220,38,38,0.32), 0 0 24px rgba(220,38,38,0.12);
-}
-.fi-badge-neutral {
-  background: rgba(13,27,46,0.88);
-  border-color: rgba(27,110,243,0.35);
-  color: #90c4ff;
-  box-shadow: 0 0 10px rgba(27,110,243,0.22);
-}
-
-/* ── Percent circle ── */
-.fi-pct {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(220,38,38,0.86);
-  border: 1.5px solid rgba(248,113,113,0.45);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 900;
-  justify-content: center;
-  box-shadow: 0 0 14px rgba(220,38,38,0.4), 0 0 28px rgba(220,38,38,0.15);
-}
-
-/* ── Sparkline ── */
-.fi-spark {
-  padding: 5px 8px;
-  background: rgba(13,27,46,0.86);
-  border: 1px solid rgba(27,110,243,0.3);
-  border-radius: 7px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 0 10px rgba(27,110,243,0.2);
-}
-
-/* ── Мини ячейки Excel ── */
-.fi-cell {
-  padding: 3px 7px;
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.35);
-  border-radius: 4px;
-  font-size: 9px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.82);
-  font-family: 'Courier New', monospace;
-  letter-spacing: 0.04em;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  box-shadow: 0 0 6px rgba(255,255,255,0.1);
-}
-
-/* ── Числа-значения ── */
-.fi-num {
-  padding: 3px 8px;
-  background: rgba(255,255,255,0.14);
-  border: 1px solid rgba(255,255,255,0.28);
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.78);
-  font-family: 'Courier New', monospace;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-.fi-num-red   { color: rgba(255,140,140,0.9); border-color: rgba(255,100,100,0.3); background: rgba(220,38,38,0.18); }
-.fi-num-green { color: rgba(100,240,140,0.9); border-color: rgba(34,197,94,0.3);  background: rgba(16,124,65,0.18); }
-
-/* ── Точки-пиксели ── */
-.fi-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.55);
-  box-shadow: 0 0 6px rgba(255,255,255,0.4), 0 0 14px rgba(255,255,255,0.2);
-}
-.fi-dot-blue  { background: rgba(59,130,246,0.7);  box-shadow: 0 0 8px rgba(59,130,246,0.5),  0 0 16px rgba(59,130,246,0.2); }
-.fi-dot-green { background: rgba(34,197,94,0.7);   box-shadow: 0 0 8px rgba(34,197,94,0.5),   0 0 16px rgba(34,197,94,0.2); }
-
-/* ── Ghost-формулы (просто текст, почти прозрачные) ── */
-.fi-ghost {
-  font-size: 9px;
-  font-weight: 800;
-  font-family: 'Courier New', monospace;
-  color: rgba(255,255,255,0.28);
-  letter-spacing: 0.06em;
-  text-shadow: 0 0 8px rgba(59,130,246,0.4);
-}
-
-/* ── Крестики / галочки ── */
-.fi-cross {
-  font-size: 14px;
-  font-weight: 900;
-  color: rgba(255,100,100,0.65);
-  text-shadow: 0 0 8px rgba(220,38,38,0.5);
-  line-height: 1;
-}
-.fi-cross-green {
-  color: rgba(80,220,120,0.7);
-  text-shadow: 0 0 8px rgba(34,197,94,0.5);
 }
 
 /* ══ CALC LOSS FRAMING BLOCK ══ */

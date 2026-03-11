@@ -286,26 +286,6 @@ document.getElementById('fBtn').addEventListener('click', async function() {
     fi2:  { left:'10%', top:'10%' },
     fi3:  { left:'82%', top:'72%' },
     fi4:  { left:'52%', top:'82%' },
-    fi5:  { left:'22%', top:'3%'  },
-    fi6:  { left:'4%',  top:'68%' },
-    fi7:  { left:'58%', top:'28%' },
-    fi8:  { left:'68%', top:'88%' },
-    fi9:  { left:'3%',  top:'32%' },
-    fi10: { left:'40%', top:'48%' },
-    fi11: { left:'62%', top:'52%' },
-    fi12: { left:'28%', top:'76%' },
-    fi13: { left:'44%', top:'16%' },
-    fi14: { left:'16%', top:'56%' },
-    fi15: { left:'56%', top:'64%' },
-    fi16: { left:'33%', top:'36%' },
-    fi17: { left:'72%', top:'18%' },
-    fi18: { left:'88%', top:'38%' },
-    fi19: { left:'8%',  top:'88%' },
-    fi31: { left:'58%', top:'94%' },
-    fi32: { left:'14%', top:'78%' },
-    fi33: { left:'78%', top:'8%'  },
-    fi34: { left:'46%', top:'72%' },
-    fi35: { left:'22%', top:'62%' },
     fi36: { left:'36%', top:'22%' },
     fi37: { left:'68%', top:'58%' },
     fi38: { left:'14%', top:'92%' },
@@ -324,26 +304,6 @@ document.getElementById('fBtn').addEventListener('click', async function() {
     { id:'fi2',  spd:1.10, r:11, type:'figure8',  da:0.18, dr:7 },
     { id:'fi3',  spd:0.85, r:10, type:'orbit',   da:0.12, dr:5 },
     { id:'fi4',  spd:1.00, r:8,  type:'figure8',  da:0.16, dr:6 },
-    { id:'fi5',  spd:0.75, r:14, type:'orbit',   da:0.10, dr:8 },
-    { id:'fi6',  spd:1.20, r:12, type:'figure8',  da:0.20, dr:7 },
-    { id:'fi7',  spd:1.35, r:10, type:'spiral',  da:0.22, dr:6 },
-    { id:'fi8',  spd:1.50, r:9,  type:'orbit',   da:0.24, dr:5 },
-    { id:'fi9',  spd:0.80, r:15, type:'figure8',  da:0.11, dr:9 },
-    { id:'fi10', spd:1.25, r:11, type:'spiral',  da:0.19, dr:6 },
-    { id:'fi11', spd:1.40, r:10, type:'orbit',   da:0.21, dr:7 },
-    { id:'fi12', spd:1.10, r:12, type:'figure8',  da:0.17, dr:6 },
-    { id:'fi13', spd:1.30, r:10, type:'orbit',   da:0.20, dr:5 },
-    { id:'fi14', spd:1.45, r:11, type:'figure8',  da:0.23, dr:6 },
-    { id:'fi15', spd:1.00, r:13, type:'spiral',  da:0.15, dr:7 },
-    { id:'fi16', spd:1.80, r:6,  type:'orbit',   da:0.30, dr:4 },
-    { id:'fi17', spd:2.10, r:5,  type:'figure8',  da:0.35, dr:3 },
-    { id:'fi18', spd:1.65, r:7,  type:'orbit',   da:0.28, dr:4 },
-    { id:'fi19', spd:2.20, r:5,  type:'spiral',  da:0.36, dr:3 },
-    { id:'fi31', spd:2.30, r:4,  type:'figure8',  da:0.37, dr:3 },
-    { id:'fi32', spd:2.15, r:5,  type:'orbit',   da:0.34, dr:3 },
-    { id:'fi33', spd:2.45, r:4,  type:'figure8',  da:0.39, dr:2 },
-    { id:'fi34', spd:2.70, r:5,  type:'spiral',  da:0.43, dr:3 },
-    { id:'fi35', spd:2.55, r:5,  type:'orbit',   da:0.41, dr:3 },
     { id:'fi36', spd:0.95, r:10, type:'figure8', da:0.16, dr:6 },
     { id:'fi37', spd:1.15, r:9,  type:'orbit',   da:0.18, dr:5 },
     { id:'fi38', spd:0.80, r:11, type:'spiral',  da:0.13, dr:7 },
@@ -376,17 +336,14 @@ document.getElementById('fBtn').addEventListener('click', async function() {
   }).filter(p => p.el);
 
   // ── Базовая opacity ──
-  function targetOpacity(id) {
-    const n = parseInt(id.replace('fi',''));
-    if (n >= 16 && n <= 19) return rnd(0.55, 0.80);
-    if (n >= 31 && n <= 35) return rnd(0.25, 0.45);
+  function targetOpacity() {
     return rnd(0.72, 0.95);
   }
 
   gsap.set('.fi', { opacity: 0, scale: 0.5 });
   icons.forEach((p, i) => {
     gsap.to(p.el, {
-      opacity: targetOpacity(p.id),
+      opacity: targetOpacity(),
       scale: 1, duration: 0.5,
       delay: 0.8 + i * 0.06,
       ease: 'back.out(2)',
@@ -565,9 +522,7 @@ document.getElementById('fBtn').addEventListener('click', async function() {
 
   // ── Мерцание ──
   function flicker() {
-    const pool = icons.filter(p => parseInt(p.id.replace('fi','')) >= 16);
-    const src  = Math.random() < 0.6 ? pool : icons;
-    const p    = src[Math.floor(Math.random() * src.length)];
+    const p = icons[Math.floor(Math.random() * icons.length)];
     if (!p || !p.el) { setTimeout(flicker, 400); return; }
 
     // не мерцаем при активном притяжении
