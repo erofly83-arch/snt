@@ -435,6 +435,67 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   display: flex; align-items: center;
   padding: 0 10px;
   font-size: 10px; color: var(--text-muted); font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+.browser-url-text {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #1a1d23;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+.browser-url-accent {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ══ MOBILE SCROLL PERFORMANCE FIX ══
+   Отключаем тяжёлые эффекты на мобильных:
+   backdrop-filter и will-change бьют по FPS при скролле
+*/
+@media (max-width: 768px) {
+  /* Полностью скрываем слой анимации на мобильных —
+     он не нужен и тормозит скролл */
+  .fi-layer { display: none !important; }
+
+  /* Убираем backdrop-filter у иконок (не нужно, слой скрыт, но на всякий) */
+  .fi-file, .fi-formula, .fi-badge, .fi-barcode,
+  .fi-cell, .fi-num, .fi-spark, .fi-ghost {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Отключаем CSS-анимации hero-blob на мобильных */
+  .hero-blob {
+    display: none !important;
+  }
+
+  /* Разгружаем браузер: убираем will-change у неактивных элементов */
+  .browser-mock,
+  .hero-visual,
+  .hero-content {
+    will-change: auto !important;
+  }
+
+  /* Плавный скролл без рывков */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Изображения не перерисовываются при скролле */
+  .browser-screen img {
+    will-change: auto !important;
+    transform: none !important;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  /* Убираем тяжёлые box-shadow у browser-mock */
+  .browser-mock {
+    box-shadow: 0 8px 24px rgba(26,29,35,.12), 0 0 0 1px var(--border) !important;
+  }
 }
 .browser-screen {
   aspect-ratio: 16/10;

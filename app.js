@@ -264,6 +264,9 @@ document.getElementById('fBtn').addEventListener('click', async function() {
   const screen = document.querySelector('#heroBrowserScreen');
   if (!screen) return;
 
+  // На мобильных не запускаем анимацию — она тормозит скролл
+  if (window.innerWidth <= 768) return;
+
   function rnd(a, b) { return a + Math.random() * (b - a); }
   const PI2 = Math.PI * 2;
 
