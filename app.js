@@ -309,6 +309,11 @@ document.getElementById('fBtn').addEventListener('click', async function() {
     fi33: { left:'78%', top:'8%'  }, // ghost СУММ
     fi34: { left:'46%', top:'72%' }, // ×
     fi35: { left:'22%', top:'62%' }, // ✓
+    // доп. файлы
+    fi36: { left:'36%', top:'22%' }, // XLS
+    fi37: { left:'68%', top:'58%' }, // CSV
+    fi38: { left:'14%', top:'92%' }, // XLS
+    fi39: { left:'90%', top:'26%' }, // CSV
   };
 
   Object.entries(startPos).forEach(([id, pos]) => {
@@ -360,6 +365,11 @@ document.getElementById('fBtn').addEventListener('click', async function() {
     { id:'fi33', spd:2.45, r:4,  type:'figure8',  da:0.39, dr:2  },
     { id:'fi34', spd:2.70, r:5,  type:'spiral',  da:0.43, dr:3  },
     { id:'fi35', spd:2.55, r:5,  type:'orbit',   da:0.41, dr:3  },
+    // доп. файлы
+    { id:'fi36', spd:0.95, r:10, type:'figure8', da:0.16, dr:6  },
+    { id:'fi37', spd:1.15, r:9,  type:'orbit',   da:0.18, dr:5  },
+    { id:'fi38', spd:0.80, r:11, type:'spiral',  da:0.13, dr:7  },
+    { id:'fi39', spd:1.05, r:8,  type:'figure8', da:0.17, dr:5  },
   ];
 
   // ── Строим массив объектов ──
@@ -520,21 +530,6 @@ document.getElementById('fBtn').addEventListener('click', async function() {
   }
   setTimeout(flicker, 2000);
 
-  // ── Scan-line ──
-  function scanLine() {
-    const sl = document.createElement('div');
-    sl.style.cssText = `
-      position:absolute;left:0;right:0;height:2px;top:0;z-index:5;pointer-events:none;
-      background:linear-gradient(90deg,transparent 0%,rgba(59,130,246,.7) 30%,rgba(160,210,255,1) 50%,rgba(59,130,246,.7) 70%,transparent 100%);
-      box-shadow:0 0 10px rgba(59,130,246,.5);border-radius:1px;
-    `;
-    screen.appendChild(sl);
-    gsap.fromTo(sl,
-      { top:'0%', opacity:0 },
-      { top:'100%', opacity:1, duration: rnd(1.4, 2.6), ease:'none',
-        onComplete: () => { sl.remove(); setTimeout(scanLine, rnd(3500, 8000)); } }
-    );
-  }
-  setTimeout(scanLine, 2000);
+
 
 })();
