@@ -275,25 +275,21 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 /* ══ HERO IMAGE — browser mock wraps image naturally ══ */
 .hero-inner {
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 56px; align-items: stretch;
+  gap: 56px; align-items: center;
   position: relative; z-index: 1;
 }
 .hero-content { display:flex; flex-direction:column; justify-content:center; }
 .hero-visual  { display:flex; flex-direction:column; }
-.hero-visual .browser-mock { flex: 1; display: flex; flex-direction: column; }
-.hero-visual .browser-bar  { flex-shrink: 0; }
+.hero-visual .browser-bar  { flex-shrink:0; }
 .hero-visual .browser-screen {
-  flex: 1;
   aspect-ratio: unset !important;
   max-height: unset !important;
   overflow: hidden;
   display: block;
   line-height: 0;
-  min-height: 0;
 }
 .hero-visual .browser-screen img {
-  width: 100%; height: 100%;
-  object-fit: cover; object-position: top left;
+  width: 100%; height: auto;
   display: block;
   cursor: zoom-in;
 }
@@ -398,12 +394,14 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   position: relative;
   animation: scaleIn .7s .1s ease both;
   display: flex; flex-direction: column;
+  justify-content: flex-start;
 }
 .hero-visual .browser-mock {
-  flex: 1; display: flex; flex-direction: column;
+  display: flex; flex-direction: column;
 }
 .hero-visual .browser-screen {
-  flex: 1; aspect-ratio: unset; max-height: unset; min-height: 0;
+  aspect-ratio: unset;
+  max-height: unset;
 }
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(.95) translateY(16px); }
@@ -456,8 +454,22 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   font-weight: 700;
 }
 
-/* ══ MOBILE SCROLL PERFORMANCE FIX ══ */
+/* ══ MOBILE SCROLL PERFORMANCE FIX ══
+   Отключаем тяжёлые эффекты на мобильных:
+   backdrop-filter и will-change бьют по FPS при скролле
+*/
 @media (max-width: 768px) {
+  /* Полностью скрываем слой анимации на мобильных —
+     он не нужен и тормозит скролл */
+  .fi-layer { display: none !important; }
+
+  /* Убираем backdrop-filter у иконок (не нужно, слой скрыт, но на всякий) */
+  .fi-file, .fi-formula, .fi-badge, .fi-barcode,
+  .fi-cell, .fi-num, .fi-spark, .fi-ghost {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
   /* Отключаем CSS-анимации hero-blob на мобильных */
   .hero-blob {
     display: none !important;
@@ -4505,6 +4517,245 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   color: var(--accent) !important;
 }
 
+/* ══════════════════════════════════════════════
+   FLOATING ICONS — hero browser screen overlay
+   Содержатся строго внутри .browser-screen (overflow:hidden)
+══════════════════════════════════════════════ */
+
+/* Контейнер: абсолютный, поверх фото */
+.fi-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  perspective: 600px;
+  overflow: hidden;
+}
+
+/* Базовый стиль каждого элемента */
+.fi {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0; /* скрыты до GSAP */
+  white-space: nowrap;
+}
+
+/* ── File chips ── */
+.fi-file {
+  padding: 5px 9px;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  border: 1px solid;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.fi-xls {
+  background: rgba(16,124,65,0.82);
+  border-color: rgba(22,170,88,0.55);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(16,124,65,0.45), 0 0 28px rgba(16,124,65,0.18);
+}
+.fi-xlsx {
+  background: rgba(16,124,65,0.75);
+  border-color: rgba(22,170,88,0.45);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(16,124,65,0.38), 0 0 24px rgba(16,124,65,0.14);
+}
+.fi-csv {
+  background: rgba(27,110,243,0.78);
+  border-color: rgba(59,130,246,0.5);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(27,110,243,0.42), 0 0 24px rgba(27,110,243,0.16);
+}
+
+/* ── Formula chips ── */
+.fi-formula {
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-family: 'Courier New', 'Consolas', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid;
+}
+.fi-formula-green {
+  background: rgba(16,124,65,0.84);
+  border-color: rgba(34,197,94,0.45);
+  color: #9effc2;
+  box-shadow: 0 0 10px rgba(16,124,65,0.42), 0 0 22px rgba(16,124,65,0.15);
+}
+.fi-formula-blue {
+  background: rgba(27,110,243,0.84);
+  border-color: rgba(96,165,250,0.45);
+  color: #c2deff;
+  box-shadow: 0 0 10px rgba(27,110,243,0.42), 0 0 22px rgba(27,110,243,0.15);
+}
+.fi-formula-dark {
+  background: rgba(13,27,46,0.88);
+  border-color: rgba(27,110,243,0.32);
+  color: #7cb9ff;
+  box-shadow: 0 0 8px rgba(27,110,243,0.22), 0 0 18px rgba(27,110,243,0.1);
+}
+
+/* ── Barcode ── */
+.fi-barcode {
+  padding: 5px 8px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(27,110,243,0.22);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 0 10px rgba(27,110,243,0.18), 0 2px 8px rgba(0,0,0,0.1);
+}
+.bc-bars {
+  display: flex;
+  gap: 1px;
+  height: 20px;
+  align-items: flex-end;
+}
+.bc-bar {
+  background: #1a1a1a;
+  border-radius: 0.5px;
+}
+.bc-num {
+  font-size: 6.5px;
+  color: #333;
+  letter-spacing: 0.06em;
+  font-family: 'Courier New', monospace;
+}
+
+/* ── Badges ── */
+.fi-badge {
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid;
+}
+.fi-badge-good {
+  background: rgba(16,124,65,0.88);
+  border-color: rgba(34,197,94,0.4);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(16,124,65,0.42), 0 0 26px rgba(16,124,65,0.16);
+}
+.fi-badge-bad {
+  background: rgba(220,38,38,0.84);
+  border-color: rgba(248,113,113,0.4);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(220,38,38,0.32), 0 0 24px rgba(220,38,38,0.12);
+}
+.fi-badge-neutral {
+  background: rgba(13,27,46,0.88);
+  border-color: rgba(27,110,243,0.35);
+  color: #90c4ff;
+  box-shadow: 0 0 10px rgba(27,110,243,0.22);
+}
+
+/* ── Percent circle ── */
+.fi-pct {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(220,38,38,0.86);
+  border: 1.5px solid rgba(248,113,113,0.45);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  justify-content: center;
+  box-shadow: 0 0 14px rgba(220,38,38,0.4), 0 0 28px rgba(220,38,38,0.15);
+}
+
+/* ── Sparkline ── */
+.fi-spark {
+  padding: 5px 8px;
+  background: rgba(13,27,46,0.86);
+  border: 1px solid rgba(27,110,243,0.3);
+  border-radius: 7px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 0 10px rgba(27,110,243,0.2);
+}
+
+/* ── Мини ячейки Excel ── */
+.fi-cell {
+  padding: 3px 7px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.82);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 0 6px rgba(255,255,255,0.1);
+}
+
+/* ── Числа-значения ── */
+.fi-num {
+  padding: 3px 8px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.78);
+  font-family: 'Courier New', monospace;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.fi-num-red   { color: rgba(255,140,140,0.9); border-color: rgba(255,100,100,0.3); background: rgba(220,38,38,0.18); }
+.fi-num-green { color: rgba(100,240,140,0.9); border-color: rgba(34,197,94,0.3);  background: rgba(16,124,65,0.18); }
+
+/* ── Точки-пиксели ── */
+.fi-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.55);
+  box-shadow: 0 0 6px rgba(255,255,255,0.4), 0 0 14px rgba(255,255,255,0.2);
+}
+.fi-dot-blue  { background: rgba(59,130,246,0.7);  box-shadow: 0 0 8px rgba(59,130,246,0.5),  0 0 16px rgba(59,130,246,0.2); }
+.fi-dot-green { background: rgba(34,197,94,0.7);   box-shadow: 0 0 8px rgba(34,197,94,0.5),   0 0 16px rgba(34,197,94,0.2); }
+
+/* ── Ghost-формулы (просто текст, почти прозрачные) ── */
+.fi-ghost {
+  font-size: 9px;
+  font-weight: 800;
+  font-family: 'Courier New', monospace;
+  color: rgba(255,255,255,0.28);
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 8px rgba(59,130,246,0.4);
+}
+
+/* ── Крестики / галочки ── */
+.fi-cross {
+  font-size: 14px;
+  font-weight: 900;
+  color: rgba(255,100,100,0.65);
+  text-shadow: 0 0 8px rgba(220,38,38,0.5);
+  line-height: 1;
+}
+.fi-cross-green {
+  color: rgba(80,220,120,0.7);
+  text-shadow: 0 0 8px rgba(34,197,94,0.5);
+}
+
 /* ══ CALC LOSS FRAMING BLOCK ══ */
 .calc-loss-block {
   margin: 16px 0 14px;
@@ -4804,192 +5055,4 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   font-family: 'Inter', system-ui, sans-serif !important;
   line-height: 1 !important;
   letter-spacing: 0 !important;
-}
-
-
-/* ══════════════════════════════════════════════
-   AI PERIMETER GLOW — живой бирюзовый туман
-   Имитация «дыхания» ИИ по краям изображения
-══════════════════════════════════════════════ */
-
-.ai-glow-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 3;
-  overflow: hidden;
-  border-radius: inherit;
-}
-
-/* ── Края: тянутся вдоль каждой стороны ── */
-.ai-edge {
-  position: absolute;
-  pointer-events: none;
-}
-
-/* Верх */
-.ai-edge-top {
-  top: 0; left: 0; right: 0;
-  height: 38%;
-  background: linear-gradient(180deg,
-    rgba(0,210,200,.13) 0%,
-    rgba(0,200,220,.07) 30%,
-    transparent 100%
-  );
-  animation: aiEdgeTop 4.2s ease-in-out infinite;
-}
-/* Низ */
-.ai-edge-bottom {
-  bottom: 0; left: 0; right: 0;
-  height: 38%;
-  background: linear-gradient(0deg,
-    rgba(0,210,200,.11) 0%,
-    rgba(0,200,220,.05) 35%,
-    transparent 100%
-  );
-  animation: aiEdgeBottom 5.1s ease-in-out infinite;
-  animation-delay: -2.1s;
-}
-/* Лево */
-.ai-edge-left {
-  top: 0; bottom: 0; left: 0;
-  width: 36%;
-  background: linear-gradient(90deg,
-    rgba(0,210,210,.12) 0%,
-    rgba(0,200,230,.05) 40%,
-    transparent 100%
-  );
-  animation: aiEdgeLeft 4.7s ease-in-out infinite;
-  animation-delay: -1.2s;
-}
-/* Право */
-.ai-edge-right {
-  top: 0; bottom: 0; right: 0;
-  width: 36%;
-  background: linear-gradient(270deg,
-    rgba(0,210,210,.12) 0%,
-    rgba(0,200,230,.05) 40%,
-    transparent 100%
-  );
-  animation: aiEdgeRight 5.6s ease-in-out infinite;
-  animation-delay: -3.4s;
-}
-
-/* ── Углы: круглые радиальные «нарывы» ── */
-.ai-corner {
-  position: absolute;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  mix-blend-mode: screen;
-  pointer-events: none;
-}
-.ai-corner-tl {
-  top: -60px; left: -60px;
-  background: radial-gradient(circle at 60% 60%,
-    rgba(0,230,210,.28) 0%,
-    rgba(0,200,230,.10) 45%,
-    transparent 70%
-  );
-  animation: aiCorner 6s ease-in-out infinite;
-}
-.ai-corner-tr {
-  top: -60px; right: -60px;
-  background: radial-gradient(circle at 40% 60%,
-    rgba(0,220,220,.22) 0%,
-    rgba(0,190,240,.08) 45%,
-    transparent 70%
-  );
-  animation: aiCorner 7.3s ease-in-out infinite;
-  animation-delay: -2.5s;
-}
-.ai-corner-br {
-  bottom: -60px; right: -60px;
-  background: radial-gradient(circle at 40% 40%,
-    rgba(20,220,215,.25) 0%,
-    rgba(0,200,235,.09) 45%,
-    transparent 70%
-  );
-  animation: aiCorner 5.8s ease-in-out infinite;
-  animation-delay: -4.1s;
-}
-.ai-corner-bl {
-  bottom: -60px; left: -60px;
-  background: radial-gradient(circle at 60% 40%,
-    rgba(0,215,220,.20) 0%,
-    rgba(0,195,240,.07) 45%,
-    transparent 70%
-  );
-  animation: aiCorner 6.7s ease-in-out infinite;
-  animation-delay: -1.8s;
-}
-
-/* ── Центральные пульсы — лёгкое «сердцебиение» ── */
-.ai-pulse {
-  position: absolute;
-  border-radius: 50%;
-  mix-blend-mode: screen;
-  pointer-events: none;
-}
-.ai-pulse-1 {
-  width: 50%; aspect-ratio: 1;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle,
-    rgba(0,220,210,.0) 30%,
-    rgba(0,210,220,.06) 60%,
-    rgba(0,200,230,.13) 80%,
-    transparent 100%
-  );
-  animation: aiPulse1 3.8s ease-in-out infinite;
-}
-.ai-pulse-2 {
-  width: 80%; aspect-ratio: 1;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle,
-    transparent 40%,
-    rgba(0,210,215,.04) 65%,
-    rgba(0,200,230,.09) 82%,
-    transparent 100%
-  );
-  animation: aiPulse2 5.5s ease-in-out infinite;
-  animation-delay: -2s;
-}
-
-/* ── Keyframes — каждый немного разный ── */
-@keyframes aiEdgeTop {
-  0%,100% { opacity:.6; transform: scaleY(.85) translateY(-3px); }
-  40%     { opacity:1;  transform: scaleY(1.1)  translateY(2px);  }
-  70%     { opacity:.75; transform: scaleY(.95) translateY(0px);  }
-}
-@keyframes aiEdgeBottom {
-  0%,100% { opacity:.5; transform: scaleY(.9) translateY(4px); }
-  45%     { opacity:.95; transform: scaleY(1.12) translateY(-2px); }
-}
-@keyframes aiEdgeLeft {
-  0%,100% { opacity:.55; transform: scaleX(.88) translateX(-3px); }
-  50%     { opacity:1;   transform: scaleX(1.1)  translateX(2px);  }
-}
-@keyframes aiEdgeRight {
-  0%,100% { opacity:.5;  transform: scaleX(.9)  translateX(3px); }
-  48%     { opacity:.95; transform: scaleX(1.08) translateX(-2px); }
-}
-@keyframes aiCorner {
-  0%,100% { opacity:.55; transform: scale(.85); }
-  50%     { opacity:1;   transform: scale(1.18); }
-}
-@keyframes aiPulse1 {
-  0%,100% { opacity:0;    transform: translate(-50%,-50%) scale(.8); }
-  30%,70% { opacity:1;    transform: translate(-50%,-50%) scale(1); }
-}
-@keyframes aiPulse2 {
-  0%,100% { opacity:.3;  transform: translate(-50%,-50%) scale(.9); }
-  50%     { opacity:.85; transform: translate(-50%,-50%) scale(1.05); }
-}
-
-/* Мобильные: только края без сложных эффектов */
-@media (max-width: 768px) {
-  .ai-corner, .ai-pulse { display: none; }
-  .ai-edge { will-change: auto; }
 }
