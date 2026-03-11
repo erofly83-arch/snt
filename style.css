@@ -343,18 +343,20 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   50% { box-shadow: 0 0 0 6px rgba(22,163,74,.1); }
 }
 .hero-title {
-  font-size: clamp(26px, 3vw, 42px);
-  font-weight: 800; line-height: 1.15;
-  color: var(--text-primary); letter-spacing: -.025em;
-  margin-bottom: 18px;
+  font-size: clamp(28px, 3.2vw, 46px);
+  font-weight: 900; line-height: 1.1;
+  color: var(--text-primary); letter-spacing: -.03em;
+  margin-bottom: 20px;
   animation: fadeUp .6s .08s ease both;
 }
 .hero-title .accent { color: var(--accent); }
 .hero-lead {
-  font-size: 17px; color: var(--text-secondary);
-  line-height: 1.75; margin-bottom: 36px;
+  font-size: 15.5px; color: var(--text-muted);
+  font-weight: 400;
+  line-height: 1.72; margin-bottom: 36px;
   animation: fadeUp .6s .16s ease both;
 }
+.hero-lead strong { color: var(--text-secondary); font-weight: 600; }
 .hero-cta {
   display: flex; flex-wrap: wrap; gap: var(--space-sm);
   margin-bottom: var(--space-lg);
@@ -4677,4 +4679,51 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
 .fi-cross-green {
   color: rgba(80,220,120,0.7);
   text-shadow: 0 0 8px rgba(34,197,94,0.5);
+}
+
+/* ══ CALC LOSS FRAMING BLOCK ══ */
+.calc-loss-block {
+  margin: 16px 0 14px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(220,38,38,0.06) 0%, rgba(220,38,38,0.03) 100%);
+  border: 1px solid rgba(220,38,38,0.18);
+  border-radius: 12px;
+  text-align: center;
+}
+.calc-loss-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 5px;
+}
+.calc-loss-sum {
+  color: #DC2626;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.calc-loss-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.calc-loss-sub span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ══ GREEN EXCEL ICON ══ */
+.fi-excel-green {
+  background: linear-gradient(135deg, #1a7a45 0%, #107c41 100%);
+  border-color: rgba(34,197,94,0.55);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(16,124,65,0.55), 0 0 32px rgba(16,124,65,0.22);
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 10px;
+}
+.fi-excel-x {
+  font-size: 8px;
+  opacity: 0.7;
+  line-height: 1;
 }

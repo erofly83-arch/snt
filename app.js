@@ -160,6 +160,19 @@ document.addEventListener('keydown', (e) => {
     const roiEl = document.getElementById('resROI');
     if (roiEl) roiEl.textContent = roiText;
 
+    // Loss-framing block
+    const lossMoneyEl = document.getElementById('calcLossMoney');
+    const lossROIEl   = document.getElementById('calcLossROI');
+    if (lossMoneyEl) {
+      const perMonth = Math.round(savedMoney / 12);
+      lossMoneyEl.textContent = perMonth > 0
+        ? perMonth.toLocaleString('ru') + ' ₽'
+        : '—';
+    }
+    if (lossROIEl) {
+      lossROIEl.textContent = roiText === '—' ? '—' : roiText + ' мес.';
+    }
+
     // Progress bars
     // Hours: 0–500 range feels representative
     setBar('barSavedHours', savedHours / 480 * 100);
@@ -317,6 +330,7 @@ document.getElementById('fBtn').addEventListener('click', async function() {
     fi37: { left:'68%', top:'58%' }, // CSV
     fi38: { left:'14%', top:'92%' }, // XLS
     fi39: { left:'90%', top:'26%' }, // CSV
+    fi40: { left:'48%', top:'44%' }, // Excel green
   };
 
   Object.entries(startPos).forEach(([id, pos]) => {
@@ -373,6 +387,7 @@ document.getElementById('fBtn').addEventListener('click', async function() {
     { id:'fi37', spd:1.15, r:9,  type:'orbit',   da:0.18, dr:5  },
     { id:'fi38', spd:0.80, r:11, type:'spiral',  da:0.13, dr:7  },
     { id:'fi39', spd:1.05, r:8,  type:'figure8', da:0.17, dr:5  },
+    { id:'fi40', spd:0.88, r:12, type:'orbit',   da:0.14, dr:7  },
   ];
 
   // ── Строим массив объектов ──
