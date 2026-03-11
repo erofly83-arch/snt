@@ -2603,7 +2603,7 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
 
 /* ── Compare summary ── */
 .compare-summary {
-  margin-top: 20px; padding: 20px 24px;
+  margin-top: 20px; padding: 24px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -2612,26 +2612,29 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
 .compare-summary-title {
   font-size: 12px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .06em;
-  color: var(--text-muted); margin-bottom: 12px;
+  color: var(--text-muted); margin-bottom: 16px;
 }
 .compare-summary-grid {
-  display: flex; flex-wrap: wrap; gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
 }
 .cs-item {
-  display: inline-flex; align-items: center; gap: 7px;
-  font-size: 13px; font-weight: 500;
-  padding: 7px 14px; border-radius: 99px;
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; font-weight: 500; line-height: 1.45;
+  padding: 12px 14px; border-radius: var(--radius-md);
+  border: 1px solid transparent;
 }
 .cs-pro {
   background: var(--green-bg); color: var(--green-dark);
-  border: 1px solid rgba(22,163,74,.18);
+  border-color: rgba(22,163,74,.18);
 }
-.cs-pro svg { color: var(--green); flex-shrink: 0; }
+.cs-pro svg { color: var(--green); flex-shrink: 0; margin-top: 1px; }
 .cs-con {
   background: var(--amber-bg); color: var(--amber-dark);
-  border: 1px solid rgba(217,119,6,.18);
+  border-color: rgba(217,119,6,.18);
 }
-.cs-con svg { color: var(--amber); flex-shrink: 0; }
+.cs-con svg { color: var(--amber); flex-shrink: 0; margin-top: 1px; }
 
 /* ── Formats banner centered ── */
 .formats-banner-centered {
@@ -2920,12 +2923,6 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   background: linear-gradient(135deg, #EFF6FF, #DBEAFE) !important;
   border-color: rgba(59,111,212,.15) !important;
 }
-.cs-pro {
-  background: var(--accent-bg) !important;
-  color: #1e3a8a !important;
-  border-color: rgba(59,111,212,.18) !important;
-}
-.cs-pro svg { color: var(--accent) !important; }
 /* ── Who benefits strip ── */
 .who-benefits { position: relative; z-index: 1; }
 .who-benefits-label {
@@ -3089,13 +3086,14 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   /* hero */
   .hero-inner { grid-template-columns: 1fr !important; gap: 24px !important; }
   .hero-visual { order: -1; width: 100%; max-width: 100%; overflow: hidden; }
-  .hero-content { order: 1; }
+  .hero-content { order: 1; text-align: center; }
   .hero-title { font-size: clamp(22px, 6vw, 30px) !important; }
   .hero-lead  { font-size: 15px !important; }
-  .hero-cta   { flex-direction: column; }
+  .hero-cta   { flex-direction: column; align-items: center; }
   .hero-cta .btn { width: 100%; justify-content: center; }
-  .hero-badge { font-size: 11px; }
-  .hero-proof { flex-wrap: wrap; }
+  .hero-cta-note { justify-content: center; }
+  .hero-badge { font-size: 11px; justify-content: center; }
+  .hero-proof { flex-wrap: wrap; justify-content: center; }
   .hero-proof-item { min-width: 80px; }
   .hero-proof-num  { font-size: 20px; }
 
@@ -3669,12 +3667,12 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
 .mob-nav {
   display: none; position: fixed;
   top: 64px; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(160deg, var(--accent-deeper) 0%, #1E3A6E 100%) !important;
+  background: var(--accent) !important;
   z-index: 899;
   flex-direction: column; gap: 2px;
   padding: 20px 20px 32px;
   overflow-y: auto;
-  border-top: 1px solid rgba(255,255,255,.12) !important;
+  border-top: 1px solid rgba(255,255,255,.15) !important;
 }
 .mob-nav.open { display: flex; }
 .mob-nav-header {
@@ -3708,7 +3706,7 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   transition: background .15s ease, color .15s ease;
 }
 .mob-nav-link:hover, .mob-nav-link:active {
-  background: rgba(255,255,255,.1) !important;
+  background: rgba(255,255,255,.15) !important;
   color: #fff !important;
 }
 .mob-nav-link svg { opacity: .55; flex-shrink: 0; }
@@ -3725,20 +3723,21 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
 }
 .mob-nav-action--primary {
   background: #fff;
-  color: var(--accent-deeper) !important;
-  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  color: var(--accent) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
 }
 .mob-nav-action--primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 22px rgba(0,0,0,.28);
+  box-shadow: 0 6px 22px rgba(0,0,0,.22);
+  background: #f0f4ff;
 }
 .mob-nav-action--outline {
-  background: rgba(255,255,255,.1);
-  border: 1px solid rgba(255,255,255,.2);
-  color: rgba(255,255,255,.85) !important;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff !important;
 }
 .mob-nav-action--outline:hover {
-  background: rgba(255,255,255,.18);
+  background: rgba(255,255,255,.25);
   color: #fff !important;
 }
 /* Бургер-иконка — белая поверх синего навбара */
