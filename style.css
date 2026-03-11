@@ -275,21 +275,25 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 /* ══ HERO IMAGE — browser mock wraps image naturally ══ */
 .hero-inner {
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 56px; align-items: center;
+  gap: 56px; align-items: stretch;
   position: relative; z-index: 1;
 }
 .hero-content { display:flex; flex-direction:column; justify-content:center; }
 .hero-visual  { display:flex; flex-direction:column; }
-.hero-visual .browser-bar  { flex-shrink:0; }
+.hero-visual .browser-mock { flex: 1; display: flex; flex-direction: column; }
+.hero-visual .browser-bar  { flex-shrink: 0; }
 .hero-visual .browser-screen {
+  flex: 1;
   aspect-ratio: unset !important;
   max-height: unset !important;
   overflow: hidden;
   display: block;
   line-height: 0;
+  min-height: 0;
 }
 .hero-visual .browser-screen img {
-  width: 100%; height: auto;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: top left;
   display: block;
   cursor: zoom-in;
 }
@@ -394,14 +398,12 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   position: relative;
   animation: scaleIn .7s .1s ease both;
   display: flex; flex-direction: column;
-  justify-content: flex-start;
 }
 .hero-visual .browser-mock {
-  display: flex; flex-direction: column;
+  flex: 1; display: flex; flex-direction: column;
 }
 .hero-visual .browser-screen {
-  aspect-ratio: unset;
-  max-height: unset;
+  flex: 1; aspect-ratio: unset; max-height: unset; min-height: 0;
 }
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(.95) translateY(16px); }
@@ -4804,13 +4806,13 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   letter-spacing: 0 !important;
 }
 
+
 /* ══════════════════════════════════════════════
-   BREATHING GLOW — hero browser screen
-   Мягкое голубое «дыхание» поверх скриншота
+   AI PERIMETER GLOW — живой бирюзовый туман
+   Имитация «дыхания» ИИ по краям изображения
 ══════════════════════════════════════════════ */
 
-/* Контейнер: абсолютный, поверх фото, pointer-events off */
-.breath-overlay {
+.ai-glow-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -4819,89 +4821,175 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   border-radius: inherit;
 }
 
-/* ── Общий базис для каждого шара ── */
-.breath-orb {
+/* ── Края: тянутся вдоль каждой стороны ── */
+.ai-edge {
   position: absolute;
-  border-radius: 50%;
-  /* mix-blend-mode: screen даёт мягкое свечение поверх фото */
-  mix-blend-mode: screen;
-  will-change: transform, opacity;
+  pointer-events: none;
 }
 
-/* ── Orb 1: большой, центр-лево, медленное дыхание ── */
-.breath-orb-1 {
-  width: 70%;
-  aspect-ratio: 1;
-  top: -10%;
-  left: -15%;
-  background: radial-gradient(circle, rgba(56,189,248,.22) 0%, rgba(14,165,233,.10) 40%, transparent 70%);
-  animation: breathe1 6s ease-in-out infinite;
-}
-
-/* ── Orb 2: средний, правый нижний угол, смещённая фаза ── */
-.breath-orb-2 {
-  width: 55%;
-  aspect-ratio: 1;
-  bottom: -15%;
-  right: -10%;
-  background: radial-gradient(circle, rgba(99,210,255,.18) 0%, rgba(56,189,248,.08) 45%, transparent 70%);
-  animation: breathe2 7.5s ease-in-out infinite;
-  animation-delay: -3s;
-}
-
-/* ── Orb 3: маленький, акцентный, центр ── */
-.breath-orb-3 {
-  width: 30%;
-  aspect-ratio: 1;
-  top: 30%;
-  left: 38%;
-  background: radial-gradient(circle, rgba(125,225,255,.14) 0%, rgba(56,189,248,.05) 55%, transparent 72%);
-  animation: breathe3 5s ease-in-out infinite;
-  animation-delay: -1.5s;
-}
-
-/* ── Горизонтальная полоса-скан, едва заметная ── */
-.breath-scan {
-  position: absolute;
-  left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(125,225,255,.0) 10%,
-    rgba(125,225,255,.35) 40%,
-    rgba(56,189,248,.55) 50%,
-    rgba(125,225,255,.35) 60%,
-    rgba(125,225,255,.0) 90%,
+/* Верх */
+.ai-edge-top {
+  top: 0; left: 0; right: 0;
+  height: 38%;
+  background: linear-gradient(180deg,
+    rgba(0,210,200,.13) 0%,
+    rgba(0,200,220,.07) 30%,
     transparent 100%
   );
-  top: 0;
-  animation: scanLine 8s cubic-bezier(.4,0,.6,1) infinite;
+  animation: aiEdgeTop 4.2s ease-in-out infinite;
+}
+/* Низ */
+.ai-edge-bottom {
+  bottom: 0; left: 0; right: 0;
+  height: 38%;
+  background: linear-gradient(0deg,
+    rgba(0,210,200,.11) 0%,
+    rgba(0,200,220,.05) 35%,
+    transparent 100%
+  );
+  animation: aiEdgeBottom 5.1s ease-in-out infinite;
+  animation-delay: -2.1s;
+}
+/* Лево */
+.ai-edge-left {
+  top: 0; bottom: 0; left: 0;
+  width: 36%;
+  background: linear-gradient(90deg,
+    rgba(0,210,210,.12) 0%,
+    rgba(0,200,230,.05) 40%,
+    transparent 100%
+  );
+  animation: aiEdgeLeft 4.7s ease-in-out infinite;
+  animation-delay: -1.2s;
+}
+/* Право */
+.ai-edge-right {
+  top: 0; bottom: 0; right: 0;
+  width: 36%;
+  background: linear-gradient(270deg,
+    rgba(0,210,210,.12) 0%,
+    rgba(0,200,230,.05) 40%,
+    transparent 100%
+  );
+  animation: aiEdgeRight 5.6s ease-in-out infinite;
+  animation-delay: -3.4s;
+}
+
+/* ── Углы: круглые радиальные «нарывы» ── */
+.ai-corner {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.ai-corner-tl {
+  top: -60px; left: -60px;
+  background: radial-gradient(circle at 60% 60%,
+    rgba(0,230,210,.28) 0%,
+    rgba(0,200,230,.10) 45%,
+    transparent 70%
+  );
+  animation: aiCorner 6s ease-in-out infinite;
+}
+.ai-corner-tr {
+  top: -60px; right: -60px;
+  background: radial-gradient(circle at 40% 60%,
+    rgba(0,220,220,.22) 0%,
+    rgba(0,190,240,.08) 45%,
+    transparent 70%
+  );
+  animation: aiCorner 7.3s ease-in-out infinite;
+  animation-delay: -2.5s;
+}
+.ai-corner-br {
+  bottom: -60px; right: -60px;
+  background: radial-gradient(circle at 40% 40%,
+    rgba(20,220,215,.25) 0%,
+    rgba(0,200,235,.09) 45%,
+    transparent 70%
+  );
+  animation: aiCorner 5.8s ease-in-out infinite;
+  animation-delay: -4.1s;
+}
+.ai-corner-bl {
+  bottom: -60px; left: -60px;
+  background: radial-gradient(circle at 60% 40%,
+    rgba(0,215,220,.20) 0%,
+    rgba(0,195,240,.07) 45%,
+    transparent 70%
+  );
+  animation: aiCorner 6.7s ease-in-out infinite;
+  animation-delay: -1.8s;
+}
+
+/* ── Центральные пульсы — лёгкое «сердцебиение» ── */
+.ai-pulse {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.ai-pulse-1 {
+  width: 50%; aspect-ratio: 1;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle,
+    rgba(0,220,210,.0) 30%,
+    rgba(0,210,220,.06) 60%,
+    rgba(0,200,230,.13) 80%,
+    transparent 100%
+  );
+  animation: aiPulse1 3.8s ease-in-out infinite;
+}
+.ai-pulse-2 {
+  width: 80%; aspect-ratio: 1;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle,
+    transparent 40%,
+    rgba(0,210,215,.04) 65%,
+    rgba(0,200,230,.09) 82%,
+    transparent 100%
+  );
+  animation: aiPulse2 5.5s ease-in-out infinite;
   animation-delay: -2s;
-  will-change: top, opacity;
 }
 
-/* ── Keyframes ── */
-@keyframes breathe1 {
-  0%, 100% { transform: scale(1)   translate(0, 0);      opacity: .7; }
-  50%       { transform: scale(1.12) translate(4%, 3%);   opacity: 1;  }
+/* ── Keyframes — каждый немного разный ── */
+@keyframes aiEdgeTop {
+  0%,100% { opacity:.6; transform: scaleY(.85) translateY(-3px); }
+  40%     { opacity:1;  transform: scaleY(1.1)  translateY(2px);  }
+  70%     { opacity:.75; transform: scaleY(.95) translateY(0px);  }
 }
-@keyframes breathe2 {
-  0%, 100% { transform: scale(1)   translate(0, 0);      opacity: .55; }
-  50%       { transform: scale(1.10) translate(-3%, -4%); opacity: .9;  }
+@keyframes aiEdgeBottom {
+  0%,100% { opacity:.5; transform: scaleY(.9) translateY(4px); }
+  45%     { opacity:.95; transform: scaleY(1.12) translateY(-2px); }
 }
-@keyframes breathe3 {
-  0%, 100% { transform: scale(.9) translate(0, 0);       opacity: .4; }
-  50%       { transform: scale(1.2) translate(-5%, 5%);  opacity: .75; }
+@keyframes aiEdgeLeft {
+  0%,100% { opacity:.55; transform: scaleX(.88) translateX(-3px); }
+  50%     { opacity:1;   transform: scaleX(1.1)  translateX(2px);  }
 }
-@keyframes scanLine {
-  0%   { top: -2%;  opacity: 0;   }
-  8%   { opacity: 1; }
-  92%  { opacity: 1; }
-  100% { top: 102%; opacity: 0;   }
+@keyframes aiEdgeRight {
+  0%,100% { opacity:.5;  transform: scaleX(.9)  translateX(3px); }
+  48%     { opacity:.95; transform: scaleX(1.08) translateX(-2px); }
+}
+@keyframes aiCorner {
+  0%,100% { opacity:.55; transform: scale(.85); }
+  50%     { opacity:1;   transform: scale(1.18); }
+}
+@keyframes aiPulse1 {
+  0%,100% { opacity:0;    transform: translate(-50%,-50%) scale(.8); }
+  30%,70% { opacity:1;    transform: translate(-50%,-50%) scale(1); }
+}
+@keyframes aiPulse2 {
+  0%,100% { opacity:.3;  transform: translate(-50%,-50%) scale(.9); }
+  50%     { opacity:.85; transform: translate(-50%,-50%) scale(1.05); }
 }
 
-/* На мобильных — только дыхание без scan-линии (экономим fps) */
+/* Мобильные: только края без сложных эффектов */
 @media (max-width: 768px) {
-  .breath-scan { display: none; }
-  .breath-orb { will-change: auto; }
+  .ai-corner, .ai-pulse { display: none; }
+  .ai-edge { will-change: auto; }
 }
