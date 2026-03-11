@@ -128,7 +128,8 @@
       <!-- Text -->
       <div class="hero-content">
 <h1 class="hero-title" id="heroTitle">
-          Сравнение прайсов поставщиков — <span class="accent">без формул, загрузил и готово</span>
+          Сравнение прайсов в&nbsp;<span class="accent-excel">Excel</span> —
+          <span class="accent">без&nbsp;формул,<br>загрузил и готово!</span>
         </h1>
 
         <p class="hero-lead">
@@ -1517,35 +1518,80 @@
       <div class="calc-form-wrap reveal">
         <div class="calc-glow-1"></div>
         <div class="calc-glow-2"></div>
-        <div class="calc-form-title">
-          Калькулятор экономии
+
+        <!-- Заголовок блока -->
+        <div class="calc-header">
+          <div class="calc-header-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="calc-header-text">
+            <div class="calc-header-title">Калькулятор экономии</div>
+            <div class="calc-header-sub">Подберите значения — увидите реальные потери</div>
+          </div>
         </div>
 
         <div class="calc-field">
-          <label>Мониторингов в месяц</label>
-          <div class="calc-range-row">
-            <input type="range" class="calc-range" id="rMonths" min="1" max="20" value="4">
+          <div class="calc-field-label-row">
+            <div class="calc-field-icon">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <label for="rMonths">Мониторингов в месяц</label>
             <span class="calc-val" id="valMonths">4</span>
+          </div>
+          <div class="calc-range-wrap">
+            <span class="calc-range-min">1</span>
+            <input type="range" class="calc-range" id="rMonths" min="1" max="20" value="4">
+            <span class="calc-range-max">20</span>
+          </div>
+          <div class="calc-hint">Сколько раз в месяц вы сверяете цены поставщиков</div>
+        </div>
+
+        <div class="calc-sep"></div>
+
+        <div class="calc-field">
+          <div class="calc-field-label-row">
+            <div class="calc-field-icon">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <label for="rSalary">Зарплата менеджера в час</label>
+            <span class="calc-val" id="valSalary">600 ₽</span>
+          </div>
+          <div class="calc-range-wrap">
+            <span class="calc-range-min">100 ₽</span>
+            <input type="range" class="calc-range" id="rSalary" min="100" max="2000" step="25" value="600">
+            <span class="calc-range-max">2000 ₽</span>
           </div>
         </div>
 
         <div class="calc-sep"></div>
 
         <div class="calc-field">
-          <label>Зарплата менеджера в час</label>
-          <div class="calc-range-row">
-            <input type="range" class="calc-range" id="rSalary" min="100" max="2000" step="25" value="600">
-            <span class="calc-val" id="valSalary">600 ₽</span>
-          </div>
-        </div>
-
-        <div class="calc-field">
-          <label>Часов на один мониторинг</label>
-          <div class="calc-range-row">
-            <input type="range" class="calc-range" id="rMinutes" min="1" max="12" step="1" value="3">
+          <div class="calc-field-label-row">
+            <div class="calc-field-icon">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <label for="rMinutes">Часов на один мониторинг</label>
             <span class="calc-val" id="valMinutes">3 ч</span>
           </div>
+          <div class="calc-range-wrap">
+            <span class="calc-range-min">1 ч</span>
+            <input type="range" class="calc-range" id="rMinutes" min="1" max="12" step="1" value="3">
+            <span class="calc-range-max">12 ч</span>
+          </div>
           <div class="calc-hint">Среднее время одного мониторинга вручную, без автоматизации</div>
+        </div>
+
+        <!-- Суммарная строка «было → стало» -->
+        <div class="calc-comparison">
+          <div class="calc-cmp-item calc-cmp-bad">
+            <div class="calc-cmp-label">Сейчас вручную</div>
+            <div class="calc-cmp-val"><span id="resHoursNow">—</span> ч/год</div>
+          </div>
+          <div class="calc-cmp-arrow">→</div>
+          <div class="calc-cmp-item calc-cmp-good">
+            <div class="calc-cmp-label">С программой</div>
+            <div class="calc-cmp-val"><span id="resHoursNew">—</span> ч/год</div>
+          </div>
         </div>
 
       </div>
@@ -1583,10 +1629,6 @@
             <div class="calc-res-bar"><div class="calc-res-bar-fill" id="barROI"></div></div>
           </div>
         </div>
-
-        <!-- hidden for JS compat -->
-        <span id="resHoursNow" style="display:none">—</span>
-        <span id="resHoursNew" style="display:none">—</span>
 
         <!-- Эмоциональный CTA под результатами -->
         <div class="calc-loss-block" id="calcLossBlock">
@@ -1679,6 +1721,15 @@
           <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="faq-a">Назначьте колонку с артикулом как «Штрихкод поставщика», а затем свяжите их с вашими штрихкодами через базу кросскодов вручную или с помощью «Поиска кросскодов». После этого сопоставление будет работать автоматически.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">
+          <div class="faq-q-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></div>
+          <div class="faq-q-text">У меня 5–10 поставщиков и цены меняются каждую неделю — это вообще реально автоматизировать?</div>
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-a">Именно для этого и создан Прайс-менеджер. Загружаете все файлы разом — программа сопоставляет их по штрихкодам за секунды и сразу подсвечивает, у кого сейчас дешевле. При следующем обновлении просто загружаете новые файлы: никаких формул, ничего не надо перенастраивать. Чем больше поставщиков — тем сильнее экономия времени.</div>
       </div>
 
       <div class="faq-item">
