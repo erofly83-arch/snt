@@ -4915,3 +4915,69 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   color: rgba(255,255,255,.55) !important;
   font-size: 20px !important;
 }
+
+/* ══════════════════════════════════════════════
+   СИСТЕМА ЗАГОЛОВКОВ — 3 РАЗМЕРА
+   XL  = hero-title (уже задан)
+   LG  = секции на всю ширину
+   MD  = секции с 2-колоночным контентом
+══════════════════════════════════════════════ */
+
+/* LG — базовый section-title (полная ширина) */
+.section-title {
+  font-size: clamp(24px, 2.8vw, 38px) !important;
+  font-weight: 800 !important;
+  line-height: 1.18 !important;
+  letter-spacing: -.025em !important;
+}
+
+/* MD — секции с 2-col контентом */
+.who-section     .section-title,
+.privacy-section .section-title,
+.memory-section  .section-title {
+  font-size: clamp(18px, 2vw, 26px) !important;
+  font-weight: 800 !important;
+  line-height: 1.22 !important;
+}
+
+/* Выровнять demo-title и converter-title под LG */
+.demo-title,
+.converter-title {
+  font-size: clamp(22px, 2.6vw, 34px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -.025em !important;
+}
+
+/* contact-info-title тоже MD */
+.contact-info-title {
+  font-size: clamp(18px, 2vw, 26px) !important;
+  font-weight: 800 !important;
+  line-height: 1.22 !important;
+}
+
+/* final-cta — LG */
+.final-cta h2 {
+  font-size: clamp(24px, 2.8vw, 38px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -.025em !important;
+}
+
+/* ══ EXCEL WHITE — на синих/тёмных фонах ══ */
+.who-section     .excel-green,
+.privacy-section .excel-green,
+.calc-section    .excel-green,
+.contact-section .excel-green,
+.final-cta       .excel-green {
+  color: #fff !important;
+  text-shadow: 0 0 20px rgba(255,255,255,.25);
+}
+
+/* ══ RUBLE ICON — крупный символ ══ */
+.calc-field-icon-rub {
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  color: rgba(255,255,255,.8) !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+}
