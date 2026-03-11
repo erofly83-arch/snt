@@ -266,9 +266,8 @@ document.getElementById('fBtn').addEventListener('click', async function() {
 
 
 /* ══════════════════════════════════════════════
-   FLOATING ICONS ANIMATION v2
-   Быстрый вихрь + белые мелкие элементы
-   Только внутри .browser-screen
+   FLOATING ICONS ANIMATION v3
+   Orbit + cursor attraction + ripple waves
 ══════════════════════════════════════════════ */
 (function() {
   if (typeof gsap === 'undefined') return;
@@ -276,51 +275,42 @@ document.getElementById('fBtn').addEventListener('click', async function() {
 
   const screen = document.querySelector('#heroBrowserScreen');
   if (!screen) return;
-
-  // На мобильных не запускаем анимацию — она тормозит скролл
   if (window.innerWidth <= 768) return;
 
   function rnd(a, b) { return a + Math.random() * (b - a); }
   const PI2 = Math.PI * 2;
 
-  // ── Стартовые позиции (% от размера контейнера) ──
-  // Равномерно покрываем всю площадь изображения
+  // ── Стартовые позиции ──
   const startPos = {
-    // файлы
-    fi1:  { left:'76%', top:'6%'  }, // XLS
-    fi2:  { left:'10%', top:'10%' }, // XLSX
-    fi3:  { left:'82%', top:'72%' }, // XLSX
-    fi4:  { left:'52%', top:'82%' }, // CSV
-    // цветные формулы
-    fi5:  { left:'22%', top:'3%'  }, // =ЕСЛИ длинная
-    fi6:  { left:'4%',  top:'68%' }, // =ВПР
-    fi7:  { left:'58%', top:'28%' }, // =СУММ
-    fi8:  { left:'68%', top:'88%' }, // =C2-D2
-    fi9:  { left:'3%',  top:'32%' }, // =ИНДЕКС длинная
-    fi10: { left:'40%', top:'48%' }, // =СРЗНАЧ
-    fi11: { left:'62%', top:'52%' }, // =СЧЁТЕСЛИ
-    fi12: { left:'28%', top:'76%' }, // =МИНЕСЛИ
-    // бейджи
-    fi13: { left:'44%', top:'16%' }, // Выгодно
-    fi14: { left:'16%', top:'56%' }, // Дорого
-    fi15: { left:'56%', top:'64%' }, // По штрихкодам
-    // белые мелкие
-    fi16: { left:'33%', top:'36%' }, // A2
-    fi17: { left:'72%', top:'18%' }, // B14
-    fi18: { left:'88%', top:'38%' }, // C7
-    fi19: { left:'8%',  top:'88%' }, // D3
-
-    fi31: { left:'58%', top:'94%' }, // ghost =ВПР
-    fi32: { left:'14%', top:'78%' }, // ghost =ЕСЛИ
-    fi33: { left:'78%', top:'8%'  }, // ghost СУММ
-    fi34: { left:'46%', top:'72%' }, // ×
-    fi35: { left:'22%', top:'62%' }, // ✓
-    // доп. файлы
-    fi36: { left:'36%', top:'22%' }, // XLS
-    fi37: { left:'68%', top:'58%' }, // CSV
-    fi38: { left:'14%', top:'92%' }, // XLS
-    fi39: { left:'90%', top:'26%' }, // CSV
-    fi40: { left:'48%', top:'44%' }, // Excel green
+    fi1:  { left:'76%', top:'6%'  },
+    fi2:  { left:'10%', top:'10%' },
+    fi3:  { left:'82%', top:'72%' },
+    fi4:  { left:'52%', top:'82%' },
+    fi5:  { left:'22%', top:'3%'  },
+    fi6:  { left:'4%',  top:'68%' },
+    fi7:  { left:'58%', top:'28%' },
+    fi8:  { left:'68%', top:'88%' },
+    fi9:  { left:'3%',  top:'32%' },
+    fi10: { left:'40%', top:'48%' },
+    fi11: { left:'62%', top:'52%' },
+    fi12: { left:'28%', top:'76%' },
+    fi13: { left:'44%', top:'16%' },
+    fi14: { left:'16%', top:'56%' },
+    fi15: { left:'56%', top:'64%' },
+    fi16: { left:'33%', top:'36%' },
+    fi17: { left:'72%', top:'18%' },
+    fi18: { left:'88%', top:'38%' },
+    fi19: { left:'8%',  top:'88%' },
+    fi31: { left:'58%', top:'94%' },
+    fi32: { left:'14%', top:'78%' },
+    fi33: { left:'78%', top:'8%'  },
+    fi34: { left:'46%', top:'72%' },
+    fi35: { left:'22%', top:'62%' },
+    fi36: { left:'36%', top:'22%' },
+    fi37: { left:'68%', top:'58%' },
+    fi38: { left:'14%', top:'92%' },
+    fi39: { left:'90%', top:'26%' },
+    fi40: { left:'48%', top:'44%' },
   };
 
   Object.entries(startPos).forEach(([id, pos]) => {
@@ -329,95 +319,150 @@ document.getElementById('fBtn').addEventListener('click', async function() {
   });
 
   // ── Параметры вихря ──
-  // speed — БЫСТРЕЕ чем раньше (базовый 0.8–1.8 рад/сек)
-  // radius — орбита (px от стартовой точки)
-  // type: 'orbit' | 'figure8' | 'spiral' — тип траектории
   const params = [
-    // файлы — крупные, средняя скорость, большой радиус
-    { id:'fi1',  spd:0.90, r:9,  type:'orbit',   da:0.14, dr:6  },
-    { id:'fi2',  spd:1.10, r:11, type:'figure8',  da:0.18, dr:7  },
-    { id:'fi3',  spd:0.85, r:10, type:'orbit',   da:0.12, dr:5  },
-    { id:'fi4',  spd:1.00, r:8,  type:'figure8',  da:0.16, dr:6  },
-    // цветные формулы — быстрее
-    { id:'fi5',  spd:0.75, r:14, type:'orbit',   da:0.10, dr:8  },
-    { id:'fi6',  spd:1.20, r:12, type:'figure8',  da:0.20, dr:7  },
-    { id:'fi7',  spd:1.35, r:10, type:'spiral',  da:0.22, dr:6  },
-    { id:'fi8',  spd:1.50, r:9,  type:'orbit',   da:0.24, dr:5  },
-    { id:'fi9',  spd:0.80, r:15, type:'figure8',  da:0.11, dr:9  },
-    { id:'fi10', spd:1.25, r:11, type:'spiral',  da:0.19, dr:6  },
-    { id:'fi11', spd:1.40, r:10, type:'orbit',   da:0.21, dr:7  },
-    { id:'fi12', spd:1.10, r:12, type:'figure8',  da:0.17, dr:6  },
-    // бейджи
-    { id:'fi13', spd:1.30, r:10, type:'orbit',   da:0.20, dr:5  },
-    { id:'fi14', spd:1.45, r:11, type:'figure8',  da:0.23, dr:6  },
-    { id:'fi15', spd:1.00, r:13, type:'spiral',  da:0.15, dr:7  },
-    // белые мелкие — ячейки Excel
-    { id:'fi16', spd:1.80, r:6,  type:'orbit',   da:0.30, dr:4  },
-    { id:'fi17', spd:2.10, r:5,  type:'figure8',  da:0.35, dr:3  },
-    { id:'fi18', spd:1.65, r:7,  type:'orbit',   da:0.28, dr:4  },
-    { id:'fi19', spd:2.20, r:5,  type:'spiral',  da:0.36, dr:3  },
-    { id:'fi31', spd:2.30, r:4,  type:'figure8',  da:0.37, dr:3  },
-    { id:'fi32', spd:2.15, r:5,  type:'orbit',   da:0.34, dr:3  },
-    { id:'fi33', spd:2.45, r:4,  type:'figure8',  da:0.39, dr:2  },
-    { id:'fi34', spd:2.70, r:5,  type:'spiral',  da:0.43, dr:3  },
-    { id:'fi35', spd:2.55, r:5,  type:'orbit',   da:0.41, dr:3  },
-    // доп. файлы
-    { id:'fi36', spd:0.95, r:10, type:'figure8', da:0.16, dr:6  },
-    { id:'fi37', spd:1.15, r:9,  type:'orbit',   da:0.18, dr:5  },
-    { id:'fi38', spd:0.80, r:11, type:'spiral',  da:0.13, dr:7  },
-    { id:'fi39', spd:1.05, r:8,  type:'figure8', da:0.17, dr:5  },
-    { id:'fi40', spd:0.88, r:12, type:'orbit',   da:0.14, dr:7  },
+    { id:'fi1',  spd:0.90, r:9,  type:'orbit',   da:0.14, dr:6 },
+    { id:'fi2',  spd:1.10, r:11, type:'figure8',  da:0.18, dr:7 },
+    { id:'fi3',  spd:0.85, r:10, type:'orbit',   da:0.12, dr:5 },
+    { id:'fi4',  spd:1.00, r:8,  type:'figure8',  da:0.16, dr:6 },
+    { id:'fi5',  spd:0.75, r:14, type:'orbit',   da:0.10, dr:8 },
+    { id:'fi6',  spd:1.20, r:12, type:'figure8',  da:0.20, dr:7 },
+    { id:'fi7',  spd:1.35, r:10, type:'spiral',  da:0.22, dr:6 },
+    { id:'fi8',  spd:1.50, r:9,  type:'orbit',   da:0.24, dr:5 },
+    { id:'fi9',  spd:0.80, r:15, type:'figure8',  da:0.11, dr:9 },
+    { id:'fi10', spd:1.25, r:11, type:'spiral',  da:0.19, dr:6 },
+    { id:'fi11', spd:1.40, r:10, type:'orbit',   da:0.21, dr:7 },
+    { id:'fi12', spd:1.10, r:12, type:'figure8',  da:0.17, dr:6 },
+    { id:'fi13', spd:1.30, r:10, type:'orbit',   da:0.20, dr:5 },
+    { id:'fi14', spd:1.45, r:11, type:'figure8',  da:0.23, dr:6 },
+    { id:'fi15', spd:1.00, r:13, type:'spiral',  da:0.15, dr:7 },
+    { id:'fi16', spd:1.80, r:6,  type:'orbit',   da:0.30, dr:4 },
+    { id:'fi17', spd:2.10, r:5,  type:'figure8',  da:0.35, dr:3 },
+    { id:'fi18', spd:1.65, r:7,  type:'orbit',   da:0.28, dr:4 },
+    { id:'fi19', spd:2.20, r:5,  type:'spiral',  da:0.36, dr:3 },
+    { id:'fi31', spd:2.30, r:4,  type:'figure8',  da:0.37, dr:3 },
+    { id:'fi32', spd:2.15, r:5,  type:'orbit',   da:0.34, dr:3 },
+    { id:'fi33', spd:2.45, r:4,  type:'figure8',  da:0.39, dr:2 },
+    { id:'fi34', spd:2.70, r:5,  type:'spiral',  da:0.43, dr:3 },
+    { id:'fi35', spd:2.55, r:5,  type:'orbit',   da:0.41, dr:3 },
+    { id:'fi36', spd:0.95, r:10, type:'figure8', da:0.16, dr:6 },
+    { id:'fi37', spd:1.15, r:9,  type:'orbit',   da:0.18, dr:5 },
+    { id:'fi38', spd:0.80, r:11, type:'spiral',  da:0.13, dr:7 },
+    { id:'fi39', spd:1.05, r:8,  type:'figure8', da:0.17, dr:5 },
+    { id:'fi40', spd:0.88, r:12, type:'orbit',   da:0.14, dr:7 },
   ];
 
-  // ── Строим массив объектов ──
-  const icons = params.map(p => ({
-    ...p,
-    el: document.getElementById(p.id),
-    a:  rnd(0, PI2),                    // стартовый угол
-    driftA: rnd(0, PI2),                // угол дрейфа центра
-    driftR: rnd(p.dr * 0.6, p.dr * 1.4),
-    driftSpd: rnd(p.da * 0.7, p.da * 1.3),
-    // для spiral — нарастающий радиус
-    spiralT: 0,
-  })).filter(p => p.el);
+  // ── Размер контейнера ──
+  let cW = screen.offsetWidth, cH = screen.offsetHeight;
+  const ro = new ResizeObserver(() => { cW = screen.offsetWidth; cH = screen.offsetHeight; });
+  ro.observe(screen);
 
-  // ── Стартовая opacity по типу элемента ──
+  // ── Строим иконки ──
+  const icons = params.map(p => {
+    const sp = startPos[p.id];
+    return {
+      ...p,
+      el: document.getElementById(p.id),
+      a:        rnd(0, PI2),
+      driftA:   rnd(0, PI2),
+      driftR:   rnd(p.dr * 0.6, p.dr * 1.4),
+      driftSpd: rnd(p.da * 0.7, p.da * 1.3),
+      spiralT:  0,
+      homeLeft: sp ? parseFloat(sp.left) / 100 : 0.5,
+      homeTop:  sp ? parseFloat(sp.top)  / 100 : 0.5,
+      // уникальная «парковочная» точка вокруг курсора
+      clusterAngle: rnd(0, PI2),
+      clusterR:     rnd(10, 45),
+    };
+  }).filter(p => p.el);
+
+  // ── Базовая opacity ──
   function targetOpacity(id) {
     const n = parseInt(id.replace('fi',''));
-    if (n >= 16 && n <= 19) return rnd(0.55, 0.80); // ячейки Excel
-    if (n >= 31 && n <= 35) return rnd(0.25, 0.45); // ghost / крестики
+    if (n >= 16 && n <= 19) return rnd(0.55, 0.80);
+    if (n >= 31 && n <= 35) return rnd(0.25, 0.45);
     return rnd(0.72, 0.95);
   }
 
-  // Скрываем и плавно показываем со stagger
   gsap.set('.fi', { opacity: 0, scale: 0.5 });
   icons.forEach((p, i) => {
     gsap.to(p.el, {
       opacity: targetOpacity(p.id),
-      scale: 1,
-      duration: 0.5,
-      delay: 0.8 + i * 0.06,  // быстрый stagger
+      scale: 1, duration: 0.5,
+      delay: 0.8 + i * 0.06,
       ease: 'back.out(2)',
     });
   });
 
-  // ── Mouse parallax ──
-  let mouseX = 0, mouseY = 0, mX = 0, mY = 0;
+  // ── Состояние курсора ──
+  // attraction: 0 = свободный полёт, 1 = притянуты к курсору
+  let attraction = 0;
+  let curPxX = cW / 2, curPxY = cH / 2; // курсор в px внутри контейнера
+  let mouseX = 0, mouseY = 0, mX = 0, mY = 0; // нормализованный для параллакса
+
   screen.addEventListener('mousemove', e => {
     const r = screen.getBoundingClientRect();
-    mouseX = ((e.clientX - r.left) / r.width  - 0.5) * 2;
-    mouseY = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+    curPxX  = e.clientX - r.left;
+    curPxY  = e.clientY - r.top;
+    mouseX  = (curPxX / r.width  - 0.5) * 2;
+    mouseY  = (curPxY / r.height - 0.5) * 2;
   });
-  screen.addEventListener('mouseleave', () => { mouseX = 0; mouseY = 0; });
 
-  // ── Hover: ускоряем при наведении ──
-  let hoverBoost = 1.0;
   screen.addEventListener('mouseenter', () => {
-    gsap.to({v:hoverBoost}, { v: 1.6, duration: 0.4, onUpdate: function() { hoverBoost = this.targets()[0].v; } });
+    gsap.to({ v: attraction }, {
+      v: 1, duration: 0.65, ease: 'power2.out',
+      onUpdate: function() { attraction = this.targets()[0].v; },
+    });
+    startRipple();
   });
+
   screen.addEventListener('mouseleave', () => {
-    gsap.to({v:hoverBoost}, { v: 1.0, duration: 0.6, onUpdate: function() { hoverBoost = this.targets()[0].v; } });
+    mouseX = 0; mouseY = 0;
+    gsap.to({ v: attraction }, {
+      v: 0, duration: 0.9, ease: 'power2.out',
+      onUpdate: function() { attraction = this.targets()[0].v; },
+    });
+    stopRipple();
   });
+
+  // ── Ripple волны ──
+  const rippleWrap = document.createElement('div');
+  rippleWrap.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:20;border-radius:inherit;';
+  screen.appendChild(rippleWrap);
+
+  let rippleTimer = null;
+  let rippleCount = 0;
+
+  function spawnRipple() {
+    const ring = document.createElement('div');
+    const hue = rippleCount % 2 === 0 ? '200,230,255' : '120,200,120';
+    ring.style.cssText = `
+      position:absolute;
+      border-radius:50%;
+      border:1.5px solid rgba(${hue},0.55);
+      box-shadow:0 0 6px rgba(${hue},0.25);
+      width:20px;height:20px;
+      left:${curPxX}px;top:${curPxY}px;
+      transform:translate(-50%,-50%) scale(0);
+      pointer-events:none;
+    `;
+    rippleWrap.appendChild(ring);
+    rippleCount++;
+    gsap.to(ring, {
+      scale: 14, opacity: 0,
+      duration: 1.4,
+      ease: 'power1.out',
+      onComplete: () => ring.remove(),
+    });
+  }
+
+  function startRipple() {
+    spawnRipple();
+    rippleTimer = setInterval(spawnRipple, 380);
+  }
+  function stopRipple() {
+    clearInterval(rippleTimer);
+    rippleTimer = null;
+  }
 
   // ── ScrollTrigger ──
   let scrollF = 1.0;
@@ -431,62 +476,77 @@ document.getElementById('fBtn').addEventListener('click', async function() {
 
   // ── rAF главный цикл ──
   let lastT = null;
-  const LERP_M = 0.10; // более отзывчивый mouse lerp
+  const LERP_M = 0.10;
 
   function tick(now) {
     if (!lastT) lastT = now;
     const dt = Math.min((now - lastT) / 1000, 0.05);
     lastT = now;
 
-    // Lerp мыши
     mX += (mouseX - mX) * LERP_M * 6;
     mY += (mouseY - mY) * LERP_M * 6;
 
-    const speed = scrollF * hoverBoost;
+    const speed = scrollF * (1 + attraction * 0.4); // лёгкое ускорение при притяжении
 
     icons.forEach(p => {
-      // Шаг угла
-      p.a += p.spd * dt * speed;
-
-      // Дрейф центра
+      p.a      += p.spd      * dt * speed;
       p.driftA += p.driftSpd * dt * speed;
+
       const dcx = Math.cos(p.driftA) * p.driftR;
       const dcy = Math.sin(p.driftA * 1.4) * p.driftR * 0.55;
 
       let ox, oy;
-
       if (p.type === 'figure8') {
-        // Фигура восьмёрка — Лиссажу 2:1
-        ox = Math.sin(p.a)       * p.r * 1.1 + dcx;
+        ox = Math.sin(p.a)           * p.r * 1.1 + dcx;
         oy = Math.sin(p.a * 2 + 0.6) * p.r * 0.55 + dcy;
-
       } else if (p.type === 'spiral') {
-        // Спираль: радиус пульсирует синусоидой
         p.spiralT += dt * speed * 0.4;
         const rr = p.r * (0.75 + Math.sin(p.spiralT) * 0.35);
         ox = Math.cos(p.a) * rr + dcx;
         oy = Math.sin(p.a) * rr * 0.7 + dcy;
-
       } else {
-        // Обычная эллиптическая орбита
         ox = Math.cos(p.a) * p.r + dcx;
         oy = Math.sin(p.a * 1.25) * p.r * 0.65 + dcy;
       }
 
-      // Глубина для параллакса мыши
+      // Параллакс мыши (только при свободном полёте)
       const depth = 2 + (p.r % 5);
-      ox += mX * depth;
-      oy += mY * depth * 0.65;
+      ox += mX * depth * (1 - attraction);
+      oy += mY * depth * 0.65 * (1 - attraction);
 
-      // 3D-вращение (чуть сильнее для живости)
+      // ── Притяжение к курсору ──
+      if (attraction > 0.001) {
+        const homeX = p.homeLeft * cW;
+        const homeY = p.homeTop  * cH;
+
+        // точка кластера вокруг курсора (уникальна для каждой иконки)
+        const clX = Math.cos(p.clusterAngle) * p.clusterR;
+        const clY = Math.sin(p.clusterAngle) * p.clusterR * 0.6;
+
+        const attrX = (curPxX - homeX) + clX;
+        const attrY = (curPxY - homeY) + clY;
+
+        ox = ox * (1 - attraction) + attrX * attraction;
+        oy = oy * (1 - attraction) + attrY * attraction;
+      }
+
+      // 3D-вращение
       const rX = Math.sin(p.a * 0.65) * 10;
       const rY = Math.cos(p.a * 0.45) * 13;
       const rZ = Math.sin(p.a * 0.28) * 5;
 
-      // Пульсирующий scale
-      const sc = 0.86 + Math.sin(p.a * 1.3 + 0.5) * 0.14;
+      // ── Пульс-волна от курсора (расстояние = фаза) ──
+      let sc = 0.86 + Math.sin(p.a * 1.3 + 0.5) * 0.14;
+      if (attraction > 0.05) {
+        // расстояние от «домашней» точки до курсора
+        const dx = p.homeLeft * cW - curPxX;
+        const dy = p.homeTop  * cH - curPxY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const wavePhase = dist * 0.025; // дальше = позже
+        const wave = Math.sin(now * 0.005 - wavePhase) * 0.22 * attraction;
+        sc += wave;
+      }
 
-      // Blur только на быстрых элементах при высокой скорости
       const blurV = (p.spd > 1.5 && speed > 1.5)
         ? ((p.spd * speed - 1.5) * 0.15).toFixed(2)
         : '0';
@@ -494,7 +554,7 @@ document.getElementById('fBtn').addEventListener('click', async function() {
       gsap.set(p.el, {
         x: ox, y: oy,
         rotateX: rX, rotateY: rY, rotateZ: rZ,
-        scale: sc,
+        scale: Math.max(0.3, sc),
         filter: blurV !== '0' ? `blur(${blurV}px)` : 'none',
       });
     });
@@ -503,29 +563,23 @@ document.getElementById('fBtn').addEventListener('click', async function() {
   }
   requestAnimationFrame(tick);
 
-  // ── Мерцание — чаще для мелких элементов ──
+  // ── Мерцание ──
   function flicker() {
-    const pool = icons.filter(p => {
-      const n = parseInt(p.id.replace('fi',''));
-      return n >= 16; // ячейки и ghost мигают чаще
-    });
-    const all  = icons;
-    // 60% шанс взять из белых, 40% из всех
-    const src  = Math.random() < 0.6 ? pool : all;
+    const pool = icons.filter(p => parseInt(p.id.replace('fi','')) >= 16);
+    const src  = Math.random() < 0.6 ? pool : icons;
     const p    = src[Math.floor(Math.random() * src.length)];
     if (!p || !p.el) { setTimeout(flicker, 400); return; }
 
+    // не мерцаем при активном притяжении
+    if (attraction > 0.5) { setTimeout(flicker, rnd(600, 2000)); return; }
+
     const curOp = parseFloat(gsap.getProperty(p.el, 'opacity')) || 0.8;
     gsap.to(p.el, {
-      opacity: rnd(0.05, 0.3),
-      duration: 0.08,
-      ease: 'none',
+      opacity: rnd(0.05, 0.3), duration: 0.08, ease: 'none',
       onComplete: () => gsap.to(p.el, { opacity: curOp, duration: 0.15, ease: 'power2.out' }),
     });
-    setTimeout(flicker, rnd(300, 1800)); // быстрее чем раньше
+    setTimeout(flicker, rnd(300, 1800));
   }
   setTimeout(flicker, 2000);
-
-
 
 })();
