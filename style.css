@@ -2558,7 +2558,14 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   gap: 28px;
   align-items: stretch;
 }
-.contact-left {\n  background: var(--surface);\n  border: 1px solid var(--border);\n  border-radius: var(--radius-xl);\n  padding: 24px 28px;\n  display: flex; flex-direction: column;\n  justify-content: center;\n}
+.contact-left {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 24px 28px;
+  display: flex; flex-direction: column;
+  justify-content: center;
+}
 .contact-info-title {
   font-size: clamp(20px, 2.2vw, 30px) !important;
   font-weight: 700; line-height: 1.25;
@@ -4118,6 +4125,8 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   background: linear-gradient(135deg, var(--accent-deeper) 0%, var(--accent) 60%, #4F87E8 100%) !important;
   border: none !important;
   position: relative; overflow: hidden;
+  justify-content: space-between !important;
+  padding: 32px !important;
 }
 .contact-left::before {
   content: '';
@@ -4153,6 +4162,7 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   background: linear-gradient(135deg, var(--accent-deeper) 0%, var(--accent) 60%, #4F87E8 100%) !important;
   border: none !important;
   position: relative; overflow: hidden;
+  padding: 32px !important;
 }
 .contact-form-wrap::before {
   background-image:
