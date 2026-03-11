@@ -4846,3 +4846,72 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   color: rgba(255,255,255,.25);
   flex-shrink: 0;
 }
+
+/* ══ EXCEL GREEN — глобальный класс для всех заголовков ══ */
+.excel-green {
+  color: #107c41;
+  font-weight: inherit;
+}
+
+/* ══ CALC RESULTS HEADER — стиль как у calc-header ══ */
+.calc-results-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 18px !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+.calc-res-header-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--accent-bg);
+  border: 1px solid rgba(59,111,212,.18);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.calc-res-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.calc-results-eyebrow {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: .07em !important;
+  text-transform: uppercase !important;
+  color: var(--accent) !important;
+  margin-bottom: 0 !important;
+}
+.calc-results-title {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: var(--text-primary) !important;
+  line-height: 1.2 !important;
+  letter-spacing: -.02em !important;
+}
+
+/* ══ CALC COMPARISON — белая обводка / белый текст / белая стрелка ══ */
+.calc-comparison {
+  border-top: 1px solid rgba(255,255,255,.2) !important;
+}
+.calc-cmp-bad {
+  background: rgba(255,255,255,.06) !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+}
+.calc-cmp-good {
+  background: rgba(255,255,255,.06) !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+}
+.calc-cmp-bad .calc-cmp-label,
+.calc-cmp-good .calc-cmp-label {
+  color: rgba(255,255,255,.55) !important;
+}
+.calc-cmp-val {
+  color: #fff !important;
+}
+.calc-cmp-arrow {
+  color: rgba(255,255,255,.55) !important;
+  font-size: 20px !important;
+}
