@@ -938,7 +938,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   .nav-burger { display: flex; }
   .nav-right .btn { display: none; }
   .nav-right .btn.nav-cta-mobile { display: inline-flex; }
-  .hero { padding: 56px 0 48px; }
+  .hero { padding: 16px 0 48px; }
   .hero-title { font-size: 28px; }
   .hero-lead { font-size: 15px; }
   .hero-cta { flex-direction: column; }
@@ -3087,8 +3087,9 @@ textarea.form-input { resize: vertical; min-height: 96px; line-height: 1.6; }
   .demo-section { padding: 0 0 56px !important; }
 
   /* hero */
-  .hero-inner { grid-template-columns: 1fr !important; gap: 36px !important; }
-  .hero-visual { order: 1; }
+  .hero-inner { grid-template-columns: 1fr !important; gap: 24px !important; }
+  .hero-visual { order: -1; width: 100%; max-width: 100%; overflow: hidden; }
+  .hero-content { order: 1; }
   .hero-title { font-size: clamp(22px, 6vw, 30px) !important; }
   .hero-lead  { font-size: 15px !important; }
   .hero-cta   { flex-direction: column; }
